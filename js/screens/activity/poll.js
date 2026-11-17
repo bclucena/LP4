@@ -7,6 +7,7 @@ import { poll as P, openPoll as OP } from '../../data/activity.js';
 import { upd, finish, later, fx } from './flow.js';
 import { sfx, tones } from '../../core/sound.js';
 import { pill } from '../../components/badges.js';
+import { head } from './head.js';
 
 const LETTERS = 'ABCDEF';
 const fmt = n => n.toLocaleString('pt-BR');
@@ -32,11 +33,7 @@ function pollView(state) {
   }).join('');
   const note = voted ? 'Obrigado por participar! Seu voto já está contabilizado.' : p.pick != null ? 'Você pode trocar a escolha antes de votar · Enter confirma' : 'Toque numa alternativa ou use as teclas A a F';
   return `<section class="c-act-card c-act-poll" aria-label="Enquete">
-    <div class="c-act-card__head">
-      <div class="c-act-card__bar"><span class="c-act-card__kicker">${voted ? 'Resultado parcial da enquete' : 'Escolha uma alternativa'}</span>${pill({ color: 'grey', iconName: 'users', label: `${fmt(total)} votos` })}</div>
-      <h2 class="c-act-card__title c-act-card__title--lg">${esc(P.question)}</h2>
-      <span class="c-act-card__lead c-act-card__lead--muted">Enquete de opinião · não existe resposta certa</span>
-    </div>
+    ${head({ kicker: voted ? 'Enquete · resultado parcial' : 'Enquete · escolha uma alternativa, não existe resposta certa', title: esc(P.question), aside: pill({ color: 'grey', iconName: 'users', label: `${fmt(total)} votos` }) })}
     <div class="c-act-poll__opts" role="radiogroup" aria-label="Alternativas da enquete">${opts}</div>
     <p class="${cx('c-act-card__lead c-act-card__lead--muted', voted && 'c-act-tone--success-strong')}" aria-live="polite">${note}</p>
   </section>`;
@@ -113,10 +110,7 @@ function openView(state) {
         </div>
       </div>`;
   return `<section class="c-act-card c-act-open" aria-label="Enquete aberta">
-    <div class="c-act-card__head">
-      <span class="c-act-card__kicker">Enquete · questão aberta</span>
-      <h2 class="c-act-card__title c-act-card__title--lg" id="act-open-q">${esc(OP.question)}</h2>
-    </div>
+    ${head({ kicker: 'Enquete · questão aberta, escreva sua resposta', title: esc(OP.question), id: 'act-open-q' })}
     ${body}
   </section>`;
 }

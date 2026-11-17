@@ -316,9 +316,10 @@ function pinInfo(it) {
     title = a.title;
     const r = pinRewards(a);
     const got = done; // concluída: recebeu o máximo
-    rewards = `<span class="c-board-tip__rewards">
-        <span class="c-board-tip__reward">${icon('star', 16)}<span><b>${fmtInt(got ? r.pts : 0)}</b>/${fmtInt(r.pts)}</span><span class="u-sr-only"> pontos</span></span>
-        <span class="c-board-tip__reward">${lpIcon('coin', 16)}<span><b>${fmtInt(got ? r.coins : 0)}</b>/${fmtInt(r.coins)}</span><span class="u-sr-only"> moedas</span></span>
+    // Pílula de pontos e moedas da lista de atividades do Curso (.c-cd-tl__rewards).
+    rewards = `<span class="c-cd-tl__rewards c-board-tip__rewards">
+        <span title="Pontos">${icon('star', 14)}<b>${fmtInt(got ? r.pts : 0)}</b>/${fmtInt(r.pts)}<span class="u-sr-only"> pontos</span></span>
+        <span title="Moedas">${lpIcon('coin', 14)}<b>${fmtInt(got ? r.coins : 0)}</b>/${fmtInt(r.coins)}<span class="u-sr-only"> moedas</span></span>
       </span>`;
     status = done
       ? ['done', 'check-circle', 'Concluída']
@@ -343,9 +344,9 @@ function pinTip(it, id) {
   const side = it.off > 0 ? 'left' : 'right';
   const n = pinInfo(it);
   const wide = [...n.title].length > TIP_WIDE_AT;
-  return `<span class="${cx('c-board-tip', `c-board-tip--${side}`, wide && 'c-board-tip--wide')}" role="tooltip" id="${id}">
-      <span class="c-board-tip__kicker">${pinKindIcon(it, 14)}<span>${esc(n.kicker)}</span></span>
-      <span class="c-board-tip__title">${esc(n.title)}</span>
+  return `<span class="${cx('c-board-tip', `c-board-tip--${side}`, wide && 'c-board-tip--wide', n.tone === 'locked' && 'c-board-tip--locked')}" role="tooltip" id="${id}">
+      <span class="c-cd-tl__head c-board-tip__head">${pinKindIcon(it, 14)}<span class="c-cd-tl__title c-board-tip__title">${esc(n.title)}</span></span>
+      <span class="c-cd-tl__kicker c-board-tip__kicker"><span>${esc(n.kicker)}</span></span>
       ${n.rewards}
       ${n.statusHtml}
     </span>`;
@@ -441,6 +442,7 @@ function band(state, p, desk) {
    Medidas do Figma (1440, trilha de 832): estrada a 84 da borda, curvas de 44, 1º pin a 72 da estrada, fileiras a 116,
    1ª fileira 114 abaixo do cartão e o cartão seguinte 92 abaixo da última fileira. Fileira com menos de 5 pins: eles se
    espalham entre o 1º e o último lugar. */
+const DOCK_PUSH = 348; // dock aberto (desktop): cartão de 300 a 24 da borda + 24 de respiro (css .is-dock-open)
 const B_MAX = 832; // largura máxima da trilha B (a do cartão do módulo)
 const B_R = 44; // raio das curvas
 const B_STEP = 116; // distância entre fileiras (linha de 110 + 6)
@@ -512,7 +514,8 @@ function trailBLayout(p, bw, compact, cardHs) {
   const xb = bw - xa; // centro do último
   const minGap = c ? (compact ? 104 : 124) : 88;
   const perRow = Math.max(2, Math.min(5, Math.floor((xb - xa) / minGap) + 1));
-  const step = B_STEP + (c ? C_LABEL : 0); // distância entre fileiras
+  // Distância entre fileiras. Versão C: 50% maior (132 → 198) para as fileiras respirarem.
+  const step = c ? Math.round((B_STEP + C_LABEL) * 1.5) : B_STEP;
   const gap = (xb - xa) / (perRow - 1);
   const items = [];
   let road = '';
@@ -969,11 +972,9 @@ function dockPanel(state, p) {
       <b>${d.pct}%</b>
     </span>`;
   if (!open) {
+    // Recolhido: só um FAB com o anel de progresso (o nome do curso fica no rótulo acessível e no title).
     return `<aside class="${cx('c-board-dock c-board-dock--closed', state.fresh && 'is-entering')}" aria-label="Curso">
-      <button type="button" class="c-board-dock__toggle" data-action="toggleDock" tabindex="-1" aria-hidden="true" title="Mostrar o curso">${icon('chevron-up', 14)}</button>
-      <button type="button" class="c-board-dock__pill" data-action="toggleDock" aria-expanded="false" aria-controls="board-dock" title="Mostrar o curso">
-        ${ring}<span class="c-board-dock__pill-title">${esc(course.title)}</span>${icon('chevron-up', 16)}
-      </button>
+      <button type="button" class="c-board-dock__pill c-board-dock__fab" data-action="toggleDock" aria-expanded="false" aria-controls="board-dock" aria-label="Mostrar o curso ${esc(course.title)} (${d.pct}% concluído)" title="Mostrar o curso">${ring}</button>
     </aside>`;
   }
   // Aberto: a capa do curso em cima, o título inteiro (sem reticências), "N módulos · tempo" e o progresso do card do curso
@@ -982,12 +983,12 @@ function dockPanel(state, p) {
   // do curso perde a capa, o progresso, o botão e a moldura (as informações usam a largura toda). O botão de recolher fica fora
   // do cartão, à direita do topo.
   const tab = state.dockTab === 'materiais' ? 'materiais' : 'sobre';
-  const tabs = [['sobre', 'Sobre o curso', 0], ['materiais', 'Materiais', materials.length]];
+  const tabs = [['sobre', 'Sobre', 0], ['materiais', 'Materiais', materials.length]];
   const body = tab === 'sobre'
-    ? `${summary(d, { cover: false, progress: false, cta: false, rewards: false })}${sideAboutCourse(d)}${description(d, false)}${sideCategories()}`
+    ? `${summary(d, { cover: false, progress: false, cta: false, rewards: false })}${sideAboutCourse(d, { title: false })}${description(d, false)}${sideCategories()}`
     : materialsSection(d);
   return `<aside class="${cx('c-board-dock c-board-dock--tabs', state.fresh && 'is-entering')}" id="board-dock" aria-label="Curso">
-    <button type="button" class="c-board-dock__toggle" data-action="toggleDock" aria-expanded="true" aria-controls="board-dock" aria-label="Recolher" title="Recolher">${icon('chevron-down', 14)}</button>
+    <button type="button" class="c-board-dock__toggle" data-action="toggleDock" aria-expanded="true" aria-controls="board-dock" aria-label="Recolher" title="Recolher">${icon('chevron-up', 14)}</button>
     <div class="c-board-dock__card">
       <div class="c-board-dock__course">
         <img class="c-board-dock__cover" style="--i:0" src="${esc(course.cover)}" alt="" />
@@ -1046,7 +1047,7 @@ function view(state) {
   const main = `<main class="c-board__main">${state.loading ? skeleton() : trail(state, p, desk)}</main>`;
   const mobileTop = desk ? '' : `<nav class="c-cd-mback" aria-label="Voltar"><a class="c-cd-mback__link" href="#cursos">${icon('arrow-left', 16)}Voltar</a></nav>
     ${mobileTabs({ tab: state.tab }, { total: activities.length, materials })}`;
-  return `<div class="${cx('c-board', desk && 'c-board--desk', desk && state.panelHidden && 'is-panel-hidden', look.trilha !== 'a' && 'c-board--b', isCD() && 'c-board--c', look.trilha === 'd' && 'c-board--d', look.custom && 'c-board--bg', look.custom && look.image && 'c-board--bg-image', look.dark && 'is-on-dark', look.modern && 'c-board--modern', desk && look.float && 'c-board--float', desk && look.hud && 'c-board--hud', desk && look.dock && 'c-board--dock')}" data-reveal="content" style="${coverVars(look)}">
+  return `<div class="${cx('c-board', desk && 'c-board--desk', desk && state.panelHidden && 'is-panel-hidden', look.trilha !== 'a' && 'c-board--b', isCD() && 'c-board--c', look.trilha === 'd' && 'c-board--d', look.custom && 'c-board--bg', look.custom && look.image && 'c-board--bg-image', look.dark && 'is-on-dark', look.modern && 'c-board--modern', desk && look.float && 'c-board--float', desk && look.hud && 'c-board--hud', desk && look.dock && 'c-board--dock', desk && look.dock && !state.dockClosed && 'is-dock-open')}" data-reveal="content" style="${coverVars(look)}">
     ${showTrail ? background(look) : ''}
     ${mobileTop}
     ${desk
@@ -1212,8 +1213,16 @@ const actions = {
     if (dock?.classList.contains('is-leaving')) return;
     const swap = () => {
       if (ctx.destroyed) return;
+      // A trilha desliza para o novo lugar (o cartão aberto a empurra para a esquerda; recolhido, ela volta ao centro): FLIP —
+      // mede a posição antes e depois do render e anima a diferença em 600ms ease-in-out.
+      const before = ctx.root.querySelector('.c-board-btrail')?.getBoundingClientRect().left;
       ctx.set({ dockClosed: closing, fresh: true });
       ctx.state.fresh = false;
+      const main = ctx.root.querySelector('.c-board__main');
+      const after = ctx.root.querySelector('.c-board-btrail')?.getBoundingClientRect().left;
+      if (main && before != null && after != null && Math.abs(before - after) > 1 && !reducedMotion()) {
+        main.animate([{ transform: `translateX(${Math.round(before - after)}px)` }, { transform: 'none' }], { duration: 600, easing: 'cubic-bezier(0.42, 0, 0.58, 1)' });
+      }
       ctx.root.querySelector('[data-action="toggleDock"]:not([tabindex="-1"])')?.focus({ preventScroll: true });
     };
     if (!dock || reducedMotion()) return swap();
@@ -1318,8 +1327,14 @@ function measureTrailB(ctx) {
   if (!main) return;
   // Versão C com a barra integrada: o cartão do módulo tem 68% da largura da barra do curso (32% menor). O cartão fica entre as
   // descidas da estrada (bw - 2 × (estrada + curva)), então a trilha cresce ou diminui para o cartão ter essa largura.
-  const hud = minWidth(DESK) && looksFromHash().trilha === 'c' ? ctx.root.querySelector('.c-board-hud') : null;
-  const max = hud ? trailWidthForCard(Math.round(hud.offsetWidth * 0.68)) : B_MAX;
+  // No dock não há barra: usa a largura que ela teria (a da área menos 144, até 1120; css .c-board-hudwrap), para os pins terem
+  // o mesmo espaçamento e o cartão do módulo o mesmo tamanho da barra integrada.
+  const c = minWidth(DESK) && looksFromHash().trilha === 'c';
+  const hud = c ? ctx.root.querySelector('.c-board-hud') : null;
+  // Com o dock aberto a área perde DOCK_PUSH (o cartão empurra a trilha); a conta usa a largura sem ele.
+  const dockOpen = looksFromHash().dock && !ctx.state.dockClosed;
+  const hudW = hud ? hud.offsetWidth : c && looksFromHash().dock ? Math.min(main.clientWidth + (dockOpen ? DOCK_PUSH : 0) - 144, 1120) : 0;
+  const max = hudW > 0 ? trailWidthForCard(Math.round(hudW * 0.68)) : B_MAX;
   const bw = Math.min(max, Math.floor(main.clientWidth));
   if (bw > 0 && bw !== ctx.state.bw) ctx.set({ bw });
 }

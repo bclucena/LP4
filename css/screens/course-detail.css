@@ -580,6 +580,12 @@
   gap: 8px;
 }
 
+/* Divisória de 1px entre os materiais (8 de espaço acima e abaixo da linha). */
+.c-cd-materials > li + li {
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border-default);
+}
+
 .c-cd-material {
   display: flex;
   align-items: center;
@@ -1361,16 +1367,30 @@ a.c-cd-material:active .c-cd-material__action { background-color: var(--color-su
   min-width: 0;
 }
 
+/* Título em cima (com o ícone do tipo à esquerda, na mesma posição de antes) e informações embaixo, alinhadas ao texto do título. */
+.c-cd-tl__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  color: var(--color-text-secondary);
+}
+
+.c-cd-tl__head > .c-icon,
+.c-cd-tl__head > svg { flex: none; width: 14px; height: 14px; margin-top: 3px; }
+
+.c-cd-tl__item--current .c-cd-tl__head { color: var(--color-text-brand); }
+.c-cd-tl__item--locked .c-cd-tl__head { color: var(--color-text-tertiary); }
+
 .c-cd-tl__kicker {
   display: flex;
   align-items: center;
   gap: 4px;
+  margin-left: 18px; /* alinhado ao título: ícone de 14 + 4 */
   color: var(--color-text-secondary);
   font-size: 11px;
   line-height: 14px;
   font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
 }
 
 .c-cd-tl__kicker .c-icon,
@@ -1403,8 +1423,8 @@ a.c-cd-material:active .c-cd-material__action { background-color: var(--color-su
 
 .c-cd-tl__title {
   overflow: hidden;
-  margin-left: 18px; /* alinhado ao texto do tipo ("Atividade 1"): ícone de 14 + 4 */
-  color: var(--color-text-default);
+  min-width: 0;
+  color: var(--color-text-primary); /* concluídas, liberadas e em andamento com o mesmo estilo (14/20 700 text-primary) */
   font-size: 14px;
   line-height: 20px;
   font-weight: 700;
@@ -1412,8 +1432,6 @@ a.c-cd-material:active .c-cd-material__action { background-color: var(--color-su
   text-overflow: ellipsis;
 }
 
-.c-cd-tl__item--done .c-cd-tl__title { color: var(--color-text-secondary); font-weight: 600; }
-.c-cd-tl__item--current .c-cd-tl__title { color: var(--color-text-primary); }
 .c-cd-tl__item--current .c-cd-tl__kicker { color: var(--color-text-brand); }
 .c-cd-tl__item--locked :is(.c-cd-tl__title, .c-cd-tl__kicker) { color: var(--color-text-tertiary); }
 

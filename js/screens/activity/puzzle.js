@@ -10,6 +10,7 @@ import { pointerDrag, dragged } from './drag.js';
 import { sfx, tones } from '../../core/sound.js';
 import { button } from '../../components/button.js';
 import { pill } from '../../components/badges.js';
+import { head } from './head.js';
 
 const N = Z.cols * Z.rows;
 const pos = p => `${((p % Z.cols) / (Z.cols - 1)) * 100}% ${(Math.floor(p / Z.cols) / (Z.rows - 1)) * 100}%`;
@@ -37,10 +38,7 @@ function view(state) {
   }).join('');
   const hintOff = z.done || state.coins < Z.hintCost;
   return `<section class="c-act-card c-act-puz" aria-label="Quebra-cabeça">
-    <div class="c-act-card__bar c-act-card__bar--end">
-      <div class="c-act-card__head"><span class="c-act-card__kicker">Arraste uma peça sobre outra para trocá-las de lugar · ou toque em duas peças</span><h2 class="c-act-card__title">Reorganize as peças e monte a imagem do curso de LGPD</h2></div>
-      <div class="c-act-card__pills">${pill({ color: 'green', iconName: 'check', label: `${n}/${N} no lugar` })}${pill({ color: 'grey', outline: true, label: plural(z.moves, 'troca', 'trocas') })}</div>
-    </div>
+    ${head({ kicker: 'Arraste uma peça sobre outra para trocá-las de lugar · ou toque em duas peças', title: 'Reorganize as peças e monte a imagem do curso de LGPD', aside: `${pill({ color: 'green', iconName: 'check', label: `${n}/${N} no lugar` })}${pill({ color: 'grey', outline: true, label: plural(z.moves, 'troca', 'trocas') })}` })}
     <div class="c-act-msg" aria-live="polite">${z.msg ? toast(z.msg.t, z.msg.ok ? 'ok' : 'bad', fx(state, 'puzSnap')) : toast('Peças no lugar certo travam com ✓. Comece pelos cantos')}</div>
     <div class="c-act-card__center">
       <div class="${cx('c-act-puz__board', z.done && 'is-done', z.done && fx(state, 'puzSnap') && 'is-glow')}" data-puz-board>

@@ -8,6 +8,7 @@ import { upd, finish, later, fx, plural, toast, streakOn } from './flow.js';
 import { sfx, tones } from '../../core/sound.js';
 import { button } from '../../components/button.js';
 import { pill } from '../../components/badges.js';
+import { head } from './head.js';
 
 const TOL = 2.5;
 const init = () => ({ found: [], miss: 0, missAt: null, hint: null, sec: 0, on: false, msg: null });
@@ -45,13 +46,10 @@ function view(state) {
   const dots = S.diffs.map((_, k) => `<span class="${cx('c-act-dot c-act-dot--sm', k < sp.found.length && 'is-ok')}"></span>`).join('');
   const hintOff = done || state.coins < S.hintCost || sp.hint != null;
   return `<section class="c-act-card c-act-spot" aria-label="Jogo dos 7 erros">
-    <div class="c-act-card__bar c-act-card__bar--end">
-      <div class="c-act-card__head"><span class="c-act-card__kicker">Toque nas diferenças em qualquer uma das imagens</span><h2 class="c-act-card__title">Encontre os 7 erros entre as imagens</h2></div>
-      <div class="c-act-card__pills">
+    ${head({ kicker: 'Toque nas diferenças em qualquer uma das imagens', title: 'Encontre os 7 erros entre as imagens', aside: `
         ${pill({ color: 'grey', outline: true, html: `<span class="c-act-dots">${dots}</span><b class="c-act-tone--success">${sp.found.length}/${S.diffs.length}</b>`, attrs: { title: 'Erros encontrados' } })}
         ${pill({ color: sp.miss > 5 ? 'red' : 'grey', outline: true, label: plural(sp.miss, 'toque errado', 'toques errados') })}
-      </div>
-    </div>
+      ` })}
     <div class="c-act-msg" aria-live="polite">${sp.msg ? toast(sp.msg.t, sp.msg.ok ? 'ok' : 'bad', fx(state, 'spotMsg')) : toast('Os erros podem estar em cores, formas, objetos a mais ou a menos')}</div>
     <div class="${cx('c-act-spot__board', done && 'is-done', done && fx(state, 'spotMsg') && 'is-glow')}">
       ${picture(state, 'Original', false)}

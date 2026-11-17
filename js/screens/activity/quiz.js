@@ -1,4 +1,4 @@
-/* Quiz: perguntas com 20s cada. Escolhe (clique ou teclas 1–4), confirma em "Continuar", vê certo/errado no rodapé.
+/* Quiz: perguntas com 20s cada. Escolhe (clique, teclas 1–4 ou A–D), confirma em "Continuar", vê certo/errado no rodapé.
    Acerto soma 30 + 5 por sequência e 10 moedas; erro ou tempo esgotado tira uma vida.
    Dois quizzes usam o mesmo modelo (makeQuiz):
    - 1. Quiz de aquecimento: só a pergunta e as alternativas.
@@ -10,6 +10,11 @@ import { quiz as QUIZ, quizSupport as QUIZ_SUPPORT, QUIZ_TIME } from '../../data
 import { upd, finish, fx } from './flow.js';
 import { figure, code } from './reading.js';
 import { sfx } from '../../core/sound.js';
+import { head } from './head.js';
+
+const LETTERS = 'ABCDEF';
+/** Tecla → índice da alternativa: 1–6 ou A–F. */
+const keyIndex = k => (/^[1-6]$/.test(k) ? Number(k) - 1 : 'abcdef'.indexOf(k.toLowerCase()));
 
 function makeQuiz({ id, key, items, label }) {
   const A = { choose: `${key}Choose`, go: `${key}Continue` }; // nomes das ações (únicos entre as mecânicas)
@@ -20,7 +25,7 @@ function makeQuiz({ id, key, items, label }) {
   const support = (item, q) => (item.img ? `<div class="c-act-quiz__support">
       ${figure({ src: item.img, alt: item.alt ?? item.t }, 'c-act-figure--wide')}
       <div class="c-act-slide__text">
-        <span class="c-act-read__kicker c-act-read__kicker--system">Pergunta ${q.qi + 1} de ${items.length}</span>
+        <span class="c-act-read__kicker c-act-read__kicker--system">Texto de apoio</span>
         <h3 class="c-act-slide__title">${esc(item.t)}</h3>
         <p class="c-act-read__p">${code(item.p)}</p>
       </div>
@@ -35,15 +40,13 @@ function makeQuiz({ id, key, items, label }) {
       const sel = !q.answered && q.sel === i;
       const pulse = fx(state, `${key}Answer`) && i === q.picked;
       return `<button type="button" role="radio" aria-checked="${sel || (q.answered && i === q.picked)}" class="${cx('c-act-option', sel && 'is-selected', right && 'is-right', wrong && 'is-wrong', q.answered && !right && !wrong && 'is-dim', pulse && 'is-pulse')}" data-action="${A.choose}" data-i="${i}" ${q.answered ? 'tabindex="-1"' : ''}>
+        ${right ? icon('check-circle', 24, 'c-act-option__mark') : wrong ? icon('x-circle', 24, 'c-act-option__mark') : `<span class="c-act-option__letter" aria-hidden="true">${LETTERS[i]}</span>`}
         <span class="c-act-option__text">${esc(text)}</span>
-        ${right ? icon('check-circle', 20, 'c-act-option__mark') : wrong ? icon('x-circle', 20, 'c-act-option__mark') : `<span class="c-act-option__num" aria-hidden="true">${i + 1}</span>`}
       </button>`;
     }).join('');
-    // Mesmo card e cabeçalho das demais mecânicas: instrução (kicker) e pergunta (título) à esquerda, na largura da coluna.
-    const kicker = item.img ? 'Escolha uma alternativa' : `Pergunta ${q.qi + 1} de ${items.length} · Escolha uma alternativa`;
     return `<section class="${cx('c-act-card c-act-quiz', item.img && 'c-act-quiz--support')}" aria-label="${label}">
       ${support(item, q)}
-      <div class="c-act-card__head"><span class="c-act-card__kicker">${kicker}</span><h2 class="c-act-card__title c-act-quiz__q">${esc(item.q)}</h2></div>
+      ${head({ kicker: `Pergunta ${q.qi + 1} de ${items.length} · Escolha uma alternativa`, title: esc(item.q) })}
       <div class="c-act-quiz__options" role="radiogroup" aria-label="Alternativas">${options}</div>
     </section>`;
   }
@@ -124,8 +127,8 @@ function makeQuiz({ id, key, items, label }) {
 
   function keys(ctx, e) {
     const q = ctx.state[key];
-    const n = Number(e.key);
-    if (n >= 1 && n <= current(q).o.length) { if (!q.answered) upd(ctx, key, { sel: n - 1 }); return true; }
+    const i = e.key.length === 1 ? keyIndex(e.key) : -1;
+    if (i >= 0 && i < current(q).o.length) { if (!q.answered) upd(ctx, key, { sel: i }); return true; }
     if (e.key === 'Enter' && ctx.state.justDone !== id) { proceed(ctx); return true; }
     return false;
   }

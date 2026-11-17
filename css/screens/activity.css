@@ -9,6 +9,8 @@
 /* ==================== Layout ==================== */
 .c-act {
   --act-pad-x: 8px;
+  /* Largura da coluna de conteúdo (e da barra de desempenho e do rodapé, que acompanham): 1040px − 24% ≈ 792px. */
+  --act-col: 792px;
   --act-hud-top: 52px;
   display: flex;
   flex-direction: column;
@@ -43,7 +45,7 @@
   flex-direction: column;
   gap: 16px;
   width: 100%;
-  max-width: 1040px;
+  max-width: var(--act-col);
   /* Sempre no topo da coluna (antes as mecânicas curtas ficavam centralizadas na altura e as longas no topo). */
   margin: 0 auto;
 }
@@ -403,7 +405,7 @@
   justify-content: space-between;
   gap: 8px 12px;
   width: 100%;
-  max-width: 1040px;
+  max-width: var(--act-col);
   padding: 12px 12px 12px 16px;
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-3xl);
@@ -472,8 +474,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px 16px;
-  /* Mesma largura e borda da coluna de conteúdo (1040 + o respiro lateral da tela). */
-  max-width: calc(1040px + 2 * var(--act-pad-x));
+  /* Mesma largura e borda da coluna de conteúdo (--act-col + o respiro lateral da tela). */
+  max-width: calc(var(--act-col) + 2 * var(--act-pad-x));
   min-height: 80px;
   margin: 0 auto;
   padding: 24px var(--act-pad-x);
@@ -825,22 +827,38 @@
   align-items: center;
   gap: 16px;
   width: 100%;
-  min-height: 64px;
   padding: 16px 20px;
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-xl);
-  background-color: var(--color-surface-elevated);
+  background-color: var(--color-background-default);
   text-align: left;
   transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s, opacity 0.2s;
 }
 
 .c-act-option:not(.is-right, .is-wrong, .is-dim, .is-selected):hover { background-color: var(--color-background-subtle); }
 .c-act-option__text { flex: 1; min-width: 0; color: var(--color-text-primary); font-size: 16px; line-height: 24px; }
-.c-act-option__num { flex: none; min-width: 16px; color: var(--color-text-secondary); font-size: 14px; line-height: 20px; font-weight: 500; font-variant-numeric: tabular-nums; text-align: right; }
+/* Letra da alternativa: círculo de 24px com borda (Figma "circle"), body-medium 14/20 500 secundário. Compartilhado com a Enquete. */
+.c-act-option__letter,
+.c-act-poll__letter {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 999px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
 .c-act-option__mark { flex: none; }
 
 .c-act-option.is-selected { border-color: var(--color-action); background-color: var(--color-surface-system-subtle); box-shadow: inset 0 0 0 1px var(--color-action); }
-.c-act-option.is-selected .c-act-option__num { color: var(--color-text-brand); }
+.c-act-option.is-selected .c-act-option__letter { border-color: var(--color-action); background-color: var(--color-action); color: var(--color-on-action); }
 .c-act-option.is-right { --ring: var(--color-border-success); border-color: var(--ring); background-color: var(--color-background-success); box-shadow: inset 0 0 0 1px var(--ring); cursor: default; }
 .c-act-option.is-right .c-act-option__mark { color: var(--color-icon-success); }
 .c-act-option.is-wrong { --ring: var(--color-border-error); border-color: var(--ring); background-color: var(--color-background-error); box-shadow: inset 0 0 0 1px var(--ring); cursor: default; }
@@ -864,20 +882,13 @@
 .c-act-read__block { gap: 24px; }
 .c-act-read__block--narrow { width: 100%; max-width: 720px; margin: 0 auto; }
 
-.c-act-read__meta { display: flex; flex-wrap: wrap; gap: 8px 16px; color: var(--color-text-secondary); font-size: 14px; line-height: 20px; font-weight: 600; }
-.c-act-read__meta span { display: inline-flex; align-items: center; gap: 4px; }
 
 .c-act-read__h {
   color: var(--color-text-primary);
   font-size: 20px;
   line-height: 32px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  font-weight: 700;
   text-wrap: balance;
-}
-
-@media (min-width: 768px) {
-  .c-act-read__h { font-size: 30px; line-height: 40px; }
 }
 
 .c-act-read__p { color: var(--color-text-default); font-size: 16px; line-height: 28px; text-wrap: pretty; }
@@ -1818,14 +1829,13 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   width: 100%;
-  min-height: 60px;
-  padding: 10px 16px 10px 12px;
+  padding: 16px 20px;
   overflow: hidden;
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-xl);
-  background-color: var(--color-surface-elevated);
+  background-color: var(--color-background-default);
   text-align: left;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -1840,27 +1850,9 @@
 .c-act-poll__opt.is-grow .c-act-poll__bar { animation: act-bar-grow 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) var(--d) both; }
 .c-act-poll__opt.is-grow .c-act-poll__pct { animation: act-toast-in 0.3s ease-out var(--d) both; }
 
-.c-act-poll__letter {
-  position: relative;
-  display: flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: 2px solid var(--color-border-default);
-  border-radius: 999px;
-  background-color: var(--color-surface-elevated);
-  color: var(--color-text-default);
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 700;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
-}
-
 .c-act-poll__opt.is-selected .c-act-poll__letter { border-color: var(--color-action); background-color: var(--color-action); color: var(--color-on-action); }
 
-.c-act-poll__text { position: relative; display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; color: var(--color-text-primary); font-size: 16px; line-height: 24px; font-weight: 600; text-wrap: pretty; }
+.c-act-poll__text { position: relative; display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; color: var(--color-text-primary); font-size: 16px; line-height: 24px; font-weight: 400; text-wrap: pretty; }
 .c-act-poll__text b { color: var(--color-text-brand-strong); font-size: 12px; line-height: 16px; }
 
 .c-act-poll__pct { position: relative; display: flex; flex: none; flex-direction: column; align-items: flex-end; }
@@ -2319,8 +2311,8 @@
 .c-act-bone-cover { height: 180px; border-radius: 0; }
 .c-act--side .c-act-bone-cover { height: 232px; }
 .c-act-bone-item { height: 36px; margin: 0 20px; }
-.c-act-bone-hud { width: 100%; max-width: 1040px; height: 60px; margin: 0 auto; border-radius: var(--radius-3xl); }
-.c-act-bone-content { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; width: 100%; max-width: 1040px; margin: 0 auto; }
+.c-act-bone-hud { width: 100%; max-width: var(--act-col); height: 60px; margin: 0 auto; border-radius: var(--radius-3xl); }
+.c-act-bone-content { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; width: 100%; max-width: var(--act-col); margin: 0 auto; }
 .c-act-bone-content .c-bone { height: 24px; }
 .c-act-bone-content .c-act-bone-option { width: 100%; height: 64px; border-radius: var(--radius-xl); }
 .c-act-bone-content .c-bone:nth-child(2) { margin-bottom: 16px; }
@@ -2647,4 +2639,48 @@ html:has(.c-act)::-webkit-scrollbar-thumb:hover { background-color: var(--color-
   gap: 24px;
   padding-bottom: 24px;
   border-bottom: 1px solid var(--color-border-default);
+}
+
+/* Cabeçalho único das mecânicas (head.js): instrução + contadores na linha de cima (sempre 32px), título abaixo. */
+.c-act-head { gap: 4px; }
+.c-act-head__top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; min-height: 32px; }
+.c-act-head__top > .c-act-card__kicker { flex: 1 1 240px; min-width: 0; }
+.c-act-head__top > .c-act-card__pills { justify-content: flex-end; }
+.c-act-head .c-act-card__kicker b { color: var(--color-text-primary); font-weight: 700; }
+
+/* ==================== Apresentação da atividade (intro.js; Figma LP-DesignSystem 4.0, node 5213:1953) ==================== */
+/* Sem menu e sem barra de desempenho; o texto fica numa coluna de 640px, centralizado na altura livre. */
+.c-act--intro .c-act__body { position: relative; }
+.c-act--intro .c-act__content { max-width: 640px; margin: auto; padding: 24px 0; }
+
+.c-act-intro { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.c-act-intro__kicker { color: var(--color-text-brand); font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: 1px; }
+.c-act-intro__title { color: var(--color-text-primary); font-size: 24px; line-height: 32px; font-weight: 800; letter-spacing: -0.01em; text-wrap: balance; }
+.c-act-intro__p { color: var(--color-text-default); font-size: 16px; line-height: 28px; text-wrap: pretty; }
+
+/* X = buttonIcon large com contorno do design system, no canto superior direito (só a partir de 768; abaixo há o "Voltar"). */
+.c-act-intro__close { display: none; position: absolute; top: 24px; right: 16px; z-index: 2; box-shadow: var(--shadow-sm); }
+
+@media (min-width: 768px) {
+  .c-act-intro__title { font-size: 30px; line-height: 40px; }
+  .c-act-intro__close { display: inline-flex; }
+}
+
+/* Entrada na mecânica (is-enter, um render depois de "Iniciar"): o menu abre da esquerda e a barra desce, em 600ms ease-in-out,
+   junto com a app bar que sobe (css/shell.css). */
+.c-act.is-enter.c-act--side:not(.is-collapsed) .c-act__side { animation: act-side-in 600ms ease-in-out both; }
+.c-act.is-enter.c-act--side:not(.is-collapsed) .c-act-trail { animation: act-trail-in 600ms ease-in-out both; }
+.c-act.is-enter .c-act-hudrow { animation: act-hud-in 600ms ease-in-out both; }
+.c-act.is-enter .c-act-sidetoggle { animation: act-fade-in 600ms ease-in-out both; }
+
+@keyframes act-side-in { from { width: 0; } }
+@keyframes act-trail-in { from { transform: translateX(-100%); } }
+@keyframes act-hud-in { from { opacity: 0; transform: translateY(-16px); } }
+@keyframes act-fade-in { from { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .c-act.is-enter .c-act__side,
+  .c-act.is-enter .c-act-trail,
+  .c-act.is-enter .c-act-hudrow,
+  .c-act.is-enter .c-act-sidetoggle { animation: none; }
 }

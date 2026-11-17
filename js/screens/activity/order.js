@@ -10,6 +10,7 @@ import { upd, finish, later, fx, shuffle, toast, streakOn } from './flow.js';
 import { pointerDrag, dragged } from './drag.js';
 import { sfx, tones } from '../../core/sound.js';
 import { button } from '../../components/button.js';
+import { head } from './head.js';
 
 const text = id => O.items.find(o => o.id === id).t;
 const init = () => ({ ans: [], bank: shuffle(O.items.map(o => o.id)), res: null, tries: 0, msg: null });
@@ -26,10 +27,7 @@ function view(state) {
   }).join('');
   const bank = o.bank.map(id => `<button type="button" class="c-act-chip-drag c-act-chip-drag--code" data-action="ordTap" data-id="${id}" data-drag-ord ${o.res ? 'data-fixed' : ''} aria-label="${esc(text(id))}, toque para adicionar">${icon('move', 16)}<span>${esc(text(id))}</span></button>`).join('');
   return `<section class="c-act-card c-act-ord" aria-label="Ordenadinho">
-    <div class="c-act-card__head">
-      <span class="c-act-card__kicker">Arraste as opções para a área de resposta na ordem certa · ou toque para adicionar</span>
-      <h2 class="c-act-card__title">${esc(O.question)}</h2>
-    </div>
+    ${head({ kicker: 'Arraste as opções para a área de resposta na ordem certa · ou toque para adicionar', title: esc(O.question) })}
     <div class="${cx('c-act-ord__layout', !img && 'c-act-ord__layout--solo')}">
       ${img ? `<div class="c-act-ord__support"><div class="c-act-placeholder" role="img" aria-label="Imagem de apoio">${icon('image', 32)}<span>Imagem de apoio (opcional)</span></div></div>` : ''}
       <div class="c-act-ord__panel">

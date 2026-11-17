@@ -6,11 +6,11 @@ import { icon } from '../../core/icons.js';
 import { reading as R, slides as SLIDES } from '../../data/activity.js';
 import { upd, finish, clock } from './flow.js';
 import { sfx } from '../../core/sound.js';
+import { head } from './head.js';
 
 /* Trechos com tags HTML viram <code> (o texto passa por esc antes). */
 export const code = text => esc(text).replace(/&lt;\/?[a-z][a-z0-9]*(?:(?!&gt;).)*?&gt;/g, m => `<code class="c-act-code">${m}</code>`);
 
-const meta = (time, extra) => `<div class="c-act-read__meta"><span>${icon('clock', 14)}${time}</span><span>${extra}</span></div>`;
 
 export const figure = (img, cls = '') => `<figure class="${cx('c-act-figure', cls)}">
   <img class="c-act-figure__img" src="${esc(img.src)}" alt="${esc(img.alt)}" loading="lazy" />
@@ -24,8 +24,7 @@ function readingView(state) {
   const r = state.read;
   return `<section class="c-act-read" data-read="2" aria-label="Leitura">
     <div class="c-act-read__intro">
-      ${meta('5 min de leitura', 'Texto, áudio, imagem e vídeo')}
-      <h2 class="c-act-read__h">O que torna uma página semântica?</h2>
+      ${head({ kicker: 'Leitura de 5 min · texto, áudio, imagem e vídeo', title: 'O que torna uma página semântica?' })}
       <p class="c-act-read__p">A Web Semântica permite que navegadores e motores de busca compreendam a estrutura e o significado real do conteúdo. Em vez de divs genéricas, tags estruturadas otimizam o SEO, a acessibilidade e a manutenção do código.</p>
     </div>
     <div class="c-act-read__gallery">${R.gallery.map(g => figure(g, 'c-act-figure--square')).join('')}</div>
@@ -95,8 +94,7 @@ function slidesView() {
     </article>`).join('');
   return `<section class="c-act-read" data-read="16" aria-label="Fundamentos de HTML e CSS">
     <div class="c-act-read__intro">
-      ${meta('8 min de leitura', `${SLIDES.length} tópicos`)}
-      <h2 class="c-act-read__h">Fundamentos de HTML e CSS</h2>
+      ${head({ kicker: `Slideshow de 8 min · ${SLIDES.length} tópicos`, title: 'Fundamentos de HTML e CSS' })}
       <p class="c-act-read__p">Do esqueleto da página ao seu visual: entenda como o HTML estrutura o conteúdo e como o CSS define a aparência e o layout.</p>
     </div>
     ${topics}

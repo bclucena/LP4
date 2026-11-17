@@ -8,6 +8,7 @@ import { place as P } from '../../data/activity.js';
 import { upd, finish, later, fx, shuffle, toast, streakOn } from './flow.js';
 import { pointerDrag, dragged } from './drag.js';
 import { sfx, tones } from '../../core/sound.js';
+import { head } from './head.js';
 
 const init = () => ({ placed: Object.fromEntries(shuffle(P.items).map((p, i) => [p.id, { z: 'bank', i }])), locked: {}, result: null, sel: null, tries: 0, msg: null });
 
@@ -39,10 +40,7 @@ function view(state) {
     </div>`;
   }).join('');
   return `<section class="c-act-card c-act-place" aria-label="No lugar">
-    <div class="c-act-card__head">
-      <span class="c-act-card__kicker">Arraste as opções e solte nos quadros corretos · ou toque na opção e depois no quadro</span>
-      <h2 class="c-act-card__title">${esc(P.question)}</h2>
-    </div>
+    ${head({ kicker: 'Arraste as opções e solte nos quadros corretos · ou toque na opção e depois no quadro', title: esc(P.question) })}
     <div class="c-act-place__zones">${zones}</div>
     <div class="c-act-bank" data-action="placeZone" data-zone="bank" data-drop-place="bank">
       <div class="c-act-bank__head"><b>Opções</b><span>${bank.length} de ${P.items.length} restantes</span></div>

@@ -7,6 +7,7 @@ import { words as WORDS, WS_SIZE as N } from '../../data/activity.js';
 import { upd, finish, later, streakOn } from './flow.js';
 import { sfx } from '../../core/sound.js';
 import { pill } from '../../components/badges.js';
+import { head } from './head.js';
 
 /** Monta a grade: palavras em ordem de leitura (→, ↓, ↘, ↗) e letras aleatórias no resto. */
 function buildGrid() {
@@ -42,10 +43,7 @@ function view(state) {
     return `<li class="${cx('c-act-ws__word', f && 'is-found')}">${esc(w)}${icon(f ? 'check-circle' : 'circle', 16)}</li>`;
   }).join('');
   return `<section class="c-act-card c-act-ws" aria-label="Caça-palavras">
-    <div class="c-act-card__bar">
-      <p class="c-act-card__lead">Clique e arraste da <b>primeira</b> até a <b>última letra</b> da palavra.</p>
-      ${pill({ color: 'yellow', iconName: 'award', label: `Palavras ${ws.found.length}/${WORDS.length}` })}
-    </div>
+    ${head({ kicker: 'Clique e arraste da <b>primeira</b> até a <b>última letra</b> da palavra', title: `Encontre as ${WORDS.length} palavras ocultas`, aside: pill({ color: 'yellow', iconName: 'award', label: `Palavras ${ws.found.length}/${WORDS.length}` }) })}
     <div class="c-act-ws__layout">
       <div class="c-act-ws__grid" data-ws-grid role="grid" aria-label="Grade de letras">${cells}</div>
       <div class="c-act-ws__words"><span class="c-act-ws__words-title">Palavras ocultas</span><ul>${list}</ul></div>

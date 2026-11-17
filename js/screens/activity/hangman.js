@@ -9,6 +9,7 @@ import { finish, later, fx, plural } from './flow.js';
 import { sfx } from '../../core/sound.js';
 import { button } from '../../components/button.js';
 import { pill } from '../../components/badges.js';
+import { head } from './head.js';
 
 const ANSWER = H.answer.toUpperCase();
 const LETTERS = ANSWER.replace(/ /g, '');
@@ -49,17 +50,11 @@ function view(state) {
       : '';
 
   return `<section class="c-act-card c-act-hang" aria-label="Emparedado">
-    <div class="c-act-card__head">
-      <span class="c-act-card__kicker">Descubra a palavra</span>
-      <h2 class="c-act-card__title">${esc(H.question)}</h2>
-      <div class="c-act-card__bar">
-        <div class="c-act-card__pills">
+    ${head({ kicker: 'Descubra a palavra · toque nas letras', title: esc(H.question), aside: `
           ${pill({ color: 'grey', label: `${H.answer.split(' ').length} palavras · ${LETTERS.length} letras` })}
           ${pill({ color: 'grey', label: `${revealed}/${LETTERS.length} descobertas` })}
-        </div>
         ${button({ variant: 'stroked', size: 'mobile', iconStart: 'help-circle', action: 'hangHint', disabled: hintOff, title: 'Revela uma letra da resposta', label: h.hints >= H.maxHints ? 'Dicas esgotadas' : `Dica · ${H.hintCost} moedas` })}
-      </div>
-    </div>
+      ` })}
     <div class="c-act-hang__layout">
       <div class="c-act-hang__stage">
         <div class="${cx('c-act-hang__frame', lost && 'is-lost', h.won && 'is-won', !lost && !h.won && left === 1 && 'is-warn', missFx && 'is-shake')}">

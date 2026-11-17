@@ -6,6 +6,7 @@ import { icon } from '../../core/icons.js';
 import { mosaic as M } from '../../data/activity.js';
 import { upd, finish, later, fx, toast, streakOn } from './flow.js';
 import { pill } from '../../components/badges.js';
+import { head } from './head.js';
 
 const TOTAL = M.cards.filter(c => c.ok).length;
 const BADGE = { sel: ['system', 'check'], ok: ['ok', 'check'], bad: ['bad', 'x'], miss: ['warn', 'alert-circle'] };
@@ -31,10 +32,7 @@ function view(state) {
       : `Você acertou ${okN} de ${TOTAL}. Os 4 princípios são perceptível, operável, compreensível e robusto${missN ? ' (os que faltaram estão em amarelo)' : ''}.`,
     perfect ? 'ok' : badN ? 'bad' : 'warn', fx(state, 'mosRev'));
   return `<section class="c-act-card c-act-mos" aria-label="Mosaico">
-    <div class="c-act-card__head">
-      <div class="c-act-card__bar"><span class="c-act-card__kicker">Selecione todos os cards que respondem à questão</span>${pill({ color: n ? 'system' : 'grey', label: `${n} ${n === 1 ? 'selecionado' : 'selecionados'}` })}</div>
-      <h2 class="c-act-card__title c-act-card__title--lg">${esc(M.question)}</h2>
-    </div>
+    ${head({ kicker: 'Selecione todos os cards que respondem à questão', title: esc(M.question), aside: pill({ color: n ? 'system' : 'grey', label: `${n} ${n === 1 ? 'selecionado' : 'selecionados'}` }) })}
     <div class="c-act-mos__grid">${cards}</div>
     ${m.rev ? `<div class="c-act-card__center c-act-card__center--wrap">
       ${pill({ color: 'green', html: `<span class="c-act-dot c-act-dot--xs is-ok"></span>${okN} ${okN === 1 ? 'correto' : 'corretos'}` })}

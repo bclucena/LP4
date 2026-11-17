@@ -9,6 +9,7 @@ import { upd, finish, later, fx, plural, toast, streakOn } from './flow.js';
 import { sfx, tones } from '../../core/sound.js';
 import { button } from '../../components/button.js';
 import { pill } from '../../components/badges.js';
+import { head } from './head.js';
 
 const COLS = M.cols;
 const ROWS = M.letters.length / COLS;
@@ -30,11 +31,7 @@ function view(state) {
     : toast(hinted.length ? 'Dica: comece pela letra destacada' : 'Pressione a 1ª letra e arraste até a última');
   const hintOff = ok || x.hint >= 2 || state.coins < M.hintCost;
   return `<section class="c-act-card c-act-mix" aria-label="Misturadinho">
-    <div class="c-act-card__bar">
-      <span class="c-act-card__lead c-act-card__lead--muted">Arraste sobre as letras vizinhas para formar a palavra</span>
-      <div class="c-act-card__pills">${pill({ color: 'grey', label: `${M.answer.length} letras` })}${pill({ color: 'grey', label: plural(x.tries, 'tentativa errada', 'tentativas erradas') })}</div>
-    </div>
-    <p class="c-act-mix__sentence">${esc(M.before)} <span class="${cx('c-act-mix__blanks', ok && 'is-ok', bad && 'is-bad', fx(state, 'mixBad') && 'is-shake')}">${blanks}</span>${esc(M.after)}</p>
+    ${head({ kicker: 'Arraste sobre as letras vizinhas para formar a palavra', titleClass: 'c-act-mix__sentence', title: `${esc(M.before)} <span class="${cx('c-act-mix__blanks', ok && 'is-ok', bad && 'is-bad', fx(state, 'mixBad') && 'is-shake')}">${blanks}</span>${esc(M.after)}`, aside: `${pill({ color: 'grey', label: `${M.answer.length} letras` })}${pill({ color: 'grey', label: plural(x.tries, 'tentativa errada', 'tentativas erradas') })}` })}
     <div class="c-act-msg" aria-live="polite">${msg}</div>
     <div class="${cx('c-act-mix__board', ok && 'is-ok', bad && 'is-bad', fx(state, 'mixBad') && 'is-shake')}" data-mix-board style="--cols:${COLS};--rows:${ROWS}">
       <svg class="c-act-mix__line" viewBox="0 0 ${COLS * 100} ${ROWS * 100}" aria-hidden="true"><polyline points="${x.path.map(point).join(' ')}"/></svg>
