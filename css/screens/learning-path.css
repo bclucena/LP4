@@ -17,41 +17,64 @@
   flex-direction: column;
 }
 
-/* Cada item: trilho de 24 e o card; 8 entre os cards (o trilho atravessa esse espaço). */
+/* Cada item: trilho de 20 e o card; 8 entre os cards (o trilho atravessa esse espaço). Trilho e marcador iguais aos da linha do
+   tempo de atividades do Curso (.c-cd-tl, css/screens/course-detail.css): traço de 2, verde até o curso atual e cinza depois;
+   marcador de 20 centralizado no card. */
 .c-lp-route__item {
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr);
+  grid-template-columns: 20px minmax(0, 1fr);
   gap: 8px;
 }
 
-.c-lp-route__item + .c-lp-route__item { padding-top: 8px; }
+/* Os 8 entre os cards ficam metade em cada item (4 + 4) e o trilho avança sobre eles, para o marcador ficar no meio exato do
+   card e o traço não ter falha. */
+.c-lp-route__item { padding-block: 4px; }
+.c-lp-route__item:first-child { padding-top: 0; }
+.c-lp-route__item:last-child { padding-bottom: 0; }
 
 .c-lp-route__rail {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: -8px; /* a linha de cima ocupa também o espaço entre os cards */
+  margin-block: -4px; /* no 1º e no último a ponta sobra 4px para fora, mas esse traço fica escondido */
 }
 
-.c-lp-route__item:first-child .c-lp-route__rail { margin-top: 0; }
 
 .c-lp-route__line {
   flex: 1;
-  width: 1px;
+  width: 2px;
   background-color: var(--color-border-default);
 }
 
-.c-lp-route__line.is-on { background-color: var(--color-border-strong); }
+.c-lp-route__line.is-on { background-color: var(--color-icon-success); }
 .c-lp-route__line.is-hidden { visibility: hidden; }
 
-.c-lp-route__icon {
+.c-lp-route__node {
   display: flex;
-  padding: 8px 0;
-  color: var(--color-border-default);
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border-default);
+  border-radius: 50%;
+  background-color: var(--color-background-default);
+  color: var(--color-icon-tertiary);
 }
 
-.c-lp-route__icon.is-done,
-.c-lp-route__icon.is-current { color: var(--color-border-strong); }
+.c-lp-route__node.is-done {
+  border-color: var(--color-icon-success);
+  background-color: var(--color-background-success);
+  color: var(--color-text-success);
+}
+
+.c-lp-route__node.is-current {
+  border-color: var(--color-surface-system-default);
+  background-color: var(--color-surface-system-default);
+  box-shadow: 0 0 0 3px var(--color-surface-system-light);
+}
+
+.c-lp-route__node .c-icon { width: 10px; height: 10px; stroke-width: 3; }
 
 /* ---------- Card do curso ---------- */
 .c-lp-course {
@@ -77,18 +100,19 @@
 
 .c-lp-course.is-locked .c-lp-course__media img { filter: grayscale(1); opacity: 0.7; }
 
-.c-lp-course__pills {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  left: 8px;
+/* 1ª linha do corpo: selos à esquerda, tempo e módulos à direita (quebra se faltar espaço). */
+.c-lp-course__top {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
-  gap: 4px;
+  gap: 4px 8px;
 }
 
-.c-lp-course__pills > span {
+/* Selos (Novo, Sugerido, Obrigatório). */
+.c-lp-course__pills {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
 }
 
@@ -205,24 +229,16 @@
 
 .c-lp-course__track span.is-done { background-color: var(--color-icon-success); }
 
-/* "Ir para o curso" (link 14 extrabold com seta). */
+/* "Ir para o curso" / "Revisar curso": componente Link small (c-text-link c-text-link--small, css/components/misc.css).
+   Aqui só o que é do card: não encolher nem quebrar. */
 .c-lp-course__link {
-  display: flex;
   flex: none;
-  align-items: center;
-  gap: 4px;
-  color: var(--color-surface-system-accent);
-  font-size: 12px;
-  line-height: 16px;
-  font-weight: 800;
   white-space: nowrap;
 }
 
-.c-lp-course__link:hover { color: var(--color-action-hover); }
-.c-lp-course__link svg { width: 16px; height: 16px; }
-
+/* Curso bloqueado: cor de desabilitado do Link, mas o clique continua chegando (avisa por que está bloqueado). */
 .c-lp-course.is-locked .c-lp-course__link {
-  color: var(--color-text-tertiary);
+  pointer-events: auto;
   cursor: not-allowed;
 }
 
@@ -230,24 +246,46 @@
 @media (min-width: 768px) {
   .c-lp-course { flex-direction: row; }
 
+  /* Miniatura 16:9 de largura fixa, recuada dentro do card; o corpo fica com o resto da largura. */
   .c-lp-course__media {
-    width: 45%;
-    max-width: 334px;
+    align-self: center; /* se o corpo crescer (selos quebrando linha), o respiro em cima e embaixo continua igual */
+    width: calc(200px + 8px);
+    padding: 8px 0 8px 8px;
   }
 
-  .c-lp-course__media img { height: 100%; }
+  .c-lp-course__media img { border-radius: 6px; }
+
+  .c-lp-course__deadline { bottom: 16px; left: 16px; }
+
+  /* Corpo com o mesmo respiro da imagem em cima e embaixo: o card fica com a altura da imagem + 2 recuos. Os dados ficam no
+     topo e o progresso desce até a linha de baixo da imagem. */
+  .c-lp-course__body {
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .c-lp-course__info { gap: 4px; }
 }
 
 /* ---------- Desktop (a partir de 1179) ---------- */
 @media (min-width: 1179px) {
   .c-lp-route__item { gap: 8px; }
 
-  /* Card de 188 de altura: imagem 16:9 de 334 à esquerda, raio 12. */
+  /* Raio 12 e miniatura 16:9 de 240 à esquerda, com o mesmo respiro do corpo (16). */
   .c-lp-course { border-radius: 12px; }
 
-  .c-lp-course__media { width: 334px; }
+  .c-lp-course__media {
+    width: calc(240px + 16px);
+    padding: 16px 0 16px 16px;
+  }
+
+  .c-lp-course__media img { border-radius: 8px; }
+
+  .c-lp-course__pills { gap: 8px; }
 
   .c-lp-course__deadline {
+    bottom: 24px;
+    left: 24px;
     padding: 4px 8px;
     border-radius: 8px;
     font-size: 12px;
@@ -255,7 +293,7 @@
   }
 
   .c-lp-course__body {
-    gap: 24px;
+    gap: 8px;
     padding: 16px;
   }
 
@@ -268,7 +306,7 @@
   .c-lp-course__meta > svg { margin-right: 0; }
 
   .c-lp-course__title {
-    min-height: 48px;
+    min-height: 40px; /* duas linhas de 20: com 48 aparecia o topo da 3ª linha */
     font-size: 14px;
     line-height: 20px;
   }
@@ -286,11 +324,5 @@
     line-height: 16px;
   }
 
-  .c-lp-course__link {
-    font-size: 14px;
-    line-height: 20px;
-  }
-
-  .c-lp-course__link svg { width: 18px; height: 18px; }
 
 }

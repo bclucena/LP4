@@ -430,3 +430,44 @@ Catálogo (páginas de documentação, em `index.html`):
   O bottom sheet do toque (mobile e tablet) não mudou.
 - Cartão de hover do pin: sem as estrelas. Pin bloqueado (`.c-board-tip--locked`): título, ícone e "Atividade N · X min" em
   `--color-text-tertiary`, como a atividade bloqueada na trilha do Curso (a pílula de pontos e moedas não muda).
+
+### Tabuleiro: Dock recolhível é o menu lateral padrão (17/11/2026)
+
+- `#tabuleiro` sem parâmetro abre o **Dock recolhível** (antes, a Barra integrada). O tweak "Menu lateral" começa no Dock, que é
+  a primeira opção da lista; as outras continuam em `?painel=barra`, `?painel=fixo` e `?painel=float`. Mudança em
+  `looksFromHash` (js/screens/board.js) e no `default` do tweak (js/data/tweaks.js).
+
+### Rota de aprendizagem: card do curso com miniatura (17/11/2026)
+
+- A imagem do card (`.c-lp-course__media`) virou uma miniatura **16:9** de largura fixa: **240×135** no desktop (antes 334) e
+  **200×112,5** no tablet (antes 45%, até 334), recuada dentro do card (16px no desktop, 8px no tablet; raio 8 e 6). O card
+  continua com a largura toda da coluna, e o corpo ganhou o espaço.
+- **Altura do card = imagem + o mesmo respiro em cima e embaixo:** 167px + borda no desktop (antes 216) e 129px + borda no
+  tablet. O corpo usa o mesmo padding da imagem e distribui o conteúdo na altura dela: dados no topo, progresso e link na linha
+  de baixo (`justify-content: space-between`).
+- Para caber, a 1ª linha do corpo (`.c-lp-course__top`) junta os selos (Novo, Sugerido, Obrigatório) à esquerda e o tempo e os
+  módulos à direita. Os selos saíram de cima da imagem; nela só fica o selo de prazo. Espaços internos: 4px entre a linha de
+  cima, o título e as tags.
+- No desktop os selos mostram **só o ícone** (`pill({ iconOnly: true })`), com o nome no `title` (dica ao passar o mouse) e no
+  `aria-label` (`role="img"`). Com o rótulo, os três selos não cabiam na linha do tempo em 1180. No mobile e no tablet continuam
+  os selos pequenos com rótulo.
+- Se ainda faltar largura para a linha de cima, ela quebra e o card cresce; a imagem fica centralizada na altura, então o
+  respiro em cima e embaixo continua igual.
+- Título no desktop: `min-height` passou de 48 para 40px (duas linhas de 20). Com 48, o topo da 3ª linha aparecia abaixo das
+  reticências.
+- No mobile (360) o card continua em coluna, com a imagem 16:9 em cima; os selos foram para a linha do tempo.
+- "Ir para o curso" / "Revisar curso" passou a usar o componente **Link small** do design system (`c-text-link
+  c-text-link--small`: caption-bold 12/16, cor `--color-text-brand`, seta de 18) em todas as larguras. Antes era um link próprio
+  no tamanho large (14/20 extrabold) no desktop. No curso bloqueado ele fica na cor de desabilitado, e o clique continua
+  avisando por que está bloqueado.
+
+### Rota de aprendizagem: trilho dos cursos igual ao das atividades do Curso (17/11/2026)
+
+- O trilho ao lado dos cards (`.c-lp-route__rail`) segue a linha do tempo de atividades da tela Curso (`.c-cd-tl`):
+  - traço de 2px: verde (`--color-icon-success`) até o curso atual e `--color-border-default` depois dele;
+  - marcador de 20px (`.c-lp-route__node`): concluído com borda e check verdes sobre `--color-background-success`; atual
+    cheio na cor da marca (`--color-surface-system-default`) com halo de 3px (`--color-surface-system-light`); bloqueado com
+    borda cinza e cadeado. Antes eram os ícones de traço `check-circle`, `circle` e `x-circle`, num traço de 1px.
+- A coluna do trilho passou de 24 para 20px (o card ganhou 4px).
+- O marcador fica no meio exato do card: os 8px entre os cards são divididos em 4 + 4, e o trilho avança sobre eles (antes o
+  marcador ficava 4px acima do centro).

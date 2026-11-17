@@ -79,9 +79,9 @@ function looksFromHash() {
   // Layout moderno (tweak): trilha usando a largura toda, nome de cada atividade ao lado do pin, cartão do módulo compacto e
   // translúcido e, no desktop, a navegação dos módulos à esquerda.
   const modern = q.get('layout') === 'moderno';
-  // Menu lateral (tweak): barra integrada em cima da trilha (padrão), coluna fixa ou "float" (ícones na lateral que abrem o
+  // Menu lateral (tweak): dock recolhível (padrão), barra integrada em cima da trilha, coluna fixa ou "float" (ícones na lateral que abrem o
   // conteúdo num cartão flutuante).
-  const painel = ['fixo', 'float', 'barra', 'dock'].includes(q.get('painel')) ? q.get('painel') : 'barra';
+  const painel = ['fixo', 'float', 'barra', 'dock'].includes(q.get('painel')) ? q.get('painel') : 'dock';
   const float = painel === 'float';
   const hud = painel === 'barra';
   const dock = painel === 'dock'; // cartão compacto no canto inferior esquerdo, que recolhe numa pílula
