@@ -6,6 +6,8 @@ import { icon } from '../../core/icons.js';
 import { thisOrThat as TT } from '../../data/activity.js';
 import { upd, finish, fx } from './flow.js';
 import { sfx } from '../../core/sound.js';
+import { pill } from '../../components/badges.js';
+import { feedback } from '../../components/feedback.js';
 
 const init = () => ({ i: 0, pick: null, rev: false, res: [] });
 
@@ -31,11 +33,11 @@ function view(state) {
   const q = TT[t.i];
   const ok = t.rev && t.pick === q.c;
   const fb = t.rev
-    ? `<span class="${cx('c-act-feedback', ok ? 'c-act-feedback--ok' : 'c-act-feedback--bad', fx(state, 'ttReveal') && 'is-in')}">${icon(ok ? 'check-circle' : 'alert-triangle', 18)}<span><b>${ok ? 'Isso!' : 'Não foi dessa vez.'}</b> ${esc(q.e)}</span></span>`
+    ? feedback({ tone: ok ? 'success' : 'error', title: ok ? 'Isso!' : 'Não foi dessa vez.', text: q.e, className: cx('c-act-tt__feedback', fx(state, 'ttReveal') && 'is-in') })
     : '<span class="c-act-card__lead c-act-card__lead--muted">Toque num card ou use as teclas A e B · Enter confirma</span>';
   return `<section class="c-act-card c-act-tt" aria-label="This or that">
     <div class="c-act-card__bar c-act-card__bar--right">
-      <div class="c-act-card__pills"><span class="c-act-pill">${t.i + 1} de ${TT.length}</span><span class="c-act-pill c-act-pill--success">${icon('check', 14)}${t.res.filter(Boolean).length} acertos</span></div>
+      <div class="c-act-card__pills">${pill({ color: 'grey', label: `${t.i + 1} de ${TT.length}` })}${pill({ color: 'green', iconName: 'check', label: `${t.res.filter(Boolean).length} acertos` })}</div>
     </div>
     <div class="c-act-card__head">
       <span class="c-act-card__kicker">Escolha uma das alternativas</span>

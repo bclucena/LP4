@@ -4,7 +4,8 @@
 import { cx, esc } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { mosaic as M } from '../../data/activity.js';
-import { upd, finish, later, fx, toast } from './flow.js';
+import { upd, finish, later, fx, toast, streakOn } from './flow.js';
+import { pill } from '../../components/badges.js';
 
 const TOTAL = M.cards.filter(c => c.ok).length;
 const BADGE = { sel: ['system', 'check'], ok: ['ok', 'check'], bad: ['bad', 'x'], miss: ['warn', 'alert-circle'] };
@@ -31,14 +32,14 @@ function view(state) {
     perfect ? 'ok' : badN ? 'bad' : 'warn', fx(state, 'mosRev'));
   return `<section class="c-act-card c-act-mos" aria-label="Mosaico">
     <div class="c-act-card__head">
-      <div class="c-act-card__bar"><span class="c-act-card__kicker">Selecione todos os cards que respondem à questão</span><span class="${cx('c-act-pill', n && 'c-act-pill--system-soft')}">${n} ${n === 1 ? 'selecionado' : 'selecionados'}</span></div>
+      <div class="c-act-card__bar"><span class="c-act-card__kicker">Selecione todos os cards que respondem à questão</span>${pill({ color: n ? 'system' : 'grey', label: `${n} ${n === 1 ? 'selecionado' : 'selecionados'}` })}</div>
       <h2 class="c-act-card__title c-act-card__title--lg">${esc(M.question)}</h2>
     </div>
     <div class="c-act-mos__grid">${cards}</div>
     ${m.rev ? `<div class="c-act-card__center c-act-card__center--wrap">
-      <span class="c-act-pill c-act-pill--success"><span class="c-act-dot c-act-dot--xs is-ok"></span>${okN} ${okN === 1 ? 'correto' : 'corretos'}</span>
-      <span class="c-act-pill c-act-pill--error"><span class="c-act-dot c-act-dot--xs is-bad"></span>${badN} ${badN === 1 ? 'incorreto' : 'incorretos'}</span>
-      <span class="c-act-pill c-act-pill--warning"><span class="c-act-dot c-act-dot--xs is-warn"></span>${missN} faltando</span>
+      ${pill({ color: 'green', html: `<span class="c-act-dot c-act-dot--xs is-ok"></span>${okN} ${okN === 1 ? 'correto' : 'corretos'}` })}
+      ${pill({ color: 'red', html: `<span class="c-act-dot c-act-dot--xs is-bad"></span>${badN} ${badN === 1 ? 'incorreto' : 'incorretos'}` })}
+      ${pill({ color: 'yellow', html: `<span class="c-act-dot c-act-dot--xs is-warn"></span>${missN} faltando` })}
     </div>` : ''}
     <div class="c-act-msg" aria-live="polite">${msg}</div>
   </section>`;
@@ -51,7 +52,7 @@ function confirm(ctx) {
   const badN = m.sel.length - okN;
   const perfect = okN === TOTAL && !badN;
   const pts = perfect ? 160 : Math.round((160 * Math.max(0, okN - badN)) / TOTAL);
-  upd(ctx, 'mos', { rev: true }, { fx: { mosRev: true } });
+  upd(ctx, 'mos', { rev: true }, { ...streakOn(ctx, perfect), fx: { mosRev: true } });
   later(ctx, 900, () => finish(ctx, 14, { xp: pts, coins: perfect ? 40 : 0 }));
 }
 

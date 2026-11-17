@@ -18,7 +18,7 @@ const frames = el => {
 
 /** Faz a pílula "+ pts" entrar. Chamar logo depois da renderização que a criou. */
 export function gainIn(root) {
-  const el = root.querySelector('.c-act-chip--gain');
+  const el = root.querySelector('.c-act-hud__gain');
   if (!el || reduced()) return;
   el.style.overflow = 'hidden';
   el.animate(frames(el), { duration: MOVE, easing: EASE }).finished.then(() => { el.style.overflow = ''; }, () => {});
@@ -65,7 +65,7 @@ export function gainOut(ctx, { from, to, done }) {
   return setTimeout(() => {
     if (ctx.destroyed) return;
     roll(ctx.root.querySelector('[data-pts]'), from, to);
-    const el = ctx.root.querySelector('.c-act-chip--gain');
+    const el = ctx.root.querySelector('.c-act-hud__gain');
     const end = () => { el?.remove(); done(); };
     if (!el || reduced()) return end();
     el.style.overflow = 'hidden';

@@ -4,6 +4,8 @@ import { tag, pill } from '../../components/badges.js';
 import { avatar, avatarGroup } from '../../components/avatar.js';
 import { categoryChip, link, tooltip } from '../../components/misc.js';
 import { pageButton, pagination } from '../../components/pagination.js';
+import { searchField } from '../../components/search.js';
+import { feedback } from '../../components/feedback.js';
 import { pageTitle, section, specimen, matrix, code } from '../layout.js';
 
 /* Componentes: botões, chips, tags, pills, avatar, link, paginação e tooltips. Os estados hover, pressed e disabled da
@@ -74,6 +76,16 @@ export const paginations = state => `
 export const tooltips = () => `
   ${pageTitle('Tooltips', 'Fundo background/tooltip, radius lg, padding 12, sombra md, título em bold e texto em regular (12/16). Quatro posições da seta.', '1982:13748')}
   ${section('Posições', '', specimen('', ['top', 'bottom', 'right', 'left'].map(p => `<div style="margin:12px">${tooltip({ placement: p })}</div>`).join('')))}`;
+
+export const searches = () => `
+  ${pageTitle('Search', 'Campo de busca da app bar: lupa de 18, texto 14/20 medium, borda border/default (system/soft no foco), radius xl (12), padding 8, 38 de altura. Com o botão de fechar (button icon small sem contorno), o padding cai para 4 e a altura se mantém. Ocupa a largura do pai; na app bar, 274.')}
+  ${section('Variações', '', `${specimen('Padrão', `<div style="width:274px">${searchField({ placeholder: 'Buscar cursos, trilhas, missões…' })}</div>`)}
+    ${specimen('Com fechar (menu de atividades)', `<div style="width:300px">${searchField({ placeholder: 'Buscar', clear: { label: 'Fechar busca' } })}</div>`)}`)}`;
+
+export const feedbacks = () => `
+  ${pageTitle('Feedback', 'Resposta de acerto e erro das mecânicas. Ícone Feather de 24 numa caixa de 40 (radius xl, background/default), título subtitle 16/24 bold na cor do status e texto body 14/20. Cores fixas de status (success e error), não derivam da primária. Inline: caixa com borda e fundo do status, dentro do card. Banner: sem moldura, na faixa do rodapé da atividade (que pinta o fundo e a borda do status).')}
+  ${section('Inline', '', `<div style="display:grid;gap:12px;max-width:640px">${feedback({ tone: 'success', title: 'Excelente!', text: 'A tag semanticamente correta para o bloco de navegação principal é a <nav>.' })}${feedback({ tone: 'error', title: 'Incorreto.', text: 'O <main> marca o conteúdo principal da página e deve aparecer uma única vez.' })}${feedback({ tone: 'error', iconName: 'clock', title: 'Tempo esgotado!', text: 'O <main> marca o conteúdo principal da página e deve aparecer uma única vez.' })}</div>`)}
+  ${section('Banner (rodapé)', '', `<div style="display:grid;gap:12px">${['success', 'error'].map(t => `<div style="padding:24px;border-top:1px solid var(--color-border-${t});background:var(--color-background-${t})">${feedback({ tone: t, variant: 'banner', title: t === 'success' ? 'Excelente!' : 'Incorreto.', text: 'Texto de apoio da resposta.' })}</div>`).join('')}</div>`)}`;
 
 /** Ações das páginas interativas: chips (setChip) e paginação (goPage). */
 export const componentActions = {

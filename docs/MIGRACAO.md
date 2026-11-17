@@ -52,6 +52,49 @@ Fluxo de curso (protótipo `Ludos Pro 4.0/ludos-pro-fluxo`, exportado do Claude 
   com os pins e o cartão de módulo da Versão A.
 - [x] Atividades (`Atividade-Quiz-v2.dc.html` → `js/screens/activity.js` + `js/screens/activity/`, `#atividade`, `#atividade?item=<id>`):
   menu de atividades, barra de desempenho (tempo, sequência, vidas, pontos), 14 mecânicas, leitura e avaliação final.
+  **Barra de desempenho no design system (17/11/2026):** saíram os chips e botões próprios da tela (`c-act-chip`, `c-act-close`);
+  agora usa `progressBar` (novo em `progress.js`, a barra de 8 do DS com `role="progressbar"`), `pill` com contorno (tempo e
+  sequência em cinza, tempo nos últimos 5s em vermelho, sequência > 1 em amarelo, pontos em system, "+ pts" em verde) e
+  `buttonIcon` large com contorno para fechar e para guardar/mostrar a trilha. `pill` ganhou `html`, `className` e `attrs`;
+  `buttonIcon` ganhou `action`, `className` e `attrs` (e `title` = rótulo).
+  **Menu de atividades no design system (17/11/2026):** botões da capa (buscar, abrir/fechar a lista) = `buttonIcon` ghost
+  (ícone em text-on-color sobre a capa escura); barra do curso = `progressBar`; contador do grupo ("0/12") = `pill` cinza; anel de
+  andamento do item = `progressDonut` em 24px. No estilo "Cards" do menu, abrir/fechar = `buttonIcon` large e a barra =
+  `progressBar`. `progressDonut` ganhou `{ size, ringId }`, usa pathLength 100 (dashoffset = 100 − valor) e esconde o
+  preenchimento em 0%. O item da lista continua próprio da tela: o DS ainda não tem "button menu".
+  **Busca e ícone da avaliação (17/11/2026):** novo componente `searchField` (`js/components/search.js` +
+  `css/components/search.css`, página "Search" no catálogo), o "Search" da app bar: a app bar e a busca do menu de atividades
+  usam o mesmo campo (no menu, com o fechar = `buttonIcon` small sem contorno). A avaliação final passou a usar o LP-Icon
+  `challenge` (dois lápis cruzados) no menu e no diálogo da avaliação, como no Curso e no Tabuleiro.
+  **Card de missão (17/11/2026):** no fim de cada módulo do menu, "Missão do módulo N" (ícone target), no mesmo card da
+  avaliação. Bloqueado ("Conclua o módulo", cadeado) até todas as mecânicas do módulo terminarem; liberado ("Disponível", na cor
+  da marca) abre `#missoes`, como o pin da missão no Tabuleiro. Limitação do mockup: as 16 mecânicas se repetem entre os módulos e
+  o status é por mecânica, então ao concluir o módulo 1 todas as missões liberam juntas. Fora do estilo "Cards" do menu.
+  **Mecânicas no design system (17/11/2026):** saíram `c-act-btn` e `c-act-pill`. Rodapé, diálogos (sair e avaliação) e as
+  ações das mecânicas (dicas, Limpar, Recomeçar, Reembaralhar, Segure para espiar) usam `button` (primary/stroked; `size:
+  'mobile'` nas linhas de indicadores); "Sair sem pontuar" virou stroked (o DS não tem botão de perigo). Indicadores usam `pill`
+  (cinza, verde, vermelho, amarelo, system). `button` ganhou `href` (vira link) e `title`. Tipografia das mecânicas na escala
+  do DS: títulos 20/32 (heading), avaliação e resultado 30/40 (display-sm), apoio 16/24; 18 fica só nas letras dos jogos
+  (price 18/28). Continuam próprios da tela (sem equivalente no DS): teclado e letras da forca, cartas, peças, zonas de soltar,
+  pontos de progresso (`c-act-dot`), selos de acerto (`c-act-badge`), alerta e o campo de confirmação da avaliação.
+  **Coluna de conteúdo única (17/11/2026):** quiz, quiz com apoio e questão da avaliação viraram `c-act-card` com o cabeçalho
+  padrão (antes 640/800 centralizados, pergunta centralizada); a coluna começa sempre no topo; texto corrido da Leitura em 720
+  (era 768 nas citações); skeleton na largura da coluna. Regra completa em `design-system/HANDOFF.md`.
+  **Feedback de acerto e erro (17/11/2026):** novo componente `feedback` (`js/components/feedback.js` +
+  `css/components/feedback.css`, página "Feedback" no catálogo). Nem o catálogo nem o Figma (DS e página X.Mecânicas) tinham
+  esse elemento, então ele foi montado com os fundamentos do DS: ícone Feather de 24 numa caixa de 40 (radius xl,
+  background/default), título subtitle 16/24 bold na cor do status, texto body 14/20, cores fixas de status. Variantes `banner`
+  (faixa do rodapé) e `inline` (This or that). Ícones: acerto check-circle, erro x-circle (antes alert-triangle, que é aviso),
+  tempo esgotado clock. O conteúdo do rodapé agora alinha com a coluna de conteúdo (antes 1088, agora 1040 + respiro lateral).
+  **Ícone da sequência (17/11/2026):** novo LP-Icon `flame` (Figma "LP-DesignSystem 4.0", componente `icons/LPIcons/flame`
+  5204:1945 na página "-> mecanicas"; SVG em `assets/icons/lp/flame.svg`, gerado em `lp-icons.js`). Substitui o `trending-up`
+  na pill de sequência da barra de desempenho.
+  **Sequência em todas as mecânicas (17/11/2026):** antes só o Quiz e o This or that mexiam no `streak` (por isso parava em 4,
+  depois dos dois quizzes). Agora acerto soma 1 e erro zera em todas as mecânicas de jogo, pelo helper `streakOn` de `flow.js`,
+  junto da atualização que cada uma já fazia: palavra achada/seleção errada (caça-palavras), letra certa/errada (forca), par
+  formado/não (memória), palavra certa/errada (misturadinho), conferir certo/errado (no lugar, ordenadinho), erro achado/toque
+  fora (7 erros), troca que encaixa/não encaixa peça (quebra-cabeça; a dica não conta) e mosaico perfeito/não. Leitura,
+  slideshow, enquetes e avaliação não mexem na sequência.
 - Páginas internas: `js/app.js` liga `data-layout="focus"` (sem menu lateral, busca mobile e navigation bar; abaixo de 768 a tela traz o próprio cabeçalho).
 - Sons das Atividades: `js/core/sound.js` (Web Audio, sem arquivos), os mesmos tons do protótipo, com liga/desliga na barra de desempenho
   (guardado no navegador, chave `lp-sound`).

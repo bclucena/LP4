@@ -4,8 +4,9 @@
 import { cx, esc } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { words as WORDS, WS_SIZE as N } from '../../data/activity.js';
-import { upd, finish, later } from './flow.js';
+import { upd, finish, later, streakOn } from './flow.js';
 import { sfx } from '../../core/sound.js';
+import { pill } from '../../components/badges.js';
 
 /** Monta a grade: palavras em ordem de leitura (→, ↓, ↘, ↗) e letras aleatórias no resto. */
 function buildGrid() {
@@ -43,7 +44,7 @@ function view(state) {
   return `<section class="c-act-card c-act-ws" aria-label="Caça-palavras">
     <div class="c-act-card__bar">
       <p class="c-act-card__lead">Clique e arraste da <b>primeira</b> até a <b>última letra</b> da palavra.</p>
-      <span class="c-act-pill c-act-pill--warning">${icon('award', 14)}Palavras ${ws.found.length}/${WORDS.length}</span>
+      ${pill({ color: 'yellow', iconName: 'award', label: `Palavras ${ws.found.length}/${WORDS.length}` })}
     </div>
     <div class="c-act-ws__layout">
       <div class="c-act-ws__grid" data-ws-grid role="grid" aria-label="Grade de letras">${cells}</div>
@@ -98,13 +99,13 @@ function mount(ctx) {
       const cells = { ...ws.cells };
       path.forEach(p => { cells[`${p.r}-${p.c}`] = 1; });
       const found = [...ws.found, match];
-      upd(ctx, 'ws', { found, cells });
+      upd(ctx, 'ws', { found, cells }, streakOn(ctx, true));
       if (found.length === WORDS.length) later(ctx, 300, () => finish(ctx, 3, { xp: 200, coins: 50 }));
     } else if (path.length > 1) {
       const wrong = path;
       sfx('wrong');
       paint('is-wrong', true);
-      later(ctx, 380, () => wrong.forEach(p => ctx.root.querySelector(`[data-r="${p.r}"][data-c="${p.c}"]`)?.classList.remove('is-path', 'is-wrong')));
+      later(ctx, 380, () => { wrong.forEach(p => ctx.root.querySelector(`[data-r="${p.r}"][data-c="${p.c}"]`)?.classList.remove('is-path', 'is-wrong')); ctx.set(streakOn(ctx, false)); });
     } else paint('is-path', false);
     path = [];
   }, window);

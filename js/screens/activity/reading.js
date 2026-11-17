@@ -120,7 +120,7 @@ export function trackScroll(ctx) {
   if (p > slice.pct) {
     slice.pct = p;
     const arc = ctx.root.querySelector(`[data-ring="${v}"]`);
-    if (arc) { arc.classList.remove('is-empty'); arc.setAttribute('stroke-dasharray', `${Math.min(95, p)} ${100 - Math.min(95, p)}`); }
+    if (arc) { arc.classList.remove('is-empty'); arc.setAttribute('stroke-dashoffset', String(100 - Math.min(95, p))); }
   }
   if (p >= 98 && ctx.state.status[v] !== 'done') {
     if (v === 2) ctx.state.read.pod = false;
@@ -129,7 +129,7 @@ export function trackScroll(ctx) {
 }
 
 const doneFooter = id => state => (state.justDone === id
-  ? { label: 'Continuar', action: 'goNext', tone: 'success', disabled: false, feedback: { tone: 'success', icon: 'check-circle', title: 'Leitura concluída!', text: `Você ganhou ${GAIN[id].xp}pts.` } }
+  ? { label: 'Continuar', action: 'goNext', tone: 'success', disabled: false, feedback: { tone: 'success', title: 'Leitura concluída!', text: `Você ganhou ${GAIN[id].xp}pts.` } }
   : null);
 
 export const readingMech = {

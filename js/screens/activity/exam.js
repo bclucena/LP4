@@ -19,8 +19,8 @@ function question(x) {
   const opts = item.o.map((t, i) => `<button type="button" role="radio" aria-checked="${x.sel === i}" class="${cx('c-act-option', x.sel === i && 'is-selected')}" data-action="examChoose" data-i="${i}">
     <span class="c-act-option__text">${esc(t)}</span><span class="c-act-option__num" aria-hidden="true">${i + 1}</span>
   </button>`).join('');
-  return `<section class="c-act-quiz" aria-label="Avaliação · questão">
-    <div class="c-act-quiz__head"><span class="c-act-card__kicker">Questão ${x.q + 1} de ${Q.length}</span><h2 class="c-act-quiz__q">${esc(item.q)}</h2></div>
+  return `<section class="c-act-card c-act-quiz" aria-label="Avaliação · questão">
+    <div class="c-act-card__head"><span class="c-act-card__kicker">Questão ${x.q + 1} de ${Q.length} · Escolha uma alternativa</span><h2 class="c-act-card__title c-act-quiz__q">${esc(item.q)}</h2></div>
     <div class="c-act-quiz__options" role="radiogroup" aria-label="Alternativas">${opts}</div>
   </section>`;
 }

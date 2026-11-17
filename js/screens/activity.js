@@ -1,7 +1,7 @@
 import { createView } from '../core/view.js';
 import { minWidth } from '../core/media.js';
-import { icon } from '../core/icons.js';
 import { cx } from '../core/dom.js';
+import { buttonIcon } from '../components/button.js';
 import { sfx, soundOn, setSound } from '../core/sound.js';
 import { START, EXAM_ID } from '../data/activity.js';
 import { initialStatus, nextOpen, defaultFooter, statusOf, ORDER } from './activity/flow.js';
@@ -87,7 +87,7 @@ function view(state, ctx) {
   const mech = byId[state.view];
   const f = mech.footer(state) ?? defaultFooter(state);
   const handle = side
-    ? `<button type="button" class="c-act-sidetoggle" data-action="toggleSide" aria-expanded="${!state.hidden}" aria-label="${state.hidden ? 'Mostrar trilha' : 'Guardar trilha'}" title="${state.hidden ? 'Mostrar trilha' : 'Guardar trilha'}">${icon('chevrons-left', 18)}</button>`
+    ? buttonIcon({ name: 'chevrons-left', label: state.hidden ? 'Mostrar trilha' : 'Guardar trilha', action: 'toggleSide', className: 'c-act-sidetoggle', attrs: { 'aria-expanded': String(!state.hidden) } })
     : '';
   const tw = state.tw;
   return `<div class="${cx('c-act', side && 'c-act--side', side && state.hidden && 'is-collapsed', tw.type === 'b' && 'c-act--type-b', !tw.card && 'c-act--flat')}" data-reveal="content">

@@ -7,6 +7,8 @@ import { icon } from '../../core/icons.js';
 import { hangman as H, KEY_ROWS } from '../../data/activity.js';
 import { finish, later, fx, plural } from './flow.js';
 import { sfx } from '../../core/sound.js';
+import { button } from '../../components/button.js';
+import { pill } from '../../components/badges.js';
 
 const ANSWER = H.answer.toUpperCase();
 const LETTERS = ANSWER.replace(/ /g, '');
@@ -52,10 +54,10 @@ function view(state) {
       <h2 class="c-act-card__title">${esc(H.question)}</h2>
       <div class="c-act-card__bar">
         <div class="c-act-card__pills">
-          <span class="c-act-pill">${H.answer.split(' ').length} palavras · ${LETTERS.length} letras</span>
-          <span class="c-act-pill">${revealed}/${LETTERS.length} descobertas</span>
+          ${pill({ color: 'grey', label: `${H.answer.split(' ').length} palavras · ${LETTERS.length} letras` })}
+          ${pill({ color: 'grey', label: `${revealed}/${LETTERS.length} descobertas` })}
         </div>
-        <button type="button" class="c-act-pill c-act-pill--warning c-act-pill--button" data-action="hangHint" ${hintOff ? 'disabled' : ''} title="Revela uma letra da resposta">${icon('help-circle', 16)}${h.hints >= H.maxHints ? 'Dicas esgotadas' : `Dica · ${H.hintCost} moedas`}</button>
+        ${button({ variant: 'stroked', size: 'mobile', iconStart: 'help-circle', action: 'hangHint', disabled: hintOff, title: 'Revela uma letra da resposta', label: h.hints >= H.maxHints ? 'Dicas esgotadas' : `Dica · ${H.hintCost} moedas` })}
       </div>
     </div>
     <div class="c-act-hang__layout">
@@ -95,7 +97,7 @@ function guess(ctx, k, hint = false) {
   sfx(hit ? 'correct' : 'wrong');
   ctx.set({
     hang: { ...h, guessed: g, won, last: { k, hit, count, hint } },
-    streak: hit ? s.streak : 0,
+    streak: hit ? s.streak + 1 : 0,
     lives: lost ? Math.max(0, s.lives - 1) : s.lives,
     fx: { hangKey: true },
   });

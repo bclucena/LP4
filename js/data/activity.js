@@ -31,7 +31,7 @@ export const activities = [
   { id: 12, title: 'Enquete', mech: 'Enquete', xp: 50, icon: 'bar-chart-2' },
   { id: 13, title: 'Enquete aberta', mech: 'Enquete aberta', xp: 60, icon: 'message-square' },
   { id: 14, title: 'Mosaico', mech: 'Mosaico', xp: 160, icon: 'layout' },
-  { id: 15, title: 'Avaliação final', mech: 'Avaliação', xp: 1000, icon: 'flag' },
+  { id: 15, title: 'Avaliação final', mech: 'Avaliação', xp: 1000, icon: 'challenge' } // LP-Icon (dois lápis cruzados), o mesmo da avaliação no Curso e no Tabuleiro,
 ];
 
 export const EXAM_ID = 15;

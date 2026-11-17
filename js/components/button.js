@@ -6,17 +6,20 @@ import { icon } from '../core/icons.js';
  * variant: 'primary' (preenchido), 'stroked' (contorno) ou 'basic' (sem contorno). No protótipo antigo: filled, outlined e ghost.
  * size: 'md' ou 'mobile'. `action` liga o clique ao handler da tela (data-action); `data` vira data-* (ex.: { id: 3 }).
  */
-export function button({ label, variant = 'primary', size = 'md', iconStart, iconEnd, disabled = false, state, action, data = {}, block = false, ariaLabel, className = '' }) {
+export function button({ label, variant = 'primary', size = 'md', iconStart, iconEnd, disabled = false, state, action, data = {}, block = false, ariaLabel, title, href, className = '' }) {
   const dataAttrs = Object.fromEntries(Object.entries(data).map(([k, v]) => [`data-${k}`, v]));
-  return `<button ${attrs({
-    type: 'button',
+  const common = {
     class: cx('c-button', `c-button--${variant}`, size === 'mobile' && 'c-button--mobile', block && 'c-button--block', className),
-    disabled: disabled || state === 'disabled',
     'data-state': state && state !== 'default' ? state : undefined,
     'data-action': action,
     'aria-label': ariaLabel,
+    title,
     ...dataAttrs,
-  })}>${iconStart ? icon(iconStart, 16) : ''}<span>${esc(label)}</span>${iconEnd ? icon(iconEnd, 16) : ''}</button>`;
+  };
+  const inner = `${iconStart ? icon(iconStart, 16) : ''}<span>${esc(label)}</span>${iconEnd ? icon(iconEnd, 16) : ''}`;
+  // `href`: mesmo visual, mas é navegação (link), não ação.
+  if (href) return `<a ${attrs({ href, ...common })}>${inner}</a>`;
+  return `<button ${attrs({ type: 'button', disabled: disabled || state === 'disabled', ...common })}>${inner}</button>`;
 }
 
 /** Botão só com ícone (barra do topo, fechar, voltar...). */
@@ -38,6 +41,7 @@ const stateAttrs = state => ({ 'data-state': state && state !== 'default' ? stat
 export const buttonBadge = ({ label = 'Button', count, state } = {}) =>
   `<button ${attrs({ type: 'button', class: 'c-button-badge', ...stateAttrs(state) })}><span>${esc(label)}</span>${count !== undefined ? `<span class="c-button-badge__count">${count}</span>` : ''}</button>`;
 
-/** Botão de ícone. style: large, small, filled ou ghost; `outlined` vale para large e small. */
-export const buttonIcon = ({ style = 'large', outlined = true, state, name = 'chevron-left', label = 'Voltar' } = {}) =>
-  `<button ${attrs({ type: 'button', class: cx('c-button-icon', `c-button-icon--${style}`, (style === 'large' || style === 'small') && outlined && 'c-button-icon--outlined'), 'aria-label': label, ...stateAttrs(state) })}>${icon(name, 16)}</button>`;
+/** Botão de ícone. style: large, small, filled ou ghost; `outlined` vale para large e small.
+    `action` liga ao handler da tela (data-action); `className` e `attrs` (aria-expanded, title, data-*) vão no botão. */
+export const buttonIcon = ({ style = 'large', outlined = true, state, name = 'chevron-left', label = 'Voltar', action, className, attrs: extra = {} } = {}) =>
+  `<button ${attrs({ type: 'button', class: cx('c-button-icon', `c-button-icon--${style}`, (style === 'large' || style === 'small') && outlined && 'c-button-icon--outlined', className), 'aria-label': label, title: label, 'data-action': action, ...stateAttrs(state), ...extra })}>${icon(name, 16)}</button>`;

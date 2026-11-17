@@ -5,9 +5,11 @@
 import { cx } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { puzzle as Z } from '../../data/activity.js';
-import { upd, finish, later, fx, plural, toast } from './flow.js';
+import { upd, finish, later, fx, plural, toast, streakOn } from './flow.js';
 import { pointerDrag, dragged } from './drag.js';
 import { sfx, tones } from '../../core/sound.js';
+import { button } from '../../components/button.js';
+import { pill } from '../../components/badges.js';
 
 const N = Z.cols * Z.rows;
 const pos = p => `${((p % Z.cols) / (Z.cols - 1)) * 100}% ${(Math.floor(p / Z.cols) / (Z.rows - 1)) * 100}%`;
@@ -37,7 +39,7 @@ function view(state) {
   return `<section class="c-act-card c-act-puz" aria-label="Quebra-cabeça">
     <div class="c-act-card__bar c-act-card__bar--end">
       <div class="c-act-card__head"><span class="c-act-card__kicker">Arraste uma peça sobre outra para trocá-las de lugar · ou toque em duas peças</span><h2 class="c-act-card__title">Reorganize as peças e monte a imagem do curso de LGPD</h2></div>
-      <div class="c-act-card__pills"><span class="c-act-pill c-act-pill--success">${icon('check', 14)}${n}/${N} no lugar</span><span class="c-act-pill c-act-pill--outline">${plural(z.moves, 'troca', 'trocas')}</span></div>
+      <div class="c-act-card__pills">${pill({ color: 'green', iconName: 'check', label: `${n}/${N} no lugar` })}${pill({ color: 'grey', outline: true, label: plural(z.moves, 'troca', 'trocas') })}</div>
     </div>
     <div class="c-act-msg" aria-live="polite">${z.msg ? toast(z.msg.t, z.msg.ok ? 'ok' : 'bad', fx(state, 'puzSnap')) : toast('Peças no lugar certo travam com ✓. Comece pelos cantos')}</div>
     <div class="c-act-card__center">
@@ -47,9 +49,9 @@ function view(state) {
       </div>
     </div>
     <div class="c-act-card__center c-act-card__center--wrap">
-      <button type="button" class="c-act-pill c-act-pill--system c-act-pill--button c-act-pill--lg" data-peek>${icon('eye', 16)}Segure para espiar</button>
-      <button type="button" class="c-act-pill c-act-pill--warning c-act-pill--button c-act-pill--lg" data-action="puzHint" ${hintOff ? 'disabled' : ''}>${icon('help-circle', 16)}Encaixar uma · ${Z.hintCost} moedas</button>
-      <button type="button" class="c-act-pill c-act-pill--outline c-act-pill--button c-act-pill--lg" data-action="puzShuffle" ${z.done ? 'disabled' : ''}>${icon('shuffle', 16)}Reembaralhar</button>
+      ${button({ variant: 'stroked', iconStart: 'eye', label: 'Segure para espiar', data: { peek: '' } })}
+      ${button({ variant: 'stroked', iconStart: 'help-circle', action: 'puzHint', disabled: hintOff, label: `Encaixar uma · ${Z.hintCost} moedas` })}
+      ${button({ variant: 'stroked', iconStart: 'shuffle', label: 'Reembaralhar', action: 'puzShuffle', disabled: z.done })}
     </div>
   </section>`;
 }
@@ -67,7 +69,9 @@ function swap(ctx, a, b, hint = false) {
   const msg = !left ? { ok: true, t: `Imagem completa em ${moves} trocas!` }
     : newly.length ? { ok: true, t: `${hint ? 'Dica usada: ' : newly.length === 2 ? 'Duas de uma vez! ' : 'Encaixou! '}Faltam ${left} ${left > 1 ? 'peças' : 'peça'}.` }
       : { ok: false, t: 'Trocou, mas nenhuma ficou no lugar. Observe bordas e cores vizinhas.' };
-  upd(ctx, 'puz', { order: o, sel: null, moves, snap: newly, msg, on: true, done: !left }, { fx: { puzSnap: true } });
+  // Sequência: troca que encaixa peça soma, troca que não encaixa nenhuma zera; a dica não conta.
+  const streak = hint ? {} : streakOn(ctx, newly.length > 0);
+  upd(ctx, 'puz', { order: o, sel: null, moves, snap: newly, msg, on: true, done: !left }, { ...streak, fx: { puzSnap: true } });
   if (!left) {
     later(ctx, 300, () => sfx('victory'));
     later(ctx, 1600, () => finish(ctx, 9, { xp: 220, coins: 55 }));

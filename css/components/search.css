@@ -1,0 +1,41 @@
+/* Campo de busca (js/components/search.js): o "Search" da app bar do Figma. */
+
+.c-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-background-default);
+  color: var(--color-icon-default);
+  transition: border-color 0.15s;
+}
+
+.c-search:focus-within { border-color: var(--color-surface-system-soft); }
+
+.c-search__icon { flex: none; }
+
+.c-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  color: var(--color-text-default);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.c-search input::placeholder { color: var(--color-text-secondary); }
+.c-search input::-webkit-search-cancel-button { display: none; }
+
+/* Com o botão de limpar (buttonIcon small, 28): padding menor em cima, embaixo e à direita para manter os 38 de altura. */
+.c-search--clear { padding: 4px 4px 4px 8px; }
+.c-search__clear { flex: none; }

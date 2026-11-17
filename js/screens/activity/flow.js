@@ -19,6 +19,10 @@ export function upd(ctx, key, patch, extra = {}) {
   ctx.set(s => ({ ...extra, [key]: { ...s[key], ...(typeof patch === 'function' ? patch(s[key], s) : patch) } }));
 }
 
+/** Sequência de acertos (pill com a chama na barra de desempenho): acerto soma 1, erro zera. Devolve o campo para juntar ao
+    ctx.set/upd que a mecânica já faz no acerto ou no erro (assim não há uma renderização a mais). */
+export const streakOn = (ctx, ok) => ({ streak: ok ? (ctx.state.streak ?? 0) + 1 : 0 });
+
 /** setTimeout que não roda depois que a tela foi desmontada. */
 export const later = (ctx, ms, fn) => setTimeout(() => { if (!ctx.destroyed) fn(); }, ms);
 

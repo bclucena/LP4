@@ -1,0 +1,37 @@
+/* Feedback de resposta (js/components/feedback.js): acerto e erro das mecânicas. Só tokens de status (success/error). */
+
+.c-feedback {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  color: var(--color-text-default);
+}
+
+.c-feedback__icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-xl);
+  background-color: var(--color-background-default);
+}
+
+.c-feedback__body { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding-top: 8px; }
+.c-feedback__title { font-size: 16px; line-height: 24px; font-weight: 700; }
+.c-feedback__text { font-size: 14px; line-height: 20px; font-weight: 500; text-wrap: pretty; }
+
+.c-feedback--success .c-feedback__icon { color: var(--color-icon-success); }
+.c-feedback--success .c-feedback__title { color: var(--color-text-success); }
+.c-feedback--error .c-feedback__icon { color: var(--color-icon-error); }
+.c-feedback--error .c-feedback__title { color: var(--color-text-error); }
+
+/* Inline: caixa com borda e fundo do tom, dentro do card da mecânica. */
+.c-feedback--inline { padding: 12px; border: 1px solid; border-radius: var(--radius-xl); }
+.c-feedback--inline.c-feedback--success { border-color: var(--color-border-success); background-color: var(--color-background-success); }
+.c-feedback--inline.c-feedback--error { border-color: var(--color-border-error); background-color: var(--color-background-error); }
+
+/* Banner: sem moldura própria (fica na faixa do rodapé, que já tem o fundo e a borda do tom). */
+.c-feedback--banner { padding: 0; }

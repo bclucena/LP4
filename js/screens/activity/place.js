@@ -5,7 +5,7 @@
 import { cx, esc } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { place as P } from '../../data/activity.js';
-import { upd, finish, later, fx, shuffle, toast } from './flow.js';
+import { upd, finish, later, fx, shuffle, toast, streakOn } from './flow.js';
 import { pointerDrag, dragged } from './drag.js';
 import { sfx, tones } from '../../core/sound.js';
 
@@ -70,13 +70,13 @@ function confirm(ctx) {
   const tries = pl.tries + 1;
   if (ok === P.items.length) {
     sfx('correct');
-    upd(ctx, 'place', { result: res, tries, msg: { ok: true, t: `Perfeito! Todas as ${P.items.length} opções no lugar certo.` } }, { fx: { placeCheck: true } });
+    upd(ctx, 'place', { result: res, tries, msg: { ok: true, t: `Perfeito! Todas as ${P.items.length} opções no lugar certo.` } }, { ...streakOn(ctx, true), fx: { placeCheck: true } });
     later(ctx, 1200, () => finish(ctx, 7, { xp: 180, coins: 45 }));
     return;
   }
   const bad = P.items.length - ok;
   sfx('wrong');
-  upd(ctx, 'place', { result: res, tries, msg: { ok: false, t: `${ok} de ${P.items.length} corretas. ${bad === 1 ? 'A opção errada volta' : `As ${bad} erradas voltam`} para as opções.` } }, { fx: { placeCheck: true } });
+  upd(ctx, 'place', { result: res, tries, msg: { ok: false, t: `${ok} de ${P.items.length} corretas. ${bad === 1 ? 'A opção errada volta' : `As ${bad} erradas voltam`} para as opções.` } }, { ...streakOn(ctx, false), fx: { placeCheck: true } });
   later(ctx, 1500, () => upd(ctx, 'place', s => {
     const placed = { ...s.placed };
     const locked = { ...s.locked };

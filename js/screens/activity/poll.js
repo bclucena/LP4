@@ -6,6 +6,7 @@ import { icon } from '../../core/icons.js';
 import { poll as P, openPoll as OP } from '../../data/activity.js';
 import { upd, finish, later, fx } from './flow.js';
 import { sfx, tones } from '../../core/sound.js';
+import { pill } from '../../components/badges.js';
 
 const LETTERS = 'ABCDEF';
 const fmt = n => n.toLocaleString('pt-BR');
@@ -26,13 +27,13 @@ function pollView(state) {
       <span class="c-act-poll__letter">${LETTERS[i]}</span>
       <span class="c-act-poll__text"><span>${esc(o.t)}</span>${mine ? '<b>Seu voto</b>' : ''}</span>
       ${voted ? `<span class="c-act-poll__pct"><b>${pct}%</b><span>${fmt(votes[i])} votos</span></span>` : ''}
-      ${voted && votes[i] === max ? '<span class="c-act-pill c-act-pill--warning c-act-pill--xs">Mais votada</span>' : ''}
+      ${voted && votes[i] === max ? pill({ color: 'yellow', label: 'Mais votada', className: 'c-act-poll__top' }) : ''}
     </button>`;
   }).join('');
   const note = voted ? 'Obrigado por participar! Seu voto já está contabilizado.' : p.pick != null ? 'Você pode trocar a escolha antes de votar · Enter confirma' : 'Toque numa alternativa ou use as teclas A a F';
   return `<section class="c-act-card c-act-poll" aria-label="Enquete">
     <div class="c-act-card__head">
-      <div class="c-act-card__bar"><span class="c-act-card__kicker">${voted ? 'Resultado parcial da enquete' : 'Escolha uma alternativa'}</span><span class="c-act-pill">${icon('users', 14)}${fmt(total)} votos</span></div>
+      <div class="c-act-card__bar"><span class="c-act-card__kicker">${voted ? 'Resultado parcial da enquete' : 'Escolha uma alternativa'}</span>${pill({ color: 'grey', iconName: 'users', label: `${fmt(total)} votos` })}</div>
       <h2 class="c-act-card__title c-act-card__title--lg">${esc(P.question)}</h2>
       <span class="c-act-card__lead c-act-card__lead--muted">Enquete de opinião · não existe resposta certa</span>
     </div>

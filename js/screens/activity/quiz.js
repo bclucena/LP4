@@ -39,9 +39,11 @@ function makeQuiz({ id, key, items, label }) {
         ${right ? icon('check-circle', 20, 'c-act-option__mark') : wrong ? icon('x-circle', 20, 'c-act-option__mark') : `<span class="c-act-option__num" aria-hidden="true">${i + 1}</span>`}
       </button>`;
     }).join('');
-    return `<section class="${cx('c-act-quiz', item.img && 'c-act-quiz--support')}" aria-label="${label}">
+    // Mesmo card e cabeçalho das demais mecânicas: instrução (kicker) e pergunta (título) à esquerda, na largura da coluna.
+    const kicker = item.img ? 'Escolha uma alternativa' : `Pergunta ${q.qi + 1} de ${items.length} · Escolha uma alternativa`;
+    return `<section class="${cx('c-act-card c-act-quiz', item.img && 'c-act-quiz--support')}" aria-label="${label}">
       ${support(item, q)}
-      <h2 class="c-act-quiz__q">${esc(item.q)}</h2>
+      <div class="c-act-card__head"><span class="c-act-card__kicker">${kicker}</span><h2 class="c-act-card__title c-act-quiz__q">${esc(item.q)}</h2></div>
       <div class="c-act-quiz__options" role="radiogroup" aria-label="Alternativas">${options}</div>
     </section>`;
   }
@@ -95,7 +97,7 @@ function makeQuiz({ id, key, items, label }) {
       label: last ? 'Finalizar quiz' : 'Continuar',
       action: A.go,
       tone: ok ? 'success' : 'error',
-      feedback: { tone: ok ? 'success' : 'error', icon: ok ? 'check-circle' : 'alert-triangle', title: ok ? 'Excelente!' : q.picked === -1 ? 'Tempo esgotado!' : 'Incorreto.', text: item.e },
+      feedback: { tone: ok ? 'success' : 'error', icon: ok ? undefined : q.picked === -1 ? 'clock' : undefined, title: ok ? 'Excelente!' : q.picked === -1 ? 'Tempo esgotado!' : 'Incorreto.', text: item.e },
     };
   }
 
@@ -112,7 +114,9 @@ function makeQuiz({ id, key, items, label }) {
       return;
     }
     const box = ctx.root.querySelector('[data-tick-box="quiz"]');
-    box?.classList.toggle('is-low', q.timer <= 5);
+    // Pill do design system: cinza no tempo normal, vermelha nos últimos 5 segundos.
+    box?.classList.toggle('c-pill--red', q.timer <= 5);
+    box?.classList.toggle('c-pill--grey', q.timer > 5);
     if (box && q.timer <= 5) { box.classList.remove('is-beat'); void box.offsetWidth; box.classList.add('is-beat'); }
     const t = ctx.root.querySelector('[data-tick="quiz"]');
     if (t) t.textContent = `00:${String(q.timer).padStart(2, '0')}`;
