@@ -1,6 +1,8 @@
 import { cx, esc } from '../core/dom.js';
 import { icon } from '../core/icons.js';
+import { lpIcon } from '../core/lp-icons.js';
 import { exam as E, EXAM_ID } from '../data/activity.js';
+import { button } from './button.js';
 
 /* Diálogo da avaliação, usado no Curso e no Tabuleiro ao clicar numa avaliação, e as duas partes que a tela de Atividades
    também usa (apresentação e confirmação, js/screens/activity/exam.js e parts.js). Estilos: c-act-dialog* e c-act-exam*
@@ -20,7 +22,7 @@ const infoCard = (iconName, tone, label, value, unit = '') =>
 
 /** Apresentação da avaliação (a mesma da tela de Atividades). `titleId`: id do título, para o aria-labelledby do diálogo. */
 export const examInfo = ({ titleId = '' } = {}) => `<div class="c-act-exam__title">
-      <span class="c-act-exam__flag">${icon('flag', 22)}</span>
+      <span class="c-act-exam__flag">${lpIcon('challenge', 22)}</span>
       <h2 ${titleId ? `id="${titleId}"` : ''}>Avaliação</h2>
     </div>
     <p class="c-act-exam__sub">${esc(E.title)}</p>
@@ -38,7 +40,7 @@ export const examTextOk = text => text.trim().toLowerCase() === 'iniciar';
 /** Confirmação (digitar "Iniciar"). `attempt`: número desta tentativa; `input`/`cancel`/`start`: ações de quem usa. */
 export const examConfirm = ({ text = '', attempt = 1, input, cancel, start, label }) => {
   const ok = examTextOk(text);
-  return `<span class="c-act-dialog__badge">${icon('flag', 24)}</span>
+  return `<span class="c-act-dialog__badge">${lpIcon('challenge', 24)}</span>
       <div class="c-act-dialog__text">
         <h2 class="c-act-dialog__title" id="${label}-title">Iniciar a avaliação agora?</h2>
         <p id="${label}-desc">Ao começar, o tempo passa a contar e esta tentativa fica registrada.</p>
@@ -53,8 +55,8 @@ export const examConfirm = ({ text = '', attempt = 1, input, cancel, start, labe
         <input class="${cx('c-act-input', ok && 'is-valid')}" type="text" autocomplete="off" spellcheck="false" data-input="${input}" data-key="${label}-input" data-autofocus value="${esc(text)}" placeholder="Digite aqui" />
       </label>
       <div class="c-act-dialog__actions">
-        <button type="button" class="c-act-btn c-act-btn--stroked" data-action="${cancel}">Agora não</button>
-        <button type="button" class="c-act-btn c-act-btn--default" data-action="${start}" ${ok ? '' : 'disabled'}>Começar avaliação</button>
+        ${button({ variant: 'stroked', label: 'Agora não', action: cancel })}
+        ${button({ label: 'Começar avaliação', action: start, disabled: !ok })}
       </div>`;
 };
 
@@ -67,8 +69,8 @@ export function examDialog(d) {
     : `<div class="c-act-exam c-exam-dialog__info">${examInfo({ titleId: `${label}-title` })}</div>
       <p class="u-sr-only" id="${label}-desc">${esc(E.intro)}</p>
       <div class="c-act-dialog__actions">
-        <button type="button" class="c-act-btn c-act-btn--stroked" data-action="examDialogClose">Cancelar</button>
-        <button type="button" class="c-act-btn c-act-btn--default" data-action="examDialogNext" data-autofocus>Iniciar avaliação</button>
+        ${button({ variant: 'stroked', label: 'Cancelar', action: 'examDialogClose' })}
+        ${button({ label: 'Iniciar avaliação', action: 'examDialogNext', data: { autofocus: '' } })}
       </div>`;
   return `<div class="c-act-dialog c-exam-dialog" data-dialog>
     <div class="c-act-dialog__scrim" data-action="examDialogClose"></div>

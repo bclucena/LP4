@@ -547,3 +547,19 @@ borda de baixo. Concluída: miolo dourado (`background/level`) com aro de 3 na c
 progresso do módulo); aberta: `surface/system-soft`; bloqueada: `background/muted` com o ícone em cinza. A missão do fim do
 módulo não tem número. Tweak "Imagens nos pins" (`&imagens=1`): o miolo recebe uma imagem (cover; em cinza enquanto não abre);
 as imagens de exemplo estão em `pinImages` (`js/data/board.js`). Na trilha A as linhas passam a 126 de altura (o pin B é maior).
+
+## Atividades: coluna de conteúdo das mecânicas (17/11/2026)
+
+Todas as mecânicas usam a coluna de conteúdo do mesmo jeito (`.c-act__content`, até 1040, a mesma largura da barra de desempenho):
+
+- **Largura:** a mecânica ocupa 100% da coluna, em todas as larguras (1440, 1180, 768 e 360). Nada de coluna própria mais estreita
+  e centralizada (o quiz tinha 640 e o quiz com apoio 800).
+- **Estrutura:** um `c-act-card` com o cabeçalho padrão (`c-act-card__head`): instrução em `c-act-card__kicker` e pergunta em
+  `c-act-card__title` (20/32), alinhados à esquerda; indicadores (pills) à direita na `c-act-card__bar`. A Leitura e o Slideshow
+  são páginas de conteúdo e não usam card, mas começam na mesma borda.
+- **Posição:** sempre no topo da coluna (`margin: 0 auto`); antes as mecânicas curtas ficavam centralizadas na altura.
+- **Medida de texto:** blocos de texto corrido (parágrafos, citações) param em **720** para manter a leitura confortável; é a
+  única largura menor permitida dentro da coluna.
+- **Objetos do jogo** com tamanho próprio (carta do this or that, teclado e forca, grades da memória e do mosaico, tabuleiro do
+  misturadinho e do quebra-cabeça) ficam centralizados dentro da largura da coluna, sem mudar a largura da mecânica.
+- Mecânica nova segue o mesmo molde; o skeleton também ocupa a coluna inteira, alinhado à esquerda.

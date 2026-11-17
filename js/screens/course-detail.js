@@ -206,7 +206,7 @@ export const summary = (d, { cover = true, progress = true, cta = true, rewards 
 const stats = d => [
   { v: d.modules.length, l: 'Módulos' },
   { v: d.total, l: 'Atividades' },
-  { v: fmtMinutes(d.totalMin), l: 'Tempo do curso', wide: true },
+  { v: fmtMinutes(d.totalMin), l: 'Tempo de conteúdo', wide: true },
 ];
 
 const statBoxes = d => `<div class="c-cd-boxes">${stats(d).map(s => `<div class="${cx(s.wide && 'c-cd-boxes__wide')}">${infoBox('', s.v, s.l)}</div>`).join('')}</div>`;
@@ -215,8 +215,9 @@ const categoryTags = () => `<div class="c-cd-tags">${course.categories.map(c => 
 
 /** "Sobre o curso" e "Categorias" na coluna lateral (tweak sobre=cards, o padrão). */
 /** Os dois cards separados (o Tabuleiro usa cada um num lugar do drawer "Sobre o curso"). */
-export const sideAboutCourse = d => `<section class="c-cd-side" aria-labelledby="cd-about-side">
-    <h3 class="c-cd-side__title" id="cd-about-side">Sobre o curso</h3>
+/** title: false tira o título "Sobre o curso" (no dock do Tabuleiro a aba já se chama "Sobre"). */
+export const sideAboutCourse = (d, { title = true } = {}) => `<section class="c-cd-side" ${title ? 'aria-labelledby="cd-about-side"' : 'aria-label="Sobre o curso"'}>
+    ${title ? '<h3 class="c-cd-side__title" id="cd-about-side">Sobre o curso</h3>' : ''}
     <div class="c-cd-side__pad">${statBoxes(d)}</div>
     <div class="c-cd-side__pad" role="group" aria-label="Recursos disponíveis">${resourceTags()}</div>
   </section>`;
@@ -280,7 +281,7 @@ function activityRow(a, d) {
    compacta, sempre cinza. O título começa alinhado ao texto do tipo ("Atividade 1"), depois do ícone. */
 /** Estrelas ganhas na atividade concluída (1 a 3; o mesmo padrão do Tabuleiro): vão na linha do tipo, depois da duração,
     com o ponto separador. As que faltam ficam em contorno. */
-const earnedStars = n => `<span class="c-cd-bullet" aria-hidden="true"></span><span class="c-cd-tl__stars" role="img" aria-label="${n} de 3 estrelas">${[1, 2, 3].map(k =>
+export const earnedStars = n => `<span class="c-cd-bullet" aria-hidden="true"></span><span class="c-cd-tl__stars" role="img" aria-label="${n} de 3 estrelas">${[1, 2, 3].map(k =>
   `<span class="${cx('c-cd-tl__star', k <= n && 'is-on')}">${icon('star', 12)}</span>`).join('')}</span>`;
 
 const TL_ICON = { done: 'check', locked: 'lock' }; // liberadas (atual e abertas): marcador sem ícone
@@ -293,15 +294,15 @@ function timelineRow(a, d) {
   const g = actGroup(a.kind);
   const kicker = g === 'missao' ? look.label : `${look.label} · ${a.min} min`;
   const inner = `<span class="c-cd-tl__body">
-      <span class="c-cd-tl__kicker">${look.icon}<span>${esc(kicker)}</span>${got ? earnedStars(starsPattern[a.index % starsPattern.length]) : ''}</span>
-      <span class="c-cd-tl__title" title="${esc(a.title)}">${esc(a.title)}</span>
+      <span class="c-cd-tl__head">${look.icon}<span class="c-cd-tl__title" title="${esc(a.title)}">${esc(a.title)}</span></span>
+      <span class="c-cd-tl__kicker"><span>${esc(kicker)}</span>${got ? earnedStars(starsPattern[a.index % starsPattern.length]) : ''}</span>
     </span>
     <span class="c-cd-tl__end">
       <span class="c-cd-tl__rewards">
         <span title="Pontos">${icon('star', 14)}<b>${fmtInt(got ? r.pts : 0)}</b>/${fmtInt(r.pts)}<span class="u-sr-only"> pontos</span></span>
         <span title="Moedas">${lpIcon('coin', 14)}<b>${fmtInt(got ? r.coins : 0)}</b>/${fmtInt(r.coins)}<span class="u-sr-only"> moedas</span></span>
       </span>
-      ${st === 'locked' ? '' : `<span class="c-cd-tl__go" aria-hidden="true">${icon('play-circle', 20)}</span>`}
+      ${st === 'locked' ? '' : `<span class="c-cd-tl__go" aria-hidden="true">${icon('chevron-right', 20)}</span>`}
     </span>`;
   const node = `<span class="c-cd-tl__node" aria-hidden="true">${TL_ICON[st] ? icon(TL_ICON[st], 10) : ''}</span>`;
   let row;

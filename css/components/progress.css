@@ -6,7 +6,8 @@
 }
 
 .c-donut__track { stroke: var(--color-background-muted); }
-.c-donut__fill { stroke: var(--color-action); }
+.c-donut__fill { stroke: var(--color-action); transition: stroke-dashoffset 0.4s ease-out; }
+.c-donut__fill.is-empty { opacity: 0; }
 
 .c-progress {
   display: flex;

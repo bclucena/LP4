@@ -52,6 +52,49 @@ Fluxo de curso (protótipo `Ludos Pro 4.0/ludos-pro-fluxo`, exportado do Claude 
   com os pins e o cartão de módulo da Versão A.
 - [x] Atividades (`Atividade-Quiz-v2.dc.html` → `js/screens/activity.js` + `js/screens/activity/`, `#atividade`, `#atividade?item=<id>`):
   menu de atividades, barra de desempenho (tempo, sequência, vidas, pontos), 14 mecânicas, leitura e avaliação final.
+  **Barra de desempenho no design system (17/11/2026):** saíram os chips e botões próprios da tela (`c-act-chip`, `c-act-close`);
+  agora usa `progressBar` (novo em `progress.js`, a barra de 8 do DS com `role="progressbar"`), `pill` com contorno (tempo e
+  sequência em cinza, tempo nos últimos 5s em vermelho, sequência > 1 em amarelo, pontos em system, "+ pts" em verde) e
+  `buttonIcon` large com contorno para fechar e para guardar/mostrar a trilha. `pill` ganhou `html`, `className` e `attrs`;
+  `buttonIcon` ganhou `action`, `className` e `attrs` (e `title` = rótulo).
+  **Menu de atividades no design system (17/11/2026):** botões da capa (buscar, abrir/fechar a lista) = `buttonIcon` ghost
+  (ícone em text-on-color sobre a capa escura); barra do curso = `progressBar`; contador do grupo ("0/12") = `pill` cinza; anel de
+  andamento do item = `progressDonut` em 24px. No estilo "Cards" do menu, abrir/fechar = `buttonIcon` large e a barra =
+  `progressBar`. `progressDonut` ganhou `{ size, ringId }`, usa pathLength 100 (dashoffset = 100 − valor) e esconde o
+  preenchimento em 0%. O item da lista continua próprio da tela: o DS ainda não tem "button menu".
+  **Busca e ícone da avaliação (17/11/2026):** novo componente `searchField` (`js/components/search.js` +
+  `css/components/search.css`, página "Search" no catálogo), o "Search" da app bar: a app bar e a busca do menu de atividades
+  usam o mesmo campo (no menu, com o fechar = `buttonIcon` small sem contorno). A avaliação final passou a usar o LP-Icon
+  `challenge` (dois lápis cruzados) no menu e no diálogo da avaliação, como no Curso e no Tabuleiro.
+  **Card de missão (17/11/2026):** no fim de cada módulo do menu, "Missão do módulo N" (ícone target), no mesmo card da
+  avaliação. Bloqueado ("Conclua o módulo", cadeado) até todas as mecânicas do módulo terminarem; liberado ("Disponível", na cor
+  da marca) abre `#missoes`, como o pin da missão no Tabuleiro. Limitação do mockup: as 16 mecânicas se repetem entre os módulos e
+  o status é por mecânica, então ao concluir o módulo 1 todas as missões liberam juntas. Fora do estilo "Cards" do menu.
+  **Mecânicas no design system (17/11/2026):** saíram `c-act-btn` e `c-act-pill`. Rodapé, diálogos (sair e avaliação) e as
+  ações das mecânicas (dicas, Limpar, Recomeçar, Reembaralhar, Segure para espiar) usam `button` (primary/stroked; `size:
+  'mobile'` nas linhas de indicadores); "Sair sem pontuar" virou stroked (o DS não tem botão de perigo). Indicadores usam `pill`
+  (cinza, verde, vermelho, amarelo, system). `button` ganhou `href` (vira link) e `title`. Tipografia das mecânicas na escala
+  do DS: títulos 20/32 (heading), avaliação e resultado 30/40 (display-sm), apoio 16/24; 18 fica só nas letras dos jogos
+  (price 18/28). Continuam próprios da tela (sem equivalente no DS): teclado e letras da forca, cartas, peças, zonas de soltar,
+  pontos de progresso (`c-act-dot`), selos de acerto (`c-act-badge`), alerta e o campo de confirmação da avaliação.
+  **Coluna de conteúdo única (17/11/2026):** quiz, quiz com apoio e questão da avaliação viraram `c-act-card` com o cabeçalho
+  padrão (antes 640/800 centralizados, pergunta centralizada); a coluna começa sempre no topo; texto corrido da Leitura em 720
+  (era 768 nas citações); skeleton na largura da coluna. Regra completa em `design-system/HANDOFF.md`.
+  **Feedback de acerto e erro (17/11/2026):** novo componente `feedback` (`js/components/feedback.js` +
+  `css/components/feedback.css`, página "Feedback" no catálogo). Nem o catálogo nem o Figma (DS e página X.Mecânicas) tinham
+  esse elemento, então ele foi montado com os fundamentos do DS: ícone Feather de 24 numa caixa de 40 (radius xl,
+  background/default), título subtitle 16/24 bold na cor do status, texto body 14/20, cores fixas de status. Variantes `banner`
+  (faixa do rodapé) e `inline` (This or that). Ícones: acerto check-circle, erro x-circle (antes alert-triangle, que é aviso),
+  tempo esgotado clock. O conteúdo do rodapé agora alinha com a coluna de conteúdo (antes 1088, agora 1040 + respiro lateral).
+  **Ícone da sequência (17/11/2026):** novo LP-Icon `flame` (Figma "LP-DesignSystem 4.0", componente `icons/LPIcons/flame`
+  5204:1945 na página "-> mecanicas"; SVG em `assets/icons/lp/flame.svg`, gerado em `lp-icons.js`). Substitui o `trending-up`
+  na pill de sequência da barra de desempenho.
+  **Sequência em todas as mecânicas (17/11/2026):** antes só o Quiz e o This or that mexiam no `streak` (por isso parava em 4,
+  depois dos dois quizzes). Agora acerto soma 1 e erro zera em todas as mecânicas de jogo, pelo helper `streakOn` de `flow.js`,
+  junto da atualização que cada uma já fazia: palavra achada/seleção errada (caça-palavras), letra certa/errada (forca), par
+  formado/não (memória), palavra certa/errada (misturadinho), conferir certo/errado (no lugar, ordenadinho), erro achado/toque
+  fora (7 erros), troca que encaixa/não encaixa peça (quebra-cabeça; a dica não conta) e mosaico perfeito/não. Leitura,
+  slideshow, enquetes e avaliação não mexem na sequência.
 - Páginas internas: `js/app.js` liga `data-layout="focus"` (sem menu lateral, busca mobile e navigation bar; abaixo de 768 a tela traz o próprio cabeçalho).
 - Sons das Atividades: `js/core/sound.js` (Web Audio, sem arquivos), os mesmos tons do protótipo, com liga/desliga na barra de desempenho
   (guardado no navegador, chave `lp-sound`).
@@ -288,3 +331,102 @@ Catálogo (páginas de documentação, em `index.html`):
   flex, cores ligadas às variáveis "Colors" (modo Light), estilos de texto `type/*` quando o tamanho bate com a escala, ícones
   como instâncias dos Feather do DS e o botão do rodapé como instância do `button` (filled). As imagens ficam no quadro
   oculto "_assets" da mesma página. Menu lateral, barra de desempenho e rodapé ainda não são componentes.
+
+### Atividades: cabeçalho único das mecânicas
+
+- Todas as mecânicas (Quiz, Quiz com apoio, Leitura, Slideshow, Caça-palavras, Emparedado, Memória, Misturadinho, No lugar,
+  Ordenadinho, Quebra-cabeça, 7 erros, This or that, Enquete, Enquete aberta, Mosaico e as questões da Avaliação) usam o mesmo
+  cabeçalho, `head()` em `js/screens/activity/head.js`:
+  - linha de cima (sempre 32px): instrução à esquerda (14/20 600, texto secundário), com o progresso na frente quando houver
+    ("Pergunta 1 de 3 · Escolha uma alternativa"); contadores (pills) e ações (Dica, Recomeçar) à direita;
+  - título abaixo: a pergunta ou o desafio, heading 20/32 700.
+- Saíram as variações: instrução abaixo do título (Enquete), pills numa linha própria acima (This or that) ou abaixo (Emparedado),
+  barra sem título (Caça-palavras e Misturadinho) e o meta com relógio da Leitura/Slideshow (agora "Leitura de 5 min · …").
+- Caça-palavras ganhou título ("Encontre as 5 palavras ocultas"); no Misturadinho, o título é a própria frase com as lacunas.
+- Quiz com apoio: o kicker do bloco de apoio virou "Texto de apoio"; "Pergunta N de M" fica só no cabeçalho da pergunta.
+- Leitura e Slideshow: o título do texto passou de 30/40 para o heading 20/32 do modelo único.
+- Subtítulos dentro da Leitura (`.c-act-read__h`) também ficam no heading 20/32 700 em todas as larguras (antes iam a 30/40 a
+  partir de 768 e ficariam maiores que o título da atividade).
+
+### Atividades: coluna de conteúdo mais estreita
+
+- A coluna das mecânicas passou de 1040px para 792px (−24%, arredondado ao múltiplo de 4), na variável `--act-col` de
+  `.c-act`. A barra de desempenho, o rodapé e os skeletons usam a mesma variável e continuam alinhados à coluna.
+
+### Atividades: alternativas do Quiz e da Enquete pelo Figma
+
+- Alternativas do Quiz, do Quiz com apoio, das questões da Avaliação e da Enquete seguem o componente `c-act-option` do Figma
+  (LP-DesignSystem 4.0, node 5208:1948): fundo `--color-background-default`, borda 1px `--color-border-default`, raio 12,
+  padding 16/20, gap 16; letra (A, B, C…) à esquerda num círculo de 24px com borda (body-medium 14/20 500, texto secundário);
+  texto 16/24 400 primário.
+- O número à direita do Quiz saiu; ao responder, o círculo da letra vira o ícone de certo/errado (24px). Selecionada: círculo
+  preenchido com `--color-action`. As teclas 1–4 continuam valendo e A–D passaram a valer também no Quiz e na Avaliação.
+- Enquete: mesma caixa, letra e texto (antes círculo de 36px com borda de 2px e texto 600); a barra e o percentual do
+  resultado continuam iguais.
+
+### Atividades: apresentação antes da mecânica
+
+- Novo passo entre o clique no card da atividade (Curso, Tabuleiro, link `#atividade?item=N`) e a mecânica, pelo Figma
+  (LP-DesignSystem 4.0, node 5213:1953): `js/screens/activity/intro.js`, textos em `intros` de `js/data/activity.js`.
+  - App bar visível; menu de atividades e barra de desempenho escondidos.
+  - Coluna de 640px centralizada na altura livre: kicker "Atividade N" (12/16 700, `--color-text-brand`, espaçamento 1px),
+    título 30/40 800 (24/32 abaixo de 768) e parágrafos 16/28 400 (`--color-text-default`), gap 16.
+  - X no canto superior direito (buttonIcon large com contorno, a partir de 768) volta ao Curso sem diálogo; abaixo de 768
+    fica o "Voltar" do cabeçalho mobile.
+  - Rodapé com "Iniciar" (Enter também inicia). Ao iniciar, a app bar sobe e o menu (abre da esquerda) e a barra de
+    desempenho (desce) entram juntos em 600ms ease-in-out; respeita `prefers-reduced-motion`.
+- Os relógios (cronômetro do quiz, tempo decorrido) só começam depois de "Iniciar".
+- Quem esconde a app bar agora é a tela de Atividades (no render, fora da apresentação); `js/app.js` só a reexibe nas outras telas.
+- Trocar de atividade pelo menu vai direto para a mecânica. A Avaliação final não tem esse passo (já tem a própria tela de
+  informações e a confirmação).
+
+### Curso: seta do card de atividade
+
+- No card de atividade da trilha do Curso (`.c-cd-tl__go`), o ícone play-circle virou chevron-right (20px).
+
+### Curso: divisórias nos materiais de apoio
+
+- Voltou a divisória de 1px (`--color-border-default`) entre os itens de "Materiais de apoio" (`.c-cd-materials > li + li`),
+  com 8px de espaço acima e abaixo da linha.
+
+### Curso: kicker das atividades sem caixa alta
+
+- No kicker da trilha (`.c-cd-tl__kicker`) saíram `text-transform: uppercase` e o espaçamento de letras: fica "Atividade 1 · 8 min",
+  como no módulo.
+- Ordem invertida na linha da trilha: título em cima (`.c-cd-tl__head`, com o ícone do tipo à esquerda, na mesma posição de
+  antes) e as informações embaixo ("Atividade 1 · 8 min" e estrelas), alinhadas ao texto do título (recuo de 18px).
+- Título das atividades concluídas na trilha com a mesma cor das liberadas (`--color-text-default`); o peso 600 continua.
+- Título das atividades concluídas e liberadas igual ao da em andamento: 14/20 700 `--color-text-primary` (só as bloqueadas
+  ficam em `--color-text-tertiary`).
+
+### Tabuleiro: dock recolhido vira FAB; "Sobre" e "Tempo de conteúdo"
+
+- Dock (tweak painel=dock) recolhido: só um FAB de 56px com o anel de progresso (44px, % no centro). Saíram o nome do curso,
+  a seta e o botão circular de cima; o nome fica no rótulo acessível ("Mostrar o curso … (21% concluído)") e um clique abre o dock.
+- Aba do dock "Sobre o curso" → "Sobre". Na aba, o conjunto de cards (Módulos, Atividades e tempo) aparece sem o título
+  "Sobre o curso" (`sideAboutCourse(d, { title: false })`; no Curso e no drawer da barra integrada o título continua).
+- Card de tempo: "Tempo do curso" → "Tempo de conteúdo" (em todos os lugares que usam esses cards: Curso, Tabuleiro e mobile).
+- Dock (Versão C, desktop): a trilha usa a mesma largura da barra integrada — calcula a largura que a barra teria
+  (área − 144, até 1120) e dá ao cartão do módulo 68% dela (`measureTrailB`). Pins com o mesmo espaçamento (164px em 1254,
+  177px em 1440) e cartão do módulo do mesmo tamanho (712 e 762px) nas duas versões.
+- Trilha Versão C (horizontal, desktop e tablet): distância entre as fileiras de pins 50% maior, de 132 para 198px
+  (`step` em `trailBLayout`). A Versão B e a trilha vertical do mobile não mudam.
+- Dock no canto superior direito (abaixo da app bar, a 24 da borda): o FAB recolhido e o cartão aberto. Aberto, o cartão empurra
+  a trilha para o lado (`.is-dock-open` abre 348px à direita; `DOCK_PUSH` em board.js). A largura da trilha continua calculada
+  como na barra integrada, mas limitada ao espaço livre: em 1440 os pins mantêm 177px; em 1254 com o dock aberto a trilha se
+  ajusta ao espaço (132px entre pins, cartão do módulo de 587). O botão de recolher passou a ser chevron-up.
+- Dock aberto: o botão de recolher (chevron-up) passou para o meio da borda de baixo do cartão. O cartão tem a altura do
+  conteúdo, até a base da tela (rola por dentro).
+- Abrir e recolher o dock anima a trilha: ela desliza para a esquerda (aberto) ou volta ao centro (recolhido) em 600ms
+  ease-in-out (FLIP em `toggleDock`: mede antes e depois do render e anima a diferença; sem animação com movimento reduzido).
+- Dock: recolher encolhe o cartão para cima, até o canto superior direito (onde fica o FAB), com os elementos saindo para
+  cima (clip-path, 300ms); abrir faz o inverso, o cartão cresce para baixo a partir do FAB. O FAB entra com fade e escala.
+
+### Tabuleiro: cartão de hover do pin igual à linha de atividade do Curso
+
+- O cartão que aparece no hover (e no foco) do pin usa os elementos da trilha do Curso: título 14/20 700 com o ícone do tipo à
+  esquerda; embaixo "Atividade N · X min" (11/14 600, sem caixa alta) com as estrelas da atividade concluída; a pílula de pontos
+  e moedas (`.c-cd-tl__rewards`); e a situação (Concluída, Disponível…). `earnedStars` passou a ser exportado de course-detail.js.
+  O bottom sheet do toque (mobile e tablet) não mudou.
+- Cartão de hover do pin: sem as estrelas. Pin bloqueado (`.c-board-tip--locked`): título, ícone e "Atividade N · X min" em
+  `--color-text-tertiary`, como a atividade bloqueada na trilha do Curso (a pílula de pontos e moedas não muda).

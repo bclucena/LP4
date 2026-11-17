@@ -1,10 +1,10 @@
 import { createView } from '../core/view.js';
 import { minWidth } from '../core/media.js';
-import { icon } from '../core/icons.js';
 import { cx } from '../core/dom.js';
+import { buttonIcon } from '../components/button.js';
 import { sfx, soundOn, setSound } from '../core/sound.js';
 import { START, EXAM_ID } from '../data/activity.js';
-import { initialStatus, nextOpen, defaultFooter, statusOf, ORDER } from './activity/flow.js';
+import { initialStatus, nextOpen, defaultFooter, statusOf, ORDER, fx } from './activity/flow.js';
 import { mobileHeader, trail, hud, footer, exitDialog, finalDialog, skeleton } from './activity/parts.js';
 import quiz, { quizSupportMech } from './activity/quiz.js';
 import { readingMech, slidesMech, trackScroll } from './activity/reading.js';
@@ -20,12 +20,15 @@ import thisOrThat from './activity/this-or-that.js';
 import { pollMech, openMech } from './activity/poll.js';
 import mosaic from './activity/mosaic.js';
 import exam from './activity/exam.js';
+import { hasIntro, introView, introClose, introFooter } from './activity/intro.js';
 
 /* Atividades (fluxo ludos-pro-fluxo, Atividade-Quiz-v2.dc.html): menu de atividades com a capa do curso, barra de desempenho
    (progresso, tempo, sequência, vidas e pontos), a mecânica da vez e o rodapé "Continuar".
    - A partir de 1024 o menu fica fixo à esquerda (pode ser guardado); abaixo, vira um card recolhível acima da barra.
    - Abaixo de 768 a app bar da casca some e a tela traz o próprio cabeçalho (Voltar, logo e avatar).
    - Cada mecânica fica em ./activity/<mecânica>.js e expõe { id, key, init, view, actions, footer, pct, ... }.
+   - Ao entrar na tela, a atividade abre pela apresentação (./activity/intro.js): app bar visível, sem menu e sem barra; "Iniciar"
+     entra na mecânica. Trocar de atividade pelo menu vai direto para a mecânica.
    - Abrir uma atividade direto: #atividade?item=<id> (ids em js/data/activity.js). Avaliação já confirmada (diálogo do Curso
      e do Tabuleiro): #atividade?item=15&iniciar=1 abre com as questões.
    Tweaks (js/data/tweaks.js, no endereço): trilha=cards (estilo "Cards" do menu), desbloquear=1 (todas abrem),
@@ -66,12 +69,14 @@ function initialState(loading) {
     loading, view: ORDER[0], status: initialStatus(), justDone: null,
     xp: START.xp, coins: START.coins, lives: START.lives, streak: 0, gain: null, gainFrom: null,
     hidden: false, trailOpen: false, closed: {}, search: { open: false, q: '' },
-    exit: false, finalAsk: false, finalText: '', fx: {}, tw: tweaksFromHash(),
+    exit: false, finalAsk: false, finalText: '', fx: {}, tw: tweaksFromHash(), intro: false,
   };
   MECHS.forEach(m => { state[m.key] = m.init(); });
   const item = itemFromHash();
+  state.intro = hasIntro(state.view);
   if (!item) return state;
   const next = withItem(state, item);
+  next.intro = hasIntro(next.view);
   // Vindo do diálogo da avaliação do Curso ou do Tabuleiro (já confirmada): #atividade?item=15&iniciar=1 começa direto.
   if (item === EXAM_ID && hashParams().get('iniciar') === '1') next.exam = { ...next.exam, started: true, tries: next.exam.tries + 1 };
   return next;
@@ -85,12 +90,13 @@ function view(state, ctx) {
   const side = minWidth(SIDE);
   if (state.loading) return skeleton(side);
   const mech = byId[state.view];
+  if (state.intro) return introScreen(state, side);
   const f = mech.footer(state) ?? defaultFooter(state);
   const handle = side
-    ? `<button type="button" class="c-act-sidetoggle" data-action="toggleSide" aria-expanded="${!state.hidden}" aria-label="${state.hidden ? 'Mostrar trilha' : 'Guardar trilha'}" title="${state.hidden ? 'Mostrar trilha' : 'Guardar trilha'}">${icon('chevrons-left', 18)}</button>`
+    ? buttonIcon({ name: 'chevrons-left', label: state.hidden ? 'Mostrar trilha' : 'Guardar trilha', action: 'toggleSide', className: 'c-act-sidetoggle', attrs: { 'aria-expanded': String(!state.hidden) } })
     : '';
   const tw = state.tw;
-  return `<div class="${cx('c-act', side && 'c-act--side', side && state.hidden && 'is-collapsed', tw.type === 'b' && 'c-act--type-b', !tw.card && 'c-act--flat')}" data-reveal="content">
+  return `<div class="${cx('c-act', side && 'c-act--side', side && state.hidden && 'is-collapsed', tw.type === 'b' && 'c-act--type-b', !tw.card && 'c-act--flat', fx(state, 'enter') && 'is-enter')}" data-reveal="content">
     ${mobileHeader()}
     <div class="c-act__side">${handle}<div class="c-act__side-clip">${trail(state, { side, pctOf: pctFor(state) })}</div></div>
     <div class="c-act__main">
@@ -103,6 +109,30 @@ function view(state, ctx) {
     ${state.exit ? exitDialog(state) : ''}
     ${state.finalAsk ? finalDialog(state) : ''}
   </div>`;
+}
+
+/** Apresentação da atividade: sem menu e sem barra de desempenho; o rodapé traz "Iniciar". */
+function introScreen(state, side) {
+  const tw = state.tw;
+  return `<div class="${cx('c-act c-act--intro', side && 'c-act--side', tw.type === 'b' && 'c-act--type-b', 'c-act--flat')}" data-reveal="content">
+    ${mobileHeader()}
+    <div class="c-act__main">
+      <div class="c-act__body">
+        ${introClose()}
+        <div class="c-act__content" data-act="intro">${introView(state)}</div>
+      </div>
+      ${footer(introFooter)}
+    </div>
+  </div>`;
+}
+
+/** Sai da apresentação para a mecânica: a app bar sobe e o menu e a barra entram (is-enter, 600ms). */
+function startAct(ctx) {
+  if (!ctx.state.intro) return;
+  sfx('click');
+  window.scrollTo({ top: 0 });
+  ctx.set({ intro: false, fx: { enter: true } });
+  requestAnimationFrame(() => trackScroll(ctx));
 }
 
 /** Vai para a atividade `id` (se liberada), zerando o jogo quando ele já tinha sido concluído. */
@@ -121,6 +151,8 @@ function go(ctx, id) {
 
 const actions = {
   openAct: (ctx, el) => go(ctx, Number(el.dataset.id)),
+  startAct,
+  leaveIntro: () => { sfx('click'); location.hash = '#curso'; },
   goNext: ctx => { const n = nextOpen(ctx.state); if (n) go(ctx, n); },
 
   // Menu de atividades
@@ -152,6 +184,10 @@ const actions = {
 function onKey(ctx, e) {
   const s = ctx.state;
   if (s.loading) return;
+  if (s.intro) {
+    if (e.key === 'Enter' && !e.target.closest?.('button, a, input, textarea')) { e.preventDefault(); startAct(ctx); }
+    return;
+  }
   if (e.key === 'Escape') {
     if (s.finalAsk) ctx.set({ finalAsk: false });
     else if (s.exit) ctx.set({ exit: false });
@@ -177,6 +213,9 @@ export function mountActivity(root, { loading = true } = {}) {
     actions,
     breakpoints: [768, SIDE],
     onRender: c => {
+      // App bar: visível no carregamento e na apresentação; some (sobe em 600ms, css/shell.css) quando a mecânica começa.
+      const shell = document.getElementById('shell');
+      if (shell) { if (c.state.loading || c.state.intro) delete shell.dataset.hideTopbar; else shell.dataset.hideTopbar = ''; }
       const fxs = c.state.fx;
       c.state.fx = {};
       if (fxs.dialog || fxs.searchOpen) c.root.querySelector(fxs.dialog ? '[data-autofocus]' : '[data-key="act-search"]')?.focus();
@@ -197,7 +236,7 @@ export function mountActivity(root, { loading = true } = {}) {
 
   // Relógios: um tique por segundo para a mecânica aberta (e para a avaliação, que conta mesmo fora da tela).
   const timer = setInterval(() => {
-    if (ctx.destroyed || ctx.state.loading || ctx.state.exit || ctx.state.finalAsk) return;
+    if (ctx.destroyed || ctx.state.loading || ctx.state.intro || ctx.state.exit || ctx.state.finalAsk) return;
     for (const m of MECHS) if (m.tick && (m.id === ctx.state.view || m.tickAlways)) m.tick(ctx);
   }, 1000);
 

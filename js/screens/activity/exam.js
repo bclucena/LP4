@@ -7,6 +7,7 @@ import { exam as E } from '../../data/activity.js';
 import { upd, finish, fx, clock2, statusOf } from './flow.js';
 import { sfx } from '../../core/sound.js';
 import { examInfo } from '../../components/exam-dialog.js';
+import { head } from './head.js';
 
 const Q = E.questions;
 export const init = () => ({ started: false, q: 0, sel: null, ans: [], sec: 0, tries: 0, result: null, review: false });
@@ -17,10 +18,10 @@ const intro = () => `<section class="c-act-exam" aria-label="Avaliação final">
 function question(x) {
   const item = Q[x.q];
   const opts = item.o.map((t, i) => `<button type="button" role="radio" aria-checked="${x.sel === i}" class="${cx('c-act-option', x.sel === i && 'is-selected')}" data-action="examChoose" data-i="${i}">
-    <span class="c-act-option__text">${esc(t)}</span><span class="c-act-option__num" aria-hidden="true">${i + 1}</span>
+    <span class="c-act-option__letter" aria-hidden="true">${'ABCDEF'[i]}</span><span class="c-act-option__text">${esc(t)}</span>
   </button>`).join('');
-  return `<section class="c-act-quiz" aria-label="Avaliação · questão">
-    <div class="c-act-quiz__head"><span class="c-act-card__kicker">Questão ${x.q + 1} de ${Q.length}</span><h2 class="c-act-quiz__q">${esc(item.q)}</h2></div>
+  return `<section class="c-act-card c-act-quiz" aria-label="Avaliação · questão">
+    ${head({ kicker: `Questão ${x.q + 1} de ${Q.length} · Escolha uma alternativa`, title: esc(item.q) })}
     <div class="c-act-quiz__options" role="radiogroup" aria-label="Alternativas">${opts}</div>
   </section>`;
 }
@@ -140,8 +141,8 @@ export default {
   keys: (ctx, e) => {
     const x = ctx.state.exam;
     if (!x.started || x.result) return false;
-    const n = Number(e.key);
-    if (n >= 1 && n <= Q[x.q].o.length) { upd(ctx, 'exam', { sel: n - 1 }); return true; }
+    const i = e.key.length === 1 ? (/^[1-6]$/.test(e.key) ? Number(e.key) - 1 : 'abcdef'.indexOf(e.key.toLowerCase())) : -1;
+    if (i >= 0 && i < Q[x.q].o.length) { upd(ctx, 'exam', { sel: i }); return true; }
     if (e.key === 'Enter') { next(ctx); return true; }
     return false;
   },

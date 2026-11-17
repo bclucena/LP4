@@ -3,7 +3,7 @@ import { loadSavedTheme } from '../core/theme.js';
 import { esc } from '../core/dom.js';
 import { soonPage } from './layout.js';
 import { colors, typography, spacingPage, effects, fillSwatches } from './pages/foundations.js';
-import { buttons, chips, tags, pills, avatars, links, paginations, tooltips, componentActions } from './pages/components.js';
+import { buttons, chips, tags, pills, avatars, links, paginations, tooltips, searches, feedbacks, componentActions } from './pages/components.js';
 import { icons, iconActions } from './pages/icons.js';
 import { themePicker, themeActions, themePage, figmaVsGenerator } from './pages/theme.js';
 import { bottomSheets, homeCards, tabsPage, textFields, dropdowns, rankings, mobileInventory, mobileActions } from './pages/mobile.js';
@@ -49,6 +49,8 @@ const groups = [
       { id: 'link', label: 'Link', page: links },
       { id: 'pagination', label: 'Pagination', page: paginations },
       { id: 'tooltips', label: 'Tooltips', page: tooltips },
+      { id: 'search', label: 'Search', page: searches },
+      { id: 'feedback', label: 'Feedback', page: feedbacks },
       { id: 'icones', label: 'Ícones', page: icons },
     ],
   },

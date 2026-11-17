@@ -1,6 +1,7 @@
 import { cx, esc } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { avatar } from '../components/avatar.js';
+import { searchField } from '../components/search.js';
 
 /* Casca do produto (handoff): app bar (44 no mobile, 64 a partir de 768), menu lateral a partir de 1180 (lg) e
    navigation bar abaixo de 1180. A troca entre elas é só CSS (css/shell.css); aqui só há marcação.
@@ -25,7 +26,7 @@ export const topbar = () => `<header class="c-topbar" data-reveal="appbar">
   <div class="c-topbar__desk">
     <button type="button" aria-label="Home" data-action="navigate" data-id="home">${logo('c-logo--desk')}</button>
     <div class="c-topbar__tools">
-      <label class="c-search">${icon('search', 18)}<input placeholder="Buscar cursos, trilhas, missões…" /></label>
+      ${searchField({ placeholder: 'Buscar cursos, trilhas, missões…', className: 'c-search--topbar' })}
       <div class="c-topbar__actions">${topbarIcon('bell', 'Notificações')}${topbarIcon('message-square', 'Mensagens')}</div>
       ${profileSlot(false)}
     </div>

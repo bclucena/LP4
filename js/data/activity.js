@@ -31,10 +31,80 @@ export const activities = [
   { id: 12, title: 'Enquete', mech: 'Enquete', xp: 50, icon: 'bar-chart-2' },
   { id: 13, title: 'Enquete aberta', mech: 'Enquete aberta', xp: 60, icon: 'message-square' },
   { id: 14, title: 'Mosaico', mech: 'Mosaico', xp: 160, icon: 'layout' },
-  { id: 15, title: 'Avaliação final', mech: 'Avaliação', xp: 1000, icon: 'flag' },
+  { id: 15, title: 'Avaliação final', mech: 'Avaliação', xp: 1000, icon: 'challenge' } // LP-Icon (dois lápis cruzados), o mesmo da avaliação no Curso e no Tabuleiro,
 ];
 
 export const EXAM_ID = 15;
+
+/** Apresentação de cada atividade (passo antes da mecânica, Figma LP-DesignSystem 4.0, node 5213:1953): título e parágrafos.
+    O kicker ("Atividade N") vem da posição na trilha. A avaliação final tem a própria apresentação (examInfo). */
+export const intros = {
+  1: { t: 'Uma div? Uma section? Ou um article?', ps: [
+    'HTML (HyperText Markup Language) é a linguagem que estrutura o conteúdo da web. Ele não é uma linguagem de programação: em vez de executar lógica, descreve o que cada parte de uma página é — um título, um parágrafo, uma lista, uma imagem ou um link.',
+    'Quando você abre um site, o navegador baixa o arquivo HTML, lê suas marcações de cima para baixo e monta uma árvore de objetos chamada DOM (Document Object Model). É a partir dessa árvore que a página é desenhada na tela, estilizada pelo CSS e tornada interativa pelo JavaScript.',
+    'Por isso, um HTML bem escrito é a base de tudo: se a estrutura estiver clara, o restante da página fica mais fácil de estilizar, manter e acessar.',
+  ] },
+  17: { t: 'Leia, observe e responda', ps: [
+    'Neste quiz, cada pergunta vem acompanhada de uma imagem e de um texto de apoio. Leia com calma antes de responder: a resposta certa está no conteúdo.',
+    'Você tem 20 segundos por pergunta depois de chegar às alternativas. Acertos seguidos aumentam a sua sequência e rendem mais pontos.',
+  ] },
+  2: { t: 'O que torna uma página semântica?', ps: [
+    'Nesta leitura você vai entender por que tags como <header>, <nav>, <main> e <footer> são melhores do que divs genéricas, e como elas ajudam navegadores, buscadores e leitores de tela.',
+    'O conteúdo mistura texto, áudio, imagem e vídeo. Avance no seu ritmo: a atividade é concluída quando você chega ao fim da página.',
+  ] },
+  16: { t: 'Fundamentos de HTML e CSS', ps: [
+    'Do esqueleto da página ao seu visual: em seis tópicos curtos, você vai ver como o HTML estrutura o conteúdo e como o CSS define a aparência e o layout.',
+    'Role a página para passar pelos tópicos. Cada um traz uma imagem e uma explicação rápida.',
+  ] },
+  3: { t: 'Encontre as palavras escondidas', ps: [
+    'Cinco termos de HTML e CSS estão escondidos na grade de letras, na horizontal, na vertical ou na diagonal.',
+    'Clique na primeira letra e arraste até a última para marcar cada palavra. Encontre todas para concluir a atividade.',
+  ] },
+  4: { t: 'Descubra a palavra', ps: [
+    'Leia a pergunta e descubra a resposta letra por letra, tocando no teclado da tela ou usando o teclado do computador.',
+    'Cada letra errada gasta uma tentativa. Se precisar, use uma dica para revelar uma letra em troca de moedas.',
+  ] },
+  5: { t: 'Teste a sua memória', ps: [
+    'As cartas estão viradas para baixo. Vire duas por vez e tente encontrar os pares iguais.',
+    'Quanto menos jogadas você fizer, melhor. Preste atenção na posição de cada carta que aparecer.',
+  ] },
+  6: { t: 'Complete a frase', ps: [
+    'Uma frase sobre HTML semântico está com uma palavra faltando. As letras da resposta estão misturadas numa grade.',
+    'Arraste o dedo ou o mouse sobre letras vizinhas para formar a palavra que completa a frase.',
+  ] },
+  7: { t: 'Cada prática no seu lugar', ps: [
+    'Algumas práticas ajudam a tornar uma página acessível; outras atrapalham quem usa tecnologias assistivas.',
+    'Arraste cada opção para o quadro certo, ou toque na opção e depois no quadro. Confira as respostas ao final.',
+  ] },
+  8: { t: 'Monte a ordem certa', ps: [
+    'Uma página semântica tem uma estrutura previsível, de cima para baixo.',
+    'Arraste as partes da página para a área de resposta na ordem em que elas aparecem, ou toque em cada uma para adicioná-la.',
+  ] },
+  9: { t: 'Monte a imagem', ps: [
+    'A imagem do curso de LGPD foi embaralhada em 12 peças.',
+    'Arraste uma peça sobre outra para trocá-las de lugar. As peças que ficarem na posição certa travam com um ✓.',
+  ] },
+  10: { t: 'Olhe com atenção', ps: [
+    'Duas imagens parecem iguais, mas escondem 7 diferenças em cores, formas e objetos.',
+    'Toque nas diferenças em qualquer uma das imagens. Se travar, você pode pedir uma dica em troca de moedas.',
+  ] },
+  11: { t: 'Isso ou aquilo?', ps: [
+    'Em cada pergunta, duas opções disputam a resposta certa. Escolha a que faz mais sentido para uma web acessível e bem estruturada.',
+    'Depois de confirmar, você vê a explicação de cada resposta.',
+  ] },
+  12: { t: 'Queremos ouvir você', ps: [
+    'Esta enquete não tem resposta certa nem errada: ela mostra como as pessoas usam recursos de acessibilidade no dia a dia.',
+    'Escolha uma alternativa e vote para ver o resultado parcial.',
+  ] },
+  13: { t: 'Conte a sua experiência', ps: [
+    'Nesta enquete aberta, você responde com as suas palavras. Pense em uma situação real em que um site ou app foi difícil de usar.',
+    'Escreva pelo menos 30 caracteres. O rascunho fica salvo enquanto você escreve.',
+  ] },
+  14: { t: 'Selecione todas as certas', ps: [
+    'Mais de uma alternativa pode responder à pergunta. Selecione todos os cards que você considera corretos.',
+    'Ao confirmar, você vê o que acertou, o que errou e o que ficou faltando.',
+  ] },
+};
 
 /** Mecânicas jogáveis do mockup (uma de cada; a avaliação final tem o próprio diálogo). */
 const PLAYABLE = activities.filter(a => a.id !== EXAM_ID).map(a => a.id);

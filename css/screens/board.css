@@ -2742,3 +2742,60 @@
 /* Barra integrada + Versão C: a barra do curso deixa 72 livres de cada lado para o caminho sair da lateral direita dela (curva
    de 44 + 12 de reta + metade da estrada + respiro até a borda da tela), em qualquer largura. */
 .c-board--hud.c-board--c:not(.c-board--d) .c-board-hudwrap { width: min(100% - 144px, 1120px); }
+
+/* Dock recolhido = FAB: só o anel de progresso (44) num círculo de 56, sem o nome do curso e sem o botão circular de cima. */
+.c-board-dock--closed { width: auto; max-width: none; padding: 0; border-radius: 999px; }
+.c-board-dock--closed .c-board-dock__fab { justify-content: center; gap: 0; width: 56px; height: 56px; padding: 6px; border-radius: 999px; }
+
+/* Dock no canto superior direito: recolhido (FAB) e aberto (cartão) ficam presos à direita, abaixo da app bar. Aberto, o cartão
+   empurra a trilha para o lado (a área abre 348 = 300 do cartão + 24 da borda + 24 de respiro; DOCK_PUSH em board.js). */
+.c-board--dock .c-board-dock { top: calc(var(--topbar-height) + 16px); right: 24px; bottom: auto; left: auto; }
+/* Aberto: o cartão tem a altura do conteúdo, até a base da tela (24 de respiro); o botão de recolher fica na borda de baixo dele. */
+.c-board--dock .c-board-dock--tabs { bottom: auto; }
+.c-board--dock .c-board-dock--tabs .c-board-dock__card { max-height: calc(100vh - var(--topbar-height) - 40px); }
+.c-board.c-board--dock.is-dock-open .c-board__wrap { margin-right: 348px; }
+
+/* Dock aberto (canto superior direito): o botão de recolher fica no meio da borda de baixo do cartão. */
+.c-board--dock .c-board-dock--tabs .c-board-dock__toggle { top: auto; bottom: -18px; left: calc(50% - 18px); right: auto; }
+
+/* Dock no canto superior direito: recolher encolhe o cartão para cima, até o lugar do FAB (canto superior direito), e os
+   elementos saem subindo; abrir faz o inverso (o cartão cresce para baixo a partir do FAB). */
+.c-board--dock .c-board-dock--tabs.is-leaving .c-board-dock__card { animation: c-board-dock-collapse-up 300ms cubic-bezier(0.4, 0, 1, 1) forwards; }
+.c-board--dock .c-board-dock--tabs.is-leaving [style*="--i"] { animation: c-board-dock-disassemble-up 140ms ease-in calc((6 - var(--i)) * 15ms) forwards; }
+.c-board--dock .c-board-dock--tabs.is-leaving .c-board-dock__toggle { animation: c-board-dock-fade-out 100ms ease-in forwards; }
+.c-board--dock .c-board-dock--tabs.is-entering .c-board-dock__card { animation: c-board-dock-expand-down 340ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+.c-board--dock .c-board-dock--closed.is-entering { animation: c-board-dock-fab-in 180ms ease-out; }
+
+@keyframes c-board-dock-collapse-up {
+  from { clip-path: inset(0 0 0 0 round 16px); }
+  to { clip-path: inset(0 0 calc(100% - 56px) calc(100% - 56px) round 28px); }
+}
+@keyframes c-board-dock-expand-down {
+  from { clip-path: inset(0 0 calc(100% - 56px) calc(100% - 56px) round 28px); }
+  to { clip-path: inset(0 0 0 0 round 16px); }
+}
+@keyframes c-board-dock-disassemble-up { to { opacity: 0; transform: translateY(-8px); } }
+@keyframes c-board-dock-fab-in { from { opacity: 0; transform: scale(0.85); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .c-board--dock .c-board-dock--tabs.is-leaving .c-board-dock__card,
+  .c-board--dock .c-board-dock--tabs.is-entering .c-board-dock__card,
+  .c-board--dock .c-board-dock--closed.is-entering { animation: none; }
+}
+
+/* Cartão de hover do pin = elementos da linha da trilha do Curso (course-detail.css): título com o ícone do tipo à esquerda,
+   embaixo "Atividade N · X min" (sem caixa alta) com as estrelas da concluída, a pílula de pontos e moedas e a situação.
+   O título aparece inteiro (sem corte), e o resto fica alinhado ao texto do título (14 do ícone + 4). */
+.c-board-tip > .c-board-tip__head { margin-left: 0; }
+.c-board-tip .c-board-tip__title { display: block; overflow: visible; white-space: normal; -webkit-line-clamp: unset; }
+.c-board-tip .c-board-tip__kicker {
+  margin-left: 18px;
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+.c-board-tip .c-board-tip__rewards { align-self: flex-start; gap: 10px; margin-top: 8px; padding: 4px 10px; }
+/* Pin bloqueado: título, ícone e "Atividade N · X min" em text/tertiary, como a atividade bloqueada na trilha do Curso. */
+.c-board-tip--locked :is(.c-board-tip__head, .c-board-tip__title, .c-board-tip__kicker) { color: var(--color-text-tertiary); }

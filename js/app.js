@@ -102,9 +102,8 @@ function mountScreen(ctx) {
   else delete shellRoot.dataset.layout;
   if (focusNavPages.has(page)) shellRoot.dataset.focusNav = '';
   else delete shellRoot.dataset.focusNav;
-  // Atividades: a app bar sobe e some (600ms, css/shell.css). Liga depois de um quadro para animar também na 1ª carga.
-  if (page === 'atividade') requestAnimationFrame(() => requestAnimationFrame(() => { if (shell.state.page === 'atividade') shellRoot.dataset.hideTopbar = ''; }));
-  else delete shellRoot.dataset.hideTopbar;
+  // Atividades: quem esconde a app bar é a própria tela (js/screens/activity.js), ao sair da apresentação. Nas outras, sempre visível.
+  delete shellRoot.dataset.hideTopbar;
   const target = ctx.root.querySelector('#screen');
   const loading = ctx.state.loading;
   const mount = screens[page];

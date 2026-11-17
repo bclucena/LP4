@@ -7,6 +7,9 @@ import { icon } from '../../core/icons.js';
 import { hangman as H, KEY_ROWS } from '../../data/activity.js';
 import { finish, later, fx, plural } from './flow.js';
 import { sfx } from '../../core/sound.js';
+import { button } from '../../components/button.js';
+import { pill } from '../../components/badges.js';
+import { head } from './head.js';
 
 const ANSWER = H.answer.toUpperCase();
 const LETTERS = ANSWER.replace(/ /g, '');
@@ -47,17 +50,11 @@ function view(state) {
       : '';
 
   return `<section class="c-act-card c-act-hang" aria-label="Emparedado">
-    <div class="c-act-card__head">
-      <span class="c-act-card__kicker">Descubra a palavra</span>
-      <h2 class="c-act-card__title">${esc(H.question)}</h2>
-      <div class="c-act-card__bar">
-        <div class="c-act-card__pills">
-          <span class="c-act-pill">${H.answer.split(' ').length} palavras · ${LETTERS.length} letras</span>
-          <span class="c-act-pill">${revealed}/${LETTERS.length} descobertas</span>
-        </div>
-        <button type="button" class="c-act-pill c-act-pill--warning c-act-pill--button" data-action="hangHint" ${hintOff ? 'disabled' : ''} title="Revela uma letra da resposta">${icon('help-circle', 16)}${h.hints >= H.maxHints ? 'Dicas esgotadas' : `Dica · ${H.hintCost} moedas`}</button>
-      </div>
-    </div>
+    ${head({ kicker: 'Descubra a palavra · toque nas letras', title: esc(H.question), aside: `
+          ${pill({ color: 'grey', label: `${H.answer.split(' ').length} palavras · ${LETTERS.length} letras` })}
+          ${pill({ color: 'grey', label: `${revealed}/${LETTERS.length} descobertas` })}
+        ${button({ variant: 'stroked', size: 'mobile', iconStart: 'help-circle', action: 'hangHint', disabled: hintOff, title: 'Revela uma letra da resposta', label: h.hints >= H.maxHints ? 'Dicas esgotadas' : `Dica · ${H.hintCost} moedas` })}
+      ` })}
     <div class="c-act-hang__layout">
       <div class="c-act-hang__stage">
         <div class="${cx('c-act-hang__frame', lost && 'is-lost', h.won && 'is-won', !lost && !h.won && left === 1 && 'is-warn', missFx && 'is-shake')}">
@@ -95,7 +92,7 @@ function guess(ctx, k, hint = false) {
   sfx(hit ? 'correct' : 'wrong');
   ctx.set({
     hang: { ...h, guessed: g, won, last: { k, hit, count, hint } },
-    streak: hit ? s.streak : 0,
+    streak: hit ? s.streak + 1 : 0,
     lives: lost ? Math.max(0, s.lives - 1) : s.lives,
     fx: { hangKey: true },
   });

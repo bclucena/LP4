@@ -5,8 +5,11 @@
 import { cx, esc } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { mix as M } from '../../data/activity.js';
-import { upd, finish, later, fx, plural, toast } from './flow.js';
+import { upd, finish, later, fx, plural, toast, streakOn } from './flow.js';
 import { sfx, tones } from '../../core/sound.js';
+import { button } from '../../components/button.js';
+import { pill } from '../../components/badges.js';
+import { head } from './head.js';
 
 const COLS = M.cols;
 const ROWS = M.letters.length / COLS;
@@ -28,18 +31,14 @@ function view(state) {
     : toast(hinted.length ? 'Dica: comece pela letra destacada' : 'Pressione a 1ª letra e arraste até a última');
   const hintOff = ok || x.hint >= 2 || state.coins < M.hintCost;
   return `<section class="c-act-card c-act-mix" aria-label="Misturadinho">
-    <div class="c-act-card__bar">
-      <span class="c-act-card__lead c-act-card__lead--muted">Arraste sobre as letras vizinhas para formar a palavra</span>
-      <div class="c-act-card__pills"><span class="c-act-pill">${M.answer.length} letras</span><span class="c-act-pill">${plural(x.tries, 'tentativa errada', 'tentativas erradas')}</span></div>
-    </div>
-    <p class="c-act-mix__sentence">${esc(M.before)} <span class="${cx('c-act-mix__blanks', ok && 'is-ok', bad && 'is-bad', fx(state, 'mixBad') && 'is-shake')}">${blanks}</span>${esc(M.after)}</p>
+    ${head({ kicker: 'Arraste sobre as letras vizinhas para formar a palavra', titleClass: 'c-act-mix__sentence', title: `${esc(M.before)} <span class="${cx('c-act-mix__blanks', ok && 'is-ok', bad && 'is-bad', fx(state, 'mixBad') && 'is-shake')}">${blanks}</span>${esc(M.after)}`, aside: `${pill({ color: 'grey', label: `${M.answer.length} letras` })}${pill({ color: 'grey', label: plural(x.tries, 'tentativa errada', 'tentativas erradas') })}` })}
     <div class="c-act-msg" aria-live="polite">${msg}</div>
     <div class="${cx('c-act-mix__board', ok && 'is-ok', bad && 'is-bad', fx(state, 'mixBad') && 'is-shake')}" data-mix-board style="--cols:${COLS};--rows:${ROWS}">
       <svg class="c-act-mix__line" viewBox="0 0 ${COLS * 100} ${ROWS * 100}" aria-hidden="true"><polyline points="${x.path.map(point).join(' ')}"/></svg>
       <div class="c-act-mix__grid">${cells}</div>
     </div>
     <div class="c-act-card__center">
-      <button type="button" class="c-act-pill c-act-pill--warning c-act-pill--button c-act-pill--lg" data-action="mixHint" ${hintOff ? 'disabled' : ''}>${icon('help-circle', 16)}${x.hint >= 2 ? 'Dicas esgotadas' : x.hint === 1 ? `Mais uma letra · ${M.hintCost} moedas` : `Dica · ${M.hintCost} moedas`}</button>
+      ${button({ variant: 'stroked', iconStart: 'help-circle', action: 'mixHint', disabled: hintOff, label: x.hint >= 2 ? 'Dicas esgotadas' : x.hint === 1 ? `Mais uma letra · ${M.hintCost} moedas` : `Dica · ${M.hintCost} moedas` })}
     </div>
   </section>`;
 }
@@ -118,7 +117,7 @@ function mount(ctx) {
     const word = p.map(i => M.letters[i]).join('');
     if (word === M.answer) {
       sfx('correct');
-      upd(ctx, 'mix', { path: p, state: 'ok', msg: { ok: true, t: `Isso! A palavra é ${M.answer}.` } }, { fx: { mixMsg: true } });
+      upd(ctx, 'mix', { path: p, state: 'ok', msg: { ok: true, t: `Isso! A palavra é ${M.answer}.` } }, { ...streakOn(ctx, true), fx: { mixMsg: true } });
       later(ctx, 1100, () => finish(ctx, 6, { xp: 150, coins: 40 }));
       return;
     }
@@ -126,7 +125,7 @@ function mount(ctx) {
       : word.length !== M.answer.length ? `${word} tem ${word.length} letras · a resposta tem ${M.answer.length}`
         : `${word} não completa a frase. Tente outro caminho`;
     sfx('wrong');
-    upd(ctx, 'mix', { path: p, state: 'bad', tries: x.tries + 1, msg: { ok: false, t } }, { fx: { mixMsg: true, mixBad: true } });
+    upd(ctx, 'mix', { path: p, state: 'bad', tries: x.tries + 1, msg: { ok: false, t } }, { ...streakOn(ctx, false), fx: { mixMsg: true, mixBad: true } });
     later(ctx, 700, () => upd(ctx, 'mix', { path: [], state: null }));
   }, window);
 }

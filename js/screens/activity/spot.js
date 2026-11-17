@@ -4,8 +4,11 @@
 import { cx } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { spot as S } from '../../data/activity.js';
-import { upd, finish, later, fx, plural, toast } from './flow.js';
+import { upd, finish, later, fx, plural, toast, streakOn } from './flow.js';
 import { sfx, tones } from '../../core/sound.js';
+import { button } from '../../components/button.js';
+import { pill } from '../../components/badges.js';
+import { head } from './head.js';
 
 const TOL = 2.5;
 const init = () => ({ found: [], miss: 0, missAt: null, hint: null, sec: 0, on: false, msg: null });
@@ -43,20 +46,17 @@ function view(state) {
   const dots = S.diffs.map((_, k) => `<span class="${cx('c-act-dot c-act-dot--sm', k < sp.found.length && 'is-ok')}"></span>`).join('');
   const hintOff = done || state.coins < S.hintCost || sp.hint != null;
   return `<section class="c-act-card c-act-spot" aria-label="Jogo dos 7 erros">
-    <div class="c-act-card__bar c-act-card__bar--end">
-      <div class="c-act-card__head"><span class="c-act-card__kicker">Toque nas diferenças em qualquer uma das imagens</span><h2 class="c-act-card__title">Encontre os 7 erros entre as imagens</h2></div>
-      <div class="c-act-card__pills">
-        <span class="c-act-pill c-act-pill--outline" title="Erros encontrados"><span class="c-act-dots">${dots}</span><b class="c-act-tone--success">${sp.found.length}/${S.diffs.length}</b></span>
-        <span class="${cx('c-act-pill c-act-pill--outline', sp.miss > 5 && 'c-act-tone--error')}">${plural(sp.miss, 'toque errado', 'toques errados')}</span>
-      </div>
-    </div>
+    ${head({ kicker: 'Toque nas diferenças em qualquer uma das imagens', title: 'Encontre os 7 erros entre as imagens', aside: `
+        ${pill({ color: 'grey', outline: true, html: `<span class="c-act-dots">${dots}</span><b class="c-act-tone--success">${sp.found.length}/${S.diffs.length}</b>`, attrs: { title: 'Erros encontrados' } })}
+        ${pill({ color: sp.miss > 5 ? 'red' : 'grey', outline: true, label: plural(sp.miss, 'toque errado', 'toques errados') })}
+      ` })}
     <div class="c-act-msg" aria-live="polite">${sp.msg ? toast(sp.msg.t, sp.msg.ok ? 'ok' : 'bad', fx(state, 'spotMsg')) : toast('Os erros podem estar em cores, formas, objetos a mais ou a menos')}</div>
     <div class="${cx('c-act-spot__board', done && 'is-done', done && fx(state, 'spotMsg') && 'is-glow')}">
       ${picture(state, 'Original', false)}
       ${picture(state, 'Encontre as diferenças', true)}
     </div>
     <div class="c-act-card__center">
-      <button type="button" class="c-act-pill c-act-pill--warning c-act-pill--button c-act-pill--lg" data-action="spotHint" ${hintOff ? 'disabled' : ''}>${icon('help-circle', 16)}Mostrar onde · ${S.hintCost} moedas</button>
+      ${button({ variant: 'stroked', iconStart: 'help-circle', action: 'spotHint', disabled: hintOff, label: `Mostrar onde · ${S.hintCost} moedas` })}
     </div>
   </section>`;
 }
@@ -73,7 +73,7 @@ function tap(ctx, el, e) {
     const found = [...sp.found, i];
     const left = S.diffs.length - found.length;
     tones.found(found.length - 1);
-    upd(ctx, 'spot', { found, on: true, hint: sp.hint === i ? null : sp.hint, msg: { ok: true, t: left ? `Achou! Faltam ${left} ${left > 1 ? 'erros' : 'erro'}.` : 'Você encontrou os 7 erros!' } }, { fx: { [`spotFound${i}`]: true, spotMsg: true } });
+    upd(ctx, 'spot', { found, on: true, hint: sp.hint === i ? null : sp.hint, msg: { ok: true, t: left ? `Achou! Faltam ${left} ${left > 1 ? 'erros' : 'erro'}.` : 'Você encontrou os 7 erros!' } }, { ...streakOn(ctx, true), fx: { [`spotFound${i}`]: true, spotMsg: true } });
     if (!left) {
       later(ctx, 300, () => sfx('victory'));
       later(ctx, 1500, () => finish(ctx, 10, { xp: 200, coins: 50 }));
@@ -84,7 +84,7 @@ function tap(ctx, el, e) {
   } else {
     const miss = sp.miss + 1;
     sfx('wrong');
-    upd(ctx, 'spot', { miss, on: true, missAt: { x: px, y: py }, msg: { ok: false, t: miss >= 4 && sp.hint == null ? 'Não é aí. Que tal usar uma dica?' : 'Não é aí. Compare com calma as duas imagens.' } }, { fx: { spotMiss: true, spotMsg: true } });
+    upd(ctx, 'spot', { miss, on: true, missAt: { x: px, y: py }, msg: { ok: false, t: miss >= 4 && sp.hint == null ? 'Não é aí. Que tal usar uma dica?' : 'Não é aí. Compare com calma as duas imagens.' } }, { ...streakOn(ctx, false), fx: { spotMiss: true, spotMsg: true } });
   }
 }
 

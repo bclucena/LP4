@@ -6,6 +6,9 @@ import { icon } from '../../core/icons.js';
 import { thisOrThat as TT } from '../../data/activity.js';
 import { upd, finish, fx } from './flow.js';
 import { sfx } from '../../core/sound.js';
+import { pill } from '../../components/badges.js';
+import { feedback } from '../../components/feedback.js';
+import { head } from './head.js';
 
 const init = () => ({ i: 0, pick: null, rev: false, res: [] });
 
@@ -31,16 +34,10 @@ function view(state) {
   const q = TT[t.i];
   const ok = t.rev && t.pick === q.c;
   const fb = t.rev
-    ? `<span class="${cx('c-act-feedback', ok ? 'c-act-feedback--ok' : 'c-act-feedback--bad', fx(state, 'ttReveal') && 'is-in')}">${icon(ok ? 'check-circle' : 'alert-triangle', 18)}<span><b>${ok ? 'Isso!' : 'Não foi dessa vez.'}</b> ${esc(q.e)}</span></span>`
+    ? feedback({ tone: ok ? 'success' : 'error', title: ok ? 'Isso!' : 'Não foi dessa vez.', text: q.e, className: cx('c-act-tt__feedback', fx(state, 'ttReveal') && 'is-in') })
     : '<span class="c-act-card__lead c-act-card__lead--muted">Toque num card ou use as teclas A e B · Enter confirma</span>';
   return `<section class="c-act-card c-act-tt" aria-label="This or that">
-    <div class="c-act-card__bar c-act-card__bar--right">
-      <div class="c-act-card__pills"><span class="c-act-pill">${t.i + 1} de ${TT.length}</span><span class="c-act-pill c-act-pill--success">${icon('check', 14)}${t.res.filter(Boolean).length} acertos</span></div>
-    </div>
-    <div class="c-act-card__head">
-      <span class="c-act-card__kicker">Escolha uma das alternativas</span>
-      <h2 class="c-act-card__title c-act-card__title--lg">${esc(q.q)}</h2>
-    </div>
+    ${head({ kicker: `Pergunta ${t.i + 1} de ${TT.length} · Escolha uma das alternativas`, title: esc(q.q), aside: pill({ color: 'green', iconName: 'check', label: `${t.res.filter(Boolean).length} acertos` }) })}
     <div class="c-act-tt__cards">${card(state, 'a')}<span class="c-act-tt__or" aria-hidden="true">ou</span>${card(state, 'b')}</div>
     <div class="c-act-tt__fb" aria-live="polite">${fb}</div>
   </section>`;

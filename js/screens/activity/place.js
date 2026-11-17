@@ -5,9 +5,10 @@
 import { cx, esc } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { place as P } from '../../data/activity.js';
-import { upd, finish, later, fx, shuffle, toast } from './flow.js';
+import { upd, finish, later, fx, shuffle, toast, streakOn } from './flow.js';
 import { pointerDrag, dragged } from './drag.js';
 import { sfx, tones } from '../../core/sound.js';
+import { head } from './head.js';
 
 const init = () => ({ placed: Object.fromEntries(shuffle(P.items).map((p, i) => [p.id, { z: 'bank', i }])), locked: {}, result: null, sel: null, tries: 0, msg: null });
 
@@ -39,10 +40,7 @@ function view(state) {
     </div>`;
   }).join('');
   return `<section class="c-act-card c-act-place" aria-label="No lugar">
-    <div class="c-act-card__head">
-      <span class="c-act-card__kicker">Arraste as opções e solte nos quadros corretos · ou toque na opção e depois no quadro</span>
-      <h2 class="c-act-card__title">${esc(P.question)}</h2>
-    </div>
+    ${head({ kicker: 'Arraste as opções e solte nos quadros corretos · ou toque na opção e depois no quadro', title: esc(P.question) })}
     <div class="c-act-place__zones">${zones}</div>
     <div class="c-act-bank" data-action="placeZone" data-zone="bank" data-drop-place="bank">
       <div class="c-act-bank__head"><b>Opções</b><span>${bank.length} de ${P.items.length} restantes</span></div>
@@ -70,13 +68,13 @@ function confirm(ctx) {
   const tries = pl.tries + 1;
   if (ok === P.items.length) {
     sfx('correct');
-    upd(ctx, 'place', { result: res, tries, msg: { ok: true, t: `Perfeito! Todas as ${P.items.length} opções no lugar certo.` } }, { fx: { placeCheck: true } });
+    upd(ctx, 'place', { result: res, tries, msg: { ok: true, t: `Perfeito! Todas as ${P.items.length} opções no lugar certo.` } }, { ...streakOn(ctx, true), fx: { placeCheck: true } });
     later(ctx, 1200, () => finish(ctx, 7, { xp: 180, coins: 45 }));
     return;
   }
   const bad = P.items.length - ok;
   sfx('wrong');
-  upd(ctx, 'place', { result: res, tries, msg: { ok: false, t: `${ok} de ${P.items.length} corretas. ${bad === 1 ? 'A opção errada volta' : `As ${bad} erradas voltam`} para as opções.` } }, { fx: { placeCheck: true } });
+  upd(ctx, 'place', { result: res, tries, msg: { ok: false, t: `${ok} de ${P.items.length} corretas. ${bad === 1 ? 'A opção errada volta' : `As ${bad} erradas voltam`} para as opções.` } }, { ...streakOn(ctx, false), fx: { placeCheck: true } });
   later(ctx, 1500, () => upd(ctx, 'place', s => {
     const placed = { ...s.placed };
     const locked = { ...s.locked };

@@ -5,8 +5,11 @@ import { cx, esc } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { memoryCards as MEM } from '../../data/activity.js';
 import { logo } from '../../shell/shell.js';
-import { finish, later, fx, shuffle, plural, toast } from './flow.js';
+import { finish, later, fx, shuffle, plural, toast, streakOn } from './flow.js';
 import { sfx } from '../../core/sound.js';
+import { button } from '../../components/button.js';
+import { pill } from '../../components/badges.js';
+import { head } from './head.js';
 
 const init = () => ({ deck: shuffle([...MEM, ...MEM]).map((m, uid) => ({ ...m, uid })), open: [], matched: [], wrong: [], moves: 0, sec: 0, on: false, msg: null, combo: 0 });
 
@@ -26,16 +29,13 @@ function view(state) {
       </span>
     </button>`;
   }).join('');
-  const msg = m.msg ? toast(esc(m.msg.t), m.msg.ok ? 'ok' : 'bad', fx(state, 'memMsg')) : toast('Vire duas cartas por vez para encontrar os pares');
+  const msg = m.msg ? toast(esc(m.msg.t), m.msg.ok ? 'ok' : 'bad', fx(state, 'memMsg')) : toast('Memorize as posições: cada par errado conta uma jogada');
   return `<section class="c-act-card c-act-mem" aria-label="Jogo da memória">
-    <div class="c-act-card__bar c-act-card__bar--end">
-      <div class="c-act-card__head"><span class="c-act-card__kicker">Jogo da memória</span><h2 class="c-act-card__title">Encontre os pares de cartas iguais</h2></div>
-      <div class="c-act-card__pills">
-        <span class="c-act-pill c-act-pill--success">${icon('check', 14)}Pares ${m.matched.length}/${MEM.length}</span>
-        <span class="c-act-pill c-act-pill--outline">${plural(m.moves, 'jogada', 'jogadas')}</span>
-        <button type="button" class="c-act-pill c-act-pill--system c-act-pill--button" data-action="memReset" title="Embaralhar e recomeçar">${icon('rotate-ccw', 14)}Recomeçar</button>
-      </div>
-    </div>
+    ${head({ kicker: 'Jogo da memória · vire duas cartas por vez', title: 'Encontre os pares de cartas iguais', aside: `
+        ${pill({ color: 'green', iconName: 'check', label: `Pares ${m.matched.length}/${MEM.length}` })}
+        ${pill({ color: 'grey', outline: true, label: plural(m.moves, 'jogada', 'jogadas') })}
+        ${button({ variant: 'stroked', size: 'mobile', iconStart: 'rotate-ccw', label: 'Recomeçar', action: 'memReset', title: 'Embaralhar e recomeçar' })}
+      ` })}
     <div class="c-act-msg" aria-live="polite">${msg}</div>
     <div class="c-act-mem__grid">${cards}</div>
   </section>`;
@@ -57,7 +57,7 @@ function flip(ctx, uid) {
     const matched = [...m.matched, card.id];
     const combo = m.combo + 1;
     const t = combo > 1 ? `Combo x${combo}! Par ${card.label} encontrado` : `Boa! Par ${card.label} encontrado`;
-    ctx.set({ mem: { ...m, open: [], matched, moves, combo, msg: { ok: true, t } }, fx: { [`memFlip${uid}`]: true, memMsg: true } });
+    ctx.set({ mem: { ...m, open: [], matched, moves, combo, msg: { ok: true, t } }, ...streakOn(ctx, true), fx: { [`memFlip${uid}`]: true, memMsg: true } });
     later(ctx, 350, () => sfx('pair'));
     later(ctx, 450, () => ctx.set({ fx: { [`memPair${card.id}`]: true } }));
     if (matched.length === MEM.length) {
@@ -70,7 +70,7 @@ function flip(ctx, uid) {
   }
   ctx.set({ mem: { ...m, open, moves, combo: 0 }, fx: { [`memFlip${uid}`]: true } });
   later(ctx, 450, () => sfx('wrong'));
-  later(ctx, 450, () => ctx.set(s => ({ mem: { ...s.mem, wrong: open, msg: { ok: false, t: 'Não formam par. Memorize as posições!' } }, fx: { memMsg: true } })));
+  later(ctx, 450, () => ctx.set(s => ({ mem: { ...s.mem, wrong: open, msg: { ok: false, t: 'Não formam par. Memorize as posições!' } }, streak: 0, fx: { memMsg: true } })));
   later(ctx, 1300, () => ctx.set(s => ({ mem: { ...s.mem, open: [], wrong: [] }, fx: Object.fromEntries(open.map(u => [`memClose${u}`, true])) })));
 }
 

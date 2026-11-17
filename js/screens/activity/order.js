@@ -6,9 +6,11 @@
 import { cx, esc } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { order as O } from '../../data/activity.js';
-import { upd, finish, later, fx, shuffle, toast } from './flow.js';
+import { upd, finish, later, fx, shuffle, toast, streakOn } from './flow.js';
 import { pointerDrag, dragged } from './drag.js';
 import { sfx, tones } from '../../core/sound.js';
+import { button } from '../../components/button.js';
+import { head } from './head.js';
 
 const text = id => O.items.find(o => o.id === id).t;
 const init = () => ({ ans: [], bank: shuffle(O.items.map(o => o.id)), res: null, tries: 0, msg: null });
@@ -25,15 +27,12 @@ function view(state) {
   }).join('');
   const bank = o.bank.map(id => `<button type="button" class="c-act-chip-drag c-act-chip-drag--code" data-action="ordTap" data-id="${id}" data-drag-ord ${o.res ? 'data-fixed' : ''} aria-label="${esc(text(id))}, toque para adicionar">${icon('move', 16)}<span>${esc(text(id))}</span></button>`).join('');
   return `<section class="c-act-card c-act-ord" aria-label="Ordenadinho">
-    <div class="c-act-card__head">
-      <span class="c-act-card__kicker">Arraste as opções para a área de resposta na ordem certa · ou toque para adicionar</span>
-      <h2 class="c-act-card__title">${esc(O.question)}</h2>
-    </div>
+    ${head({ kicker: 'Arraste as opções para a área de resposta na ordem certa · ou toque para adicionar', title: esc(O.question) })}
     <div class="${cx('c-act-ord__layout', !img && 'c-act-ord__layout--solo')}">
       ${img ? `<div class="c-act-ord__support"><div class="c-act-placeholder" role="img" aria-label="Imagem de apoio">${icon('image', 32)}<span>Imagem de apoio (opcional)</span></div></div>` : ''}
       <div class="c-act-ord__panel">
         <div class="c-act-ord__head"><b>Sua resposta</b>
-          <button type="button" class="c-act-pill c-act-pill--outline c-act-pill--button" data-action="ordClear" ${!o.ans.length || o.res ? 'disabled' : ''}>${icon('rotate-ccw', 14)}Limpar</button>
+          ${button({ variant: 'stroked', size: 'mobile', iconStart: 'rotate-ccw', label: 'Limpar', action: 'ordClear', disabled: !o.ans.length || !!o.res })}
         </div>
         <div class="${cx('c-act-ord__answer', allOk && 'is-ok', o.res && !allOk && fx(state, 'ordCheck') && 'is-shake')}" data-drop-ord="ans">
           ${ans || `<span class="c-act-zone__empty">${icon('download', 22)}Arraste as opções e solte aqui, na ordem</span>`}
@@ -75,7 +74,7 @@ function confirm(ctx) {
   const tries = o.tries + 1;
   if (okN === O.answer.length && o.ans.length === O.answer.length) {
     sfx('correct');
-    upd(ctx, 'ord', { res, tries, msg: { ok: true, t: 'Ordem perfeita! header → nav → main → footer.' } }, { fx: { ordCheck: true } });
+    upd(ctx, 'ord', { res, tries, msg: { ok: true, t: 'Ordem perfeita! header → nav → main → footer.' } }, { ...streakOn(ctx, true), fx: { ordCheck: true } });
     later(ctx, 1300, () => finish(ctx, 8, { xp: 160, coins: 40 }));
     return;
   }
@@ -83,7 +82,7 @@ function confirm(ctx) {
   const missing = O.answer.filter(id => !o.ans.includes(id)).length;
   const t = `${okN} de ${O.answer.length} na posição certa.${extra ? ` Há ${extra} ${extra > 1 ? 'opções que não fazem' : 'opção que não faz'} parte da resposta.` : missing ? ` ${missing > 1 ? `Faltam ${missing} opções.` : 'Falta 1 opção.'}` : ' Ajuste as marcadas em vermelho.'}`;
   sfx('wrong');
-  upd(ctx, 'ord', { res, tries, msg: { ok: false, t } }, { fx: { ordCheck: true } });
+  upd(ctx, 'ord', { res, tries, msg: { ok: false, t } }, { ...streakOn(ctx, false), fx: { ordCheck: true } });
   later(ctx, 1600, () => upd(ctx, 'ord', { res: null }));
 }
 
