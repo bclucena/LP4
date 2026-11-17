@@ -1,0 +1,120 @@
+/* Conteúdos dos bottom sheets mobile (js/components/mobile-sheets.js). Folha de 360 com radius 16 no topo. */
+
+.c-ms { display: flex; flex: none; flex-direction: column; width: 360px; max-width: 100%; overflow: hidden; border: 1px solid var(--color-border-default); border-radius: 16px 16px 0 0; background-color: var(--color-background-default); }
+.c-ms__handle { display: flex; justify-content: center; padding: 16px 0; }
+.c-ms__handle span { width: 32px; height: 4px; border-radius: 999px; background-color: var(--color-background-skeleton); }
+.c-ms__body { display: flex; flex: 1; flex-direction: column; gap: 16px; min-height: 0; padding: 16px; overflow-y: auto; }
+.c-ms__footer { display: flex; gap: 8px; padding: 16px 16px 32px; border-top: 1px solid var(--color-border-default); background-color: var(--color-background-default); }
+
+.c-ms-divider { width: 100%; height: 1px; border-radius: 4px; background-color: var(--color-background-muted); }
+.c-ms-rule { flex: none; height: 1px; background-color: var(--color-background-muted); }
+.c-ms-img { flex: none; }
+.c-ms-col1 { display: flex; flex-direction: column; gap: 4px; }
+.c-ms-col2 { display: flex; flex-direction: column; gap: 8px; }
+.c-ms-strong { color: var(--color-text-primary); font-size: 12px; line-height: 18px; font-weight: 700; }
+.c-ms-meta { color: var(--color-text-secondary); font-size: 10px; line-height: 12px; font-weight: 500; }
+.c-ms-title { color: var(--color-text-primary); font-size: 12px; line-height: 18px; font-weight: 700; }
+.c-ms-h { color: var(--color-text-primary); font-size: 14px; line-height: 20px; font-weight: 700; }
+.c-ms-text { color: var(--color-text-secondary); font-size: 12px; line-height: 18px; }
+.c-ms-text--default { color: var(--color-text-default); }
+.c-ms-titlerow { display: flex; align-items: flex-start; gap: 8px; }
+.c-ms-titlerow .c-ms-title { flex: 1; }
+.c-ms-bookmark { flex: none; color: var(--color-text-brand); }
+.c-ms-center { display: flex; justify-content: center; padding: 8px 0; }
+
+/* Botão do rodapé */
+.c-ms-btn { display: inline-flex; flex: 1; align-items: center; justify-content: center; gap: 4px; padding: 6px; border-radius: 8px; background-color: var(--color-action); color: var(--color-on-action); font-size: 12px; line-height: 18px; font-weight: 700; white-space: nowrap; }
+.c-ms-btn:not(:disabled):hover { background-color: var(--color-action-hover); }
+.c-ms-btn:not(:disabled):active { background-color: var(--color-action-active); }
+.c-ms-btn:disabled { background-color: var(--color-background-muted); color: var(--color-text-tertiary); cursor: not-allowed; }
+.c-ms-btn--auto { flex: none; padding: 6px 12px; }
+
+/* Missão */
+.c-ms-version { border: 1px solid var(--color-border-default); border-radius: 8px; background-color: var(--color-background-default); }
+.c-ms-version__head { display: flex; align-items: center; gap: 8px; padding: 8px; }
+.c-ms-version__main { display: flex; flex: 1; align-items: center; gap: 8px; font-size: 10px; line-height: 12px; }
+.c-ms-version__main b { color: var(--color-text-default); }
+.c-ms-version__main .c-m-inline > span { color: var(--color-text-secondary); font-weight: 500; }
+.c-ms-version__toggle { padding: 6px; border-radius: 8px; color: var(--color-icon-default); }
+.c-ms-version__toggle .c-icon { transition: transform 0.15s; }
+.c-ms-version__toggle .c-icon.is-open { transform: rotate(180deg); }
+.c-ms-version__body { display: flex; flex-direction: column; gap: 16px; padding: 8px; }
+.c-ms-version__body .c-m-field { width: 100%; }
+.c-ms-upload { display: flex; align-items: center; gap: 4px; padding: 9px; border: 1px solid var(--color-border-default); border-radius: 8px; }
+.c-ms-upload__icon { display: flex; padding: 4px; border-radius: 8px; background-color: var(--color-background-subtle); color: var(--color-icon-default); }
+.c-ms-upload__text { display: flex; flex-direction: column; font-size: 12px; line-height: 18px; }
+.c-ms-upload__text b { color: var(--color-text-primary); }
+.c-ms-upload__text span { color: var(--color-text-secondary); }
+
+/* Loja */
+.c-ms-price { display: flex; flex: 1; align-items: center; justify-content: space-between; }
+.c-ms-price > span { display: flex; align-items: center; gap: 4px; color: var(--color-text-default); font-size: 24px; line-height: 32px; font-weight: 500; }
+.c-ms-price__icon { color: var(--color-text-warning); }
+
+/* Conquista */
+.c-ms-back { display: flex; align-items: center; gap: 4px; align-self: flex-start; color: var(--color-text-brand); font-size: 12px; line-height: 18px; font-weight: 700; }
+.c-ms-carousel { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.c-ms-carousel > div:first-child { display: flex; gap: 8px; }
+.c-ms-dots { display: flex; gap: 4px; }
+.c-ms-dots i { width: 12px; height: 2px; border-radius: 2px; background-color: var(--color-background-muted); }
+.c-ms-dots i.is-on { background-color: var(--color-action); }
+.c-ms-rewards { display: flex; align-items: center; gap: 8px; margin: 0 -16px -16px; padding: 16px; border-top: 1px solid var(--color-border-default); color: var(--color-text-default); font-size: 10px; line-height: 12px; font-weight: 700; }
+.c-ms-rewards span { display: flex; align-items: center; gap: 2px; padding: 2px 4px; border-radius: 8px; background-color: var(--color-background-subtle); }
+
+/* Ranking */
+.c-ms-head { display: flex; align-items: center; justify-content: space-between; margin: -16px -16px 0; padding: 0 16px 12px; border-bottom: 1px solid var(--color-border-default); color: var(--color-text-primary); font-size: 16px; line-height: 24px; font-weight: 700; }
+.c-ms-round { display: flex; flex-direction: column; gap: 8px; padding: 8px; border: 1px solid var(--color-border-default); border-radius: 8px; }
+.c-ms-round__top { display: flex; align-items: center; gap: 8px; }
+.c-ms-round__icon { display: flex; padding: 4px; border-radius: 8px; background-color: var(--color-background-subtle); color: var(--color-icon-default); }
+.c-ms-round__date { flex: 1; color: var(--color-text-primary); font-size: 14px; line-height: 20px; font-weight: 700; }
+.c-ms-round__info { display: flex; align-items: center; gap: 4px; padding-left: 36px; color: var(--color-text-secondary); font-size: 10px; line-height: 12px; }
+.c-ms-round__info b { color: var(--color-text-default); }
+.c-ms-round__btn { padding: 6px; border: 1px solid var(--color-surface-system-soft); border-radius: 8px; color: var(--color-surface-system-emphasis); font-size: 12px; line-height: 18px; font-weight: 700; text-align: center; }
+.c-ms-round__btn:not(:disabled):hover { background-color: var(--color-surface-system-subtle); }
+.c-ms-round__btn:disabled { border-color: transparent; background-color: var(--color-background-muted); color: var(--color-text-tertiary); }
+.c-ms-grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.c-ms-card { padding: 8px; border: 1px solid var(--color-border-default); border-radius: 8px; }
+.c-ms-k { color: var(--color-text-primary); font-size: 12px; font-weight: 700; }
+.c-ms-k2 { color: var(--color-text-default); }
+.c-ms-note { padding: 8px; border-radius: 8px; background-color: var(--color-surface-system-subtle); }
+.c-ms-note b { color: var(--color-text-default); }
+
+/* Gestores */
+.c-ms-person { display: flex; align-items: center; gap: 8px; }
+.c-ms-person > div { display: flex; flex-direction: column; font-size: 10px; line-height: 12px; }
+.c-ms-person b { color: var(--color-text-primary); }
+.c-ms-person span { color: var(--color-text-secondary); }
+.c-ms-tabs { display: flex; gap: 4px; font-size: 12px; line-height: 18px; font-weight: 700; }
+.c-ms-tabs button { padding: 4px 8px; border-radius: 8px; color: var(--color-text-brand); }
+.c-ms-tabs button.is-on { background-color: var(--color-surface-system-light); color: var(--color-surface-system-emphasis); }
+.c-ms-line { display: flex; align-items: center; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--color-border-subtle); }
+.c-ms-line__n { padding: 4px 8px; border-radius: 6px; background-color: var(--color-surface-system-light); color: var(--color-surface-system-emphasis); font-size: 12px; font-weight: 700; }
+.c-ms-line__text { display: flex; flex: 1; flex-direction: column; min-width: 0; font-size: 10px; line-height: 12px; }
+.c-ms-line__text b { overflow: hidden; color: var(--color-text-primary); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.c-ms-line__text span { color: var(--color-text-secondary); }
+.c-ms-line__chev { color: var(--color-icon-default); }
+
+/* Comentários e reações */
+.c-ms-compose { display: flex; flex: 1; flex-direction: column; gap: 8px; }
+.c-ms-compose .c-m-field { width: 100%; }
+.c-ms-sort { color: var(--color-surface-system-emphasis); font-size: 12px; line-height: 18px; }
+.c-ms-comment { display: flex; flex-direction: column; gap: 4px; }
+.c-ms-comment__head { display: flex; align-items: center; gap: 4px; font-size: 10px; line-height: 12px; }
+.c-ms-comment__head b { color: var(--color-text-primary); }
+.c-ms-comment__head span { color: var(--color-text-secondary); }
+.c-ms-comment__more { margin-left: auto; color: var(--color-icon-default); }
+.c-ms-comment p { color: var(--color-text-default); font-size: 12px; line-height: 18px; }
+.c-ms-comment__reply { display: flex; align-items: center; gap: 4px; color: var(--color-text-brand); font-size: 8px; line-height: 12px; font-weight: 600; }
+.c-ms-empty { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 16px 0; text-align: center; }
+.c-ms-empty > span { display: flex; margin-bottom: 4px; padding: 8px; border-radius: 8px; background-color: var(--color-background-subtle); color: var(--color-icon-default); }
+.c-ms-empty b { color: var(--color-text-primary); font-size: 12px; line-height: 18px; }
+.c-ms-empty small { color: var(--color-text-secondary); font-size: 10px; line-height: 12px; }
+.c-ms-rtabs { display: flex; margin-top: -16px; border-bottom: 1px solid var(--color-border-default); font-size: 10px; line-height: 12px; }
+.c-ms-rtabs button { padding: 8px 12px; color: var(--color-text-secondary); }
+.c-ms-rtabs button.is-on { border-bottom: 1px solid var(--color-surface-system-default); color: var(--color-text-brand); font-weight: 800; }
+.c-ms-person-row { display: flex; align-items: center; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--color-border-subtle); font-size: 10px; line-height: 12px; }
+.c-ms-person-row b { color: var(--color-text-primary); }
+.c-ms-person-row span { color: var(--color-text-secondary); }
+
+/* Moldura de exibição no catálogo */
+.c-ms-stage { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px; padding: 24px 24px 0; border: 1px solid var(--color-border-default); border-radius: 16px; background-color: var(--color-gray-100); }

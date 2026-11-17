@@ -1,0 +1,271 @@
+/* Tokens do Ludos Pro Design System (Figma LP-DesignSystem 4.0).
+   Fonte: design-system/tokens.css e o gerador de tema (cor primária). Nomes semânticos (text-*, background-*, border-*,
+   icon-*, surface-system-*) são os que os componentes usam; as rampas (gray, red, ...) só entram aqui e na página de Cores.
+   A cor primária (brand-* e action-*) muda em tempo de execução pelo seletor de tema (js/core/theme.js). */
+
+@font-face {
+  font-family: 'Plus Jakarta Sans Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url('../assets/fonts/plus-jakarta-sans-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url('../assets/fonts/plus-jakarta-sans-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  --font-sans: "Plus Jakarta Sans Variable", system-ui, sans-serif;
+  --color-gray-50: #f7f5fa;
+  --color-gray-100: #f1eef6;
+  --color-gray-200: #e3dfeb;
+  --color-gray-300: #bfb9cb;
+  --color-gray-400: #8b8597;
+  --color-gray-500: #6b6478;
+  --color-gray-600: #514963;
+  --color-gray-700: #3b3447;
+  --color-gray-800: #2a1f37;
+  --color-gray-900: #1a1326;
+  --color-red-50: #fff5f7;
+  --color-red-100: #fee0e6;
+  --color-red-200: #fcb9c9;
+  --color-red-300: #f98ba3;
+  --color-red-400: #f26080;
+  --color-red-500: #e63a5e;
+  --color-red-600: #d41842;
+  --color-red-700: #a0102e;
+  --color-red-800: #7d0d27;
+  --color-red-900: #5a0b1f;
+  --color-yellow-50: #fffbf0;
+  --color-yellow-100: #fff3d1;
+  --color-yellow-200: #ffe9ae;
+  --color-yellow-300: #ffd663;
+  --color-yellow-400: #f5c54a;
+  --color-yellow-500: #e6a823;
+  --color-yellow-600: #cc8800;
+  --color-yellow-700: #996600;
+  --color-yellow-800: #805500;
+  --color-yellow-900: #664400;
+  --color-green-50: #f0fdf7;
+  --color-green-100: #d4f8e8;
+  --color-green-200: #a8f0d1;
+  --color-green-300: #6be3b0;
+  --color-green-400: #47d49a;
+  --color-green-500: #2ab77d;
+  --color-green-600: #1f9d6a;
+  --color-green-700: #146b4a;
+  --color-green-800: #115c3f;
+  --color-green-900: #0d4d35;
+  --color-blue-50: #f0f5ff;
+  --color-blue-100: #dce6fd;
+  --color-blue-200: #b8ccfa;
+  --color-blue-300: #8faaf5;
+  --color-blue-400: #6b8df0;
+  --color-blue-500: #4a6ee5;
+  --color-blue-600: #3056d3;
+  --color-blue-700: #1d3a8f;
+  --color-blue-800: #162b76;
+  --color-blue-900: #0f1d5c;
+  --color-purple-50: #f7f1fd;
+  --color-purple-100: #efe3fb;
+  --color-purple-200: #d9b5f7;
+  --color-purple-300: #c490e8;
+  --color-purple-400: #a35cea;
+  --color-purple-500: #8e3fd1;
+  --color-purple-600: #7b2fbe;
+  --color-purple-700: #5a1aa0;
+  --color-purple-800: #4a1384;
+  --color-purple-900: #3b0d68;
+  --color-black: #0e202d;
+  --color-white: #f8f8f8;
+  --color-text-primary: #0e202d;
+  --color-text-default: #3b3447;
+  --color-text-secondary: #6b6478;
+  --color-text-tertiary: #bfb9cb;
+  --color-text-disabled: #bfb9cb;
+  --color-text-link: #1d3a8f;
+  --color-text-on-color: #f8f8f8;
+  --color-text-error: #a0102e;
+  --color-text-success: #146b4a;
+  --color-text-warning: #996600;
+  --color-text-info: #1d3a8f;
+  --color-text-on-system: #f7f5fa;
+  --color-text-value: #e6a823;
+  --color-text-level: #664400;
+  --color-text-negative: #e63a5e;
+  --color-background-default: #f8f8f8;
+  --color-background-subtle: #f1eef6;
+  --color-background-muted: #e3dfeb;
+  --color-background-info: #dce6fd;
+  --color-background-success: #d4f8e8;
+  --color-background-warning: #fff3d1;
+  --color-background-error: #fee0e6;
+  --color-background-notification: #f26080;
+  --color-background-level: #e6a823;
+  --color-background-skeleton: #bfb9cb;
+  --color-background-tooltip: #0e202d;
+  --color-border-default: #e3dfeb;
+  --color-border-strong: #3b3447;
+  --color-border-subtle: #f1eef6;
+  --color-border-error: #e63a5e;
+  --color-border-success: #2ab77d;
+  --color-border-warning: #e6a823;
+  --color-border-info: #4a6ee5;
+  --color-border-on-system: #f7f5fa;
+  --color-border-level: #e6a823;
+  --color-icon-default: #3b3447;
+  --color-icon-secondary: #6b6478;
+  --color-icon-tertiary: #514963;
+  --color-icon-on-color: #f8f8f8;
+  --color-icon-error: #e63a5e;
+  --color-icon-success: #2ab77d;
+  --color-icon-warning: #e6a823;
+  --color-icon-warning-strong: #996600;
+  --color-icon-info: #4a6ee5;
+  --color-icon-on-system: #f7f5fa;
+  --color-surface-elevated: #f8f8f8;
+  /* Palco das atividades: fundo branco da área das mecânicas (o resto da página segue o background-default #f8f8f8). */
+  --color-surface-stage: #ffffff;
+  /* Superfície sempre escura, nos dois temas: selos e sombras sobre imagem, avisos (toasts) e scrim. Texto: text-on-color. */
+  --color-surface-dark: #0e202d;
+  /* Primária (gerador de tema): valores padrão para #7b2fbe; sobrescritos em runtime por applyTheme */
+  --color-brand: #7b2fbe;
+  --color-on-brand: #ffffff;
+  --color-action: #7b2fbe;
+  --color-on-action: #ffffff;
+  --color-action-hover: #6a15aa;
+  --color-action-active: #570090;
+  --color-ui: #7b2fbe;
+  --color-brand-strong: #7b2fbe;
+  --color-brand-border: #d6bafe;
+  --color-brand-subtle: #f9f5ff;
+  --color-brand-50: #f9f5ff;
+  --color-brand-100: #e7d7ff;
+  --color-brand-200: #d6bafe;
+  --color-brand-300: #c3a0f2;
+  --color-brand-400: #b086e5;
+  --color-brand-500: #9e6bd9;
+  --color-brand-600: #8c4fcb;
+  --color-brand-700: #7b2fbe;
+  --color-brand-800: #5c1794;
+  --color-brand-900: #3e0568;
+  --color-brand-950: #21013a;
+  /* Tokens system-* do Figma, agora derivados do gerador */
+  --color-surface-system-subtle: var(--color-brand-50);
+  --color-surface-system-light: var(--color-brand-100);
+  --color-surface-system-soft: var(--color-brand-200);
+  --color-surface-system-muted: var(--color-brand-400);
+  --color-surface-system-accent: var(--color-action);
+  --color-surface-system-default: var(--color-action);
+  --color-surface-system-strong: var(--color-action-hover);
+  --color-surface-system-emphasis: var(--color-brand-900);
+  /* Texto na cor da marca (links, rótulos, kickers). No claro é a própria cor de ação; no escuro, um tom claro da escala. */
+  --color-text-brand: var(--color-action);
+  --color-text-brand-strong: var(--color-action-hover);
+  /* Breakpoints do handoff (Figma Ludos Pro 4.0 - handoff) */
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1180px;
+  --breakpoint-xl: 1366px;
+  --breakpoint-2xl: 1440px;
+  --breakpoint-3xl: 2560px;
+  --radius-sm: 2px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --shadow-2xs: 0 1px 0 0 rgba(0,0,0,.05);
+  --shadow-xs: 0 1px 2px 0 rgba(0,0,0,.05);
+  --shadow-sm: 0 1px 2px -1px rgba(0,0,0,.1), 0 1px 3px 0 rgba(0,0,0,.1);
+  --shadow-md: 0 4px 6px -4px rgba(0,0,0,.1), 0 10px 15px -3px rgba(0,0,0,.1);
+  --shadow-lg: 0 8px 10px -6px rgba(0,0,0,.1), 0 20px 25px -5px rgba(0,0,0,.1);
+  --shadow-xl: 0 8px 10px -6px rgba(0,0,0,.1), 0 20px 25px -5px rgba(0,0,0,.1);
+  --shadow-2xl: 0 25px 50px -12px rgba(0,0,0,.25);
+
+  /* Altura das barras fixas do produto: app bar (44 no mobile, 64 a partir de 768). */
+  --topbar-height: 44px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --topbar-height: 64px;
+  }
+}
+
+/* ---------- Tema escuro e alto contraste (menu do perfil; js/core/appearance.js) ----------
+   Valores da referência design-ref/topbar-menu-ludospro.html (DARK_TOKENS, CONTRAST_LIGHT, CONTRAST_DARK), aplicados aos
+   tokens semânticos. Só os semânticos mudam: as rampas continuam iguais. As cores de estado em fundo (info, sucesso, aviso,
+   erro) e as superfícies da marca são misturas da cor sobre a superfície, para seguirem a cor primária de cada cliente.
+   A confirmar com o design: o Figma ainda não tem o modo escuro. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-text-primary: #f4f1f8;
+  --color-text-default: #d6cfe0;
+  --color-text-secondary: #a79fb6;
+  --color-text-tertiary: #8e869c;
+  --color-text-disabled: #5f586c;
+  --color-text-link: #8faaf5;
+  --color-text-error: #f98ba3;
+  --color-text-success: #6be3b0;
+  --color-text-warning: #ffd663;
+  --color-text-info: #8faaf5;
+  --color-text-negative: #f26080;
+  --color-text-brand: var(--color-brand-300);
+  --color-text-brand-strong: var(--color-brand-200);
+  --color-background-default: #211c29;
+  --color-background-subtle: #16121c;
+  --color-background-muted: #3a3346;
+  --color-background-info: color-mix(in srgb, #4a6ee5 24%, #211c29);
+  --color-background-success: color-mix(in srgb, #2ab77d 24%, #211c29);
+  --color-background-warning: color-mix(in srgb, #e6a823 24%, #211c29);
+  --color-background-error: color-mix(in srgb, #e63a5e 24%, #211c29);
+  --color-background-skeleton: #3a3346;
+  --color-background-tooltip: #3a3346;
+  --color-border-default: #3a3346;
+  --color-border-strong: #d6cfe0;
+  --color-border-subtle: #332d3e;
+  --color-icon-default: #d6cfe0;
+  --color-icon-secondary: #a79fb6;
+  --color-icon-tertiary: #c2bbd0;
+  --color-icon-warning-strong: #ffd663;
+  --color-surface-elevated: #2a2533;
+  --color-surface-stage: #211c29;
+  --color-surface-system-subtle: color-mix(in srgb, var(--color-brand-500) 16%, #211c29);
+  --color-surface-system-light: color-mix(in srgb, var(--color-brand-500) 28%, #211c29);
+  --color-surface-system-soft: color-mix(in srgb, var(--color-brand-500) 42%, #211c29);
+  --color-surface-system-emphasis: var(--color-brand-200);
+  --shadow-md: 0 4px 6px -4px rgba(0,0,0,.4), 0 10px 15px -3px rgba(0,0,0,.4);
+  --shadow-lg: 0 8px 10px -6px rgba(0,0,0,.4), 0 20px 25px -5px rgba(0,0,0,.4);
+}
+
+/* Melhorar contraste: textos, ícones e bordas mais fortes em relação ao fundo. */
+:root[data-contrast='more'] {
+  --color-text-default: #2a2336;
+  --color-text-secondary: #4a4358;
+  --color-text-tertiary: #5c5569;
+  --color-text-disabled: #8b8597;
+  --color-icon-default: #2a2336;
+  --color-icon-secondary: #4a4358;
+  --color-icon-tertiary: #3a3349;
+  --color-border-default: #c4bdd3;
+  --color-border-subtle: #d2ccde;
+}
+
+:root[data-theme='dark'][data-contrast='more'] {
+  --color-text-default: #ece8f4;
+  --color-text-secondary: #c6bfd6;
+  --color-text-tertiary: #b2aac6;
+  --color-text-disabled: #8e869c;
+  --color-icon-default: #ece8f4;
+  --color-icon-secondary: #c6bfd6;
+  --color-icon-tertiary: #dad3e6;
+  --color-border-default: #5b5370;
+  --color-border-subtle: #4a4458;
+}

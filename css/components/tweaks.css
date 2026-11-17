@@ -1,0 +1,257 @@
+/* Painel "Tweaks" do mockup (js/shell/tweaks.js). Ferramenta de revisão, não faz parte do produto: fica no canto, acima do
+   atalho "← Catálogo", e some dentro do catálogo e do visualizador (.is-embedded). */
+
+.c-tweaks {
+  position: fixed;
+  right: 12px;
+  bottom: 124px; /* acima do "← Catálogo" (84) e da navigation bar */
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+@media (min-width: 1180px) {
+  .c-tweaks { bottom: 52px; }
+}
+
+.is-embedded .c-tweaks { display: none; }
+
+.c-tweaks__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 999px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text-primary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.c-tweaks__toggle:hover,
+.c-tweaks__toggle[aria-expanded='true'] { opacity: 1; background-color: var(--color-surface-system-subtle); }
+
+/* Algum tweak fora do padrão: a pílula ganha a cor da marca para lembrar que a tela não está no estado padrão. */
+.c-tweaks__toggle.is-changed {
+  border-color: var(--color-surface-system-soft);
+  color: var(--color-text-brand);
+  opacity: 1;
+}
+
+.c-tweaks__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 280px;
+  max-height: calc(100dvh - 200px);
+  overflow-y: auto;
+  padding: 16px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-lg);
+}
+
+.c-tweaks__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.c-tweaks__reset {
+  color: var(--color-text-brand);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+}
+
+.c-tweaks__reset:disabled { color: var(--color-text-disabled); }
+
+.c-tweaks__row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.c-tweaks__label {
+  color: var(--color-text-default);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+}
+
+.c-tweaks__hint {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.c-tweaks__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.c-tweaks__choice {
+  padding: 4px 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 999px;
+  color: var(--color-text-default);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-tweaks__choice:hover { background-color: var(--color-background-subtle); }
+
+.c-tweaks__choice.is-active {
+  border-color: var(--color-surface-system-soft);
+  background-color: var(--color-surface-system-light);
+  color: var(--color-surface-system-emphasis);
+  font-weight: 700;
+}
+
+.c-tweaks__switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Grupos (Curso, Trilha, Fundo...): título pequeno em caixa alta e divisor entre grupos. */
+.c-tweaks__section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.c-tweaks__section + .c-tweaks__section {
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border-default);
+}
+
+.c-tweaks__section-title {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.c-tweaks__range-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.c-tweaks__value {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.c-tweaks__range {
+  width: 100%;
+  accent-color: var(--color-action);
+}
+
+.c-tweaks__select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-background-default);
+  color: var(--color-text-default);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.c-tweaks__viewer {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border-default);
+  color: var(--color-text-brand);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+}
+
+/* Envio de imagens (tipo 'images'): uma linha por item com miniatura, nome e situação, "Trocar" e remover. */
+.c-tweaks__images {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.c-tweaks__image {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+}
+
+.c-tweaks__thumb {
+  flex: none;
+  width: 48px;
+  height: 32px;
+  border-radius: 4px;
+  background-color: var(--color-background-muted);
+  background-position: center;
+  background-size: cover;
+}
+
+.c-tweaks__image-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.c-tweaks__image-text b { color: var(--color-text-default); font-weight: 700; }
+.c-tweaks__image-text span { color: var(--color-text-secondary); }
+
+.c-tweaks__image-btn {
+  flex: none;
+  padding: 4px 8px;
+  border: 1px solid var(--color-surface-system-soft);
+  border-radius: 8px;
+  color: var(--color-text-brand);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.c-tweaks__image-btn:hover { background-color: var(--color-surface-system-subtle); }
+.c-tweaks__image-btn:focus-within { outline: 2px solid var(--color-surface-system-default); outline-offset: 2px; }
+
+.c-tweaks__image-remove {
+  display: flex;
+  flex: none;
+  padding: 4px;
+  border-radius: 8px;
+  color: var(--color-icon-default);
+}
+
+.c-tweaks__image-remove:hover { background-color: var(--color-surface-system-subtle); }
+
+.c-tweaks__hint--warn { color: var(--color-text-warning, var(--color-text-secondary)); }

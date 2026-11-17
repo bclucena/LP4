@@ -1,0 +1,321 @@
+/* Eventos (js/screens/events.js). Cortes: 768 tablet, 1000 quatro colunas, 1180 desktop. */
+
+/* ---------- Grade ---------- */
+.c-ev-grid--desktop {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.c-ev-grid--compact {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+
+@media (min-width: 768px) {
+  .c-ev-grid--compact {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 16px 24px;
+  }
+}
+
+@media (min-width: 1000px) {
+  .c-ev-grid--compact {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Card ---------- */
+.c-ev-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+}
+
+.c-ev-card__cover {
+  aspect-ratio: 16 / 9;
+}
+
+.c-ev-card__flags {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  left: 8px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.c-ev-card__cover .c-cover__title {
+  font-size: 14px;
+}
+
+.c-ev-card__fav {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+}
+
+.c-ev-fav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-surface-system-emphasis);
+}
+
+.c-ev-fav:hover {
+  background-color: var(--color-surface-system-subtle);
+}
+
+.c-ev-fav--small {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.c-ev-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.c-ev-card__date {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-ev-card__title {
+  display: -webkit-box;
+  height: 40px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.c-ev-card__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.c-ev-card__place {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+/* Vagas */
+.c-ev-slots {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-ev-slots--free { color: var(--color-text-success); }
+.c-ev-slots--full { color: var(--color-text-error); }
+
+/* Botões do card */
+.c-ev-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.c-ev-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.c-ev-btn--join {
+  flex: 1;
+  background-color: var(--color-action);
+  color: var(--color-on-action);
+}
+
+.c-ev-btn--join:hover {
+  background-color: var(--color-action-hover);
+}
+
+.c-ev-btn--join:active {
+  background-color: var(--color-action-active);
+}
+
+/* Já inscrito: botão de contorno ("Cancelar inscrição") */
+.c-ev-btn--join.is-joined,
+.c-ev-btn--agenda {
+  border: 1px solid var(--color-surface-system-soft);
+  background-color: transparent;
+  color: var(--color-surface-system-emphasis);
+}
+
+.c-ev-btn--join.is-joined:hover,
+.c-ev-btn--agenda:hover {
+  background-color: var(--color-surface-system-subtle);
+}
+
+.c-ev-btn:disabled {
+  border-color: transparent;
+  background-color: var(--color-background-muted);
+  color: var(--color-text-tertiary);
+  cursor: not-allowed;
+}
+
+.c-ev-btn--agenda:disabled {
+  border-color: var(--color-surface-system-soft);
+  background-color: transparent;
+}
+
+/* Card compacto (mobile e tablet) */
+.c-ev-card--compact {
+  gap: 8px;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.c-ev-card--compact .c-ev-card__cover {
+  border-radius: 4px;
+}
+
+.c-ev-card--compact .c-cover__title {
+  max-width: 70%;
+  margin: 8px;
+  font-size: 10px;
+}
+
+.c-ev-card--compact .c-ev-card__body {
+  flex: 1;
+  gap: 8px;
+  padding: 0 4px 4px;
+}
+
+.c-ev-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.c-ev-card--compact .c-ev-card__title {
+  min-width: 0;
+  flex: 1;
+  height: 36px;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.c-ev-card--compact .c-ev-card__date {
+  align-items: flex-start;
+  gap: 2px;
+  font-size: 10px;
+  line-height: 12px;
+}
+
+.c-ev-card--compact .c-ev-card__date .c-icon {
+  flex: none;
+  margin-top: 2px;
+}
+
+.c-ev-card__bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+}
+
+.c-ev-card__count {
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 16px;
+}
+
+.c-ev-card__count--free {
+  color: var(--color-text-success);
+  font-weight: 700;
+}
+
+.c-ev-btn--compact {
+  padding: 4px;
+  font-size: 10px;
+  line-height: 12px;
+}
+
+/* ---------- Carregando e vazio ---------- */
+.c-ev-skeleton {
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  background-color: var(--color-background-skeleton);
+  animation: c-ev-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@media (min-width: 1180px) {
+  .c-ev-skeleton { border-radius: 16px; }
+}
+
+@keyframes c-ev-pulse {
+  50% { opacity: 0.5; }
+}
+
+.c-ev-empty {
+  margin-top: 16px;
+  padding: 48px 24px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ---------- Aviso (toast) ---------- */
+.c-ev-toast {
+  position: fixed;
+  bottom: 96px;
+  left: 50%;
+  z-index: 70;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 12px;
+  background-color: var(--color-surface-dark);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text-on-color);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+@media (min-width: 1180px) {
+  .c-ev-toast { bottom: 24px; }
+}

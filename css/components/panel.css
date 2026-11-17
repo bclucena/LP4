@@ -1,0 +1,281 @@
+/* Painel: bottom sheet e navdrawer (js/components/panel.js). */
+
+.c-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+
+.c-panel__scrim {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  animation: c-panel-fade 200ms ease-out;
+}
+
+.c-panel__box {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border-default);
+  background-color: var(--color-background-default);
+  overflow: hidden;
+}
+
+/* ---------- Bottom sheet ---------- */
+.c-panel__box--sheet {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  max-height: 92vh;
+  margin: 0 auto;
+  border-radius: 16px 16px 0 0;
+  transition: height 200ms ease-out, border-radius 200ms ease-out;
+}
+
+@media (min-width: 768px) {
+  .c-panel__box--sheet {
+    max-width: 640px;
+  }
+}
+
+.c-panel__handle {
+  flex: none;
+  align-self: center;
+  width: 32px;
+  height: 4px;
+  margin: 16px 0;
+  border-radius: 999px;
+  background-color: var(--color-background-skeleton);
+}
+
+/* ---------- Navdrawer (a partir de 1180): flutuante, 8 de margem, 400 de largura ---------- */
+.c-panel__box--drawer {
+  top: 8px;
+  right: 8px;
+  bottom: 8px;
+  width: 400px;
+  max-width: calc(100% - 16px);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+}
+
+.c-panel__header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.c-panel__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--color-text-default);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.c-panel__close {
+  display: flex;
+  padding: 4px;
+  border-radius: 8px;
+  color: var(--color-icon-default);
+}
+
+.c-panel__close:hover {
+  background-color: var(--color-surface-system-subtle);
+}
+
+.c-panel__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  padding: 8px;
+  overflow: hidden auto;
+}
+
+.c-panel__box--drawer .c-panel__body {
+  padding: 16px;
+}
+
+.c-panel__box--sheet .c-panel__body::after {
+  content: '';
+  flex: none;
+  height: 16px;
+}
+
+/* ---------- Entrada (só na abertura; as re-renderizações seguintes não animam) ---------- */
+.c-panel__box--sheet.is-entering {
+  animation: c-panel-up 200ms ease-out;
+}
+
+.c-panel__box--drawer.is-entering {
+  animation: c-panel-right 200ms ease-out;
+}
+
+/* Saída (leavePanel): o mesmo movimento da entrada, ao contrário. */
+.c-panel.is-leaving { pointer-events: none; }
+.c-panel.is-leaving .c-panel__scrim { animation: c-panel-fade-out 200ms ease-in forwards; }
+.c-panel.is-leaving .c-panel__box--sheet { animation: c-panel-down 200ms ease-in forwards; }
+.c-panel.is-leaving .c-panel__box--drawer { animation: c-panel-right-out 200ms ease-in forwards; }
+
+@keyframes c-panel-fade {
+  from { opacity: 0; }
+}
+
+@keyframes c-panel-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes c-panel-down {
+  to { transform: translateY(100%); }
+}
+
+@keyframes c-panel-right-out {
+  to { transform: translateX(calc(100% + 16px)); }
+}
+
+@keyframes c-panel-up {
+  from { transform: translateY(100%); }
+}
+
+@keyframes c-panel-right {
+  from { transform: translateX(calc(100% + 16px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-panel__scrim,
+  .c-panel__box.is-entering {
+    animation: none;
+  }
+}
+
+/* ---------- Rodapé dos sheets de filtro ---------- */
+.c-sheet-footer {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 16px 32px;
+  border-top: 1px solid var(--color-border-default);
+  background-color: var(--color-background-default);
+}
+
+.c-sheet-footer__count {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  line-height: 12px;
+  white-space: nowrap;
+}
+
+.c-sheet-footer__count b {
+  color: var(--color-text-default);
+}
+
+.c-sheet-footer__count span {
+  color: var(--color-text-secondary);
+}
+
+.c-sheet-footer__clear,
+.c-sheet-footer__apply {
+  padding: 6px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.c-sheet-footer__clear {
+  border: 1px solid var(--color-surface-system-soft);
+  background-color: var(--color-background-default);
+  color: var(--color-surface-system-emphasis);
+}
+
+.c-sheet-footer__clear:hover {
+  background-color: var(--color-surface-system-subtle);
+}
+
+.c-sheet-footer__apply {
+  background-color: var(--color-action);
+  color: var(--color-on-action);
+}
+
+.c-sheet-footer__apply:hover {
+  background-color: var(--color-action-hover);
+}
+
+.c-sheet-footer__apply:active {
+  background-color: var(--color-action-active);
+}
+
+
+/* ---------- Drawer sem moldura (bare): cards soltos (Figma 5149:53581 e 5154:53777) ----------
+   Os cards (400) ficam empilhados à direita, com 16 entre eles, e rolam juntos; o X é um botão quadrado de 36 à esquerda
+   deles (8 de folga), alinhado ao topo. Mesmo fundo escuro e mesmas animações do navdrawer. */
+.c-panel__box--bare {
+  top: 8px;
+  right: 8px;
+  bottom: 8px;
+  width: 400px;
+  max-width: calc(100% - 60px);
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.c-panel__box--bare .c-panel__body {
+  flex: 0 1 auto;
+  padding: 0;
+  border-radius: 16px;
+  pointer-events: auto;
+  scrollbar-width: none;
+}
+
+.c-panel__box--bare .c-panel__body::-webkit-scrollbar { display: none; }
+
+.c-panel__float-close {
+  position: absolute;
+  top: 0;
+  right: calc(100% + 8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-surface-system-emphasis);
+  pointer-events: auto;
+}
+
+.c-panel__float-close:hover { background-color: var(--color-surface-system-subtle); }
+.c-panel__float-close:focus-visible { outline: 2px solid var(--color-border-focus, var(--color-surface-system-default)); outline-offset: 2px; }
+
+@keyframes c-panel-right-bare {
+  from { transform: translateX(calc(100% + 60px)); }
+}
+
+@keyframes c-panel-right-bare-out {
+  to { transform: translateX(calc(100% + 60px)); }
+}
+
+.c-panel__box--bare.is-entering { animation: c-panel-right-bare 200ms ease-out; }
+.c-panel.is-leaving .c-panel__box--bare { animation: c-panel-right-bare-out 200ms ease-in forwards; }

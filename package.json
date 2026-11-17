@@ -1,0 +1,12 @@
+{
+  "name": "ludos-pro-mockup",
+  "private": true,
+  "version": "0.2.0",
+  "description": "Mockup navegável do Ludos Pro em HTML, CSS e JavaScript puros (sem build e sem dependências).",
+  "type": "module",
+  "scripts": {
+    "start": "node serve.mjs",
+    "icones": "node tools/gerar-icones.mjs",
+    "icones-lp": "node tools/gerar-icones-lp.mjs"
+  }
+}

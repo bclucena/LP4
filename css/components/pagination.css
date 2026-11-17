@@ -1,0 +1,49 @@
+/* Paginação (js/components/pagination.js). */
+
+.c-pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.c-page-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-surface-system-soft);
+  border-radius: 12px;
+  background-color: var(--color-background-default);
+  color: var(--color-surface-system-emphasis);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-page-button:not(:disabled):is(:hover, [data-state='hover']) {
+  border-color: var(--color-surface-system-emphasis);
+  background-color: var(--color-surface-system-subtle);
+}
+
+.c-page-button.is-active,
+.c-page-button:not(:disabled):is(:active, [data-state='pressed']) {
+  border-color: var(--color-surface-system-emphasis);
+  background-color: var(--color-surface-system-light);
+}
+
+.c-page-button:is(:disabled, [data-state='disabled']) {
+  border-color: var(--color-border-default);
+  background-color: var(--color-background-subtle);
+  color: var(--color-text-tertiary);
+}
+
+.c-pagination__gap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}

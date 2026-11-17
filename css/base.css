@@ -1,0 +1,131 @@
+/* Base: reset enxuto, tipografia e utilitários mínimos. Não é um framework de utilitários: cada componente tem o seu CSS. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-background-default);
+  color: var(--color-text-default);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, p, ul, ol, figure {
+  margin: 0;
+}
+
+ul, ol {
+  padding: 0;
+  list-style: none;
+}
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: inherit;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img, svg {
+  display: block;
+  max-width: 100%;
+}
+
+b, strong {
+  font-weight: 700;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-surface-system-default);
+  outline-offset: 2px;
+}
+
+/* Logo: as duas versões estão no HTML (js/shell/shell.js); só a do tema atual aparece. */
+:root:not([data-theme='dark']) .c-logo--on-dark,
+:root[data-theme='dark'] .c-logo--on-light {
+  display: none !important;
+}
+
+/* Ícone do Feather (js/core/icons.js): não encolhe dentro de linhas flex. */
+.c-icon {
+  flex: none;
+}
+
+.u-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Rolagem fina e discreta (listas e menus). */
+.u-thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-background-muted) transparent;
+}
+
+.u-hide-scroll {
+  scrollbar-width: none;
+}
+
+.u-hide-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Entrada de conteúdo ao navegar em listas hierárquicas: avançar vem da direita, voltar da esquerda. */
+@keyframes lp-slide-in-right {
+  from { opacity: 0; transform: translateX(32px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes lp-slide-in-left {
+  from { opacity: 0; transform: translateX(-32px); }
+  to { opacity: 1; transform: none; }
+}
+
+.lp-slide-in-right {
+  animation: lp-slide-in-right 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.lp-slide-in-left {
+  animation: lp-slide-in-left 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes lp-pulse {
+  50% { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-slide-in-right,
+  .lp-slide-in-left {
+    animation: none;
+  }
+}

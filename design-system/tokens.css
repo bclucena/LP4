@@ -1,0 +1,119 @@
+/* Ludos Pro Design System — tokens extraídos do Figma "LP-DesignSystem 4.0"
+   fileKey: 3NRrDyxpWYIJD52LwuoysG | páginas: Foundations (color, typography, size e spacing, effects)
+   Fonte principal: Plus Jakarta Sans. Valores de tipografia seguem os rótulos do Figma (ver FIGMA-MAP.md > Pendências). */
+
+:root {
+  /* ---------- Ramps ---------- */
+  --gray-50:#f7f5fa; --gray-100:#f1eef6; --gray-200:#e3dfeb; --gray-300:#bfb9cb; --gray-400:#8b8597;
+  --gray-500:#6b6478; --gray-600:#514963; --gray-700:#3b3447; --gray-800:#2a1f37; --gray-900:#1a1326;
+
+  --red-50:#fff5f7; --red-100:#fee0e6; --red-200:#fcb9c9; --red-300:#f98ba3; --red-400:#f26080;
+  --red-500:#e63a5e; --red-600:#d41842; --red-700:#a0102e; --red-800:#7d0d27; --red-900:#5a0b1f;
+
+  --yellow-50:#fffbf0; --yellow-100:#fff3d1; --yellow-200:#ffe9ae; --yellow-300:#ffd663; --yellow-400:#f5c54a;
+  --yellow-500:#e6a823; --yellow-600:#cc8800; --yellow-700:#996600; --yellow-800:#805500; --yellow-900:#664400;
+
+  --green-50:#f0fdf7; --green-100:#d4f8e8; --green-200:#a8f0d1; --green-300:#6be3b0; --green-400:#47d49a;
+  --green-500:#2ab77d; --green-600:#1f9d6a; --green-700:#146b4a; --green-800:#115c3f; --green-900:#0d4d35;
+
+  --blue-50:#f0f5ff; --blue-100:#dce6fd; --blue-200:#b8ccfa; --blue-300:#8faaf5; --blue-400:#6b8df0;
+  --blue-500:#4a6ee5; --blue-600:#3056d3; --blue-700:#1d3a8f; --blue-800:#162b76; --blue-900:#0f1d5c;
+
+  --purple-50:#f7f1fd; --purple-100:#efe3fb; --purple-200:#d9b5f7; --purple-300:#c490e8; --purple-400:#a35cea;
+  --purple-500:#8e3fd1; --purple-600:#7b2fbe; --purple-700:#5a1aa0; --purple-800:#4a1384; --purple-900:#3b0d68;
+
+  --black:#0e202d; --white:#f8f8f8;
+
+  /* ---------- Semânticos: text ---------- */
+  --text-primary:#0e202d; --text-default:#3b3447; --text-secondary:#6b6478; --text-tertiary:#bfb9cb;
+  --text-disabled:#bfb9cb; --text-link:#1d3a8f; --text-on-color:#f8f8f8; --text-error:#a0102e;
+  --text-success:#146b4a; --text-warning:#996600; --text-info:#1d3a8f; --text-on-system:#f7f5fa;
+  --text-value:#e6a823; --text-level:#664400; --text-negative:#e63a5e;
+
+  /* ---------- Semânticos: background ---------- */
+  --bg-default:#f8f8f8; --bg-subtle:#f1eef6; --bg-muted:#e3dfeb; --bg-info:#dce6fd; --bg-success:#d4f8e8;
+  --bg-warning:#fff3d1; --bg-error:#fee0e6; --bg-notification:#f26080; --bg-level:#e6a823;
+  --bg-skeleton:#bfb9cb; --bg-tooltip:#0e202d;
+
+  /* ---------- Semânticos: border ---------- */
+  --border-default:#e3dfeb; --border-strong:#3b3447; --border-subtle:#f1eef6; --border-error:#e63a5e;
+  --border-success:#2ab77d; --border-warning:#e6a823; --border-info:#4a6ee5; --border-on-system:#f7f5fa;
+  --border-level:#e6a823;
+
+  /* ---------- Semânticos: icon ---------- */
+  --icon-default:#3b3447; --icon-secondary:#6b6478; --icon-tertiary:#514963; --icon-on-color:#f8f8f8;
+  --icon-error:#e63a5e; --icon-success:#2ab77d; --icon-warning:#e6a823; --icon-warning-strong:#996600;
+  --icon-info:#4a6ee5; --icon-on-system:#f7f5fa;
+
+  /* ---------- Semânticos: surface ---------- */
+  --surface-elevated:#f8f8f8; --surface-system-accent:#8e3fd1; --surface-system-strong:#5a1aa0;
+  --surface-system-subtle:#f7f1fd; --surface-system-light:#efe3fb; --surface-system-soft:#d9b5f7;
+  --surface-system-muted:#a35cea; --surface-system-default:#7b2fbe; --surface-system-emphasis:#3b0d68;
+
+  /* ---------- Tipografia ---------- */
+  --font-sans:'Plus Jakarta Sans', system-ui, sans-serif;
+  --fs-xs:12px; --fs-sm:14px; --fs-base:16px; --fs-lg:18px; --fs-xl:20px; --fs-2xl:24px; --fs-3xl:30px;
+  --fs-4xl:36px; --fs-5xl:48px; --fs-6xl:60px; --fs-7xl:72px; --fs-8xl:96px; --fs-9xl:128px;
+  --fw-thin:100; --fw-extralight:200; --fw-light:300; --fw-normal:400; --fw-medium:500; --fw-semibold:600;
+  --fw-bold:700; --fw-extrabold:800; --fw-black:900;
+
+  /* ---------- Spacing (múltiplos de 4px) ---------- */
+  --space-0:0; --space-0_25:1px; --space-0_5:2px; --space-1:4px; --space-1_5:6px; --space-2:8px;
+  --space-2_5:10px; --space-3:12px; --space-3_5:14px; --space-4:16px; --space-5:20px; --space-6:24px;
+  --space-7:28px; --space-8:32px; --space-9:36px; --space-10:40px; --space-11:44px; --space-12:48px;
+  --space-14:56px; --space-16:64px; --space-20:80px; --space-24:96px; --space-28:112px; --space-32:128px;
+  --space-36:144px; --space-40:160px; --space-44:176px; --space-48:192px; --space-52:208px;
+  --space-56:224px; --space-60:240px; --space-64:256px; --space-72:288px; --space-80:320px; --space-96:384px;
+  /* Padding de componentes de interação: 0 a 24px, fixo em todos os breakpoints (mesma escala acima, até --space-6) */
+
+  /* ---------- Radius ---------- */
+  --radius-none:0; --radius-sm:2px; --radius:4px; --radius-md:6px; --radius-lg:8px; --radius-xl:12px;
+  --radius-2xl:16px; --radius-3xl:24px; --radius-full:999px;
+
+  /* ---------- Shadows ---------- */
+  --shadow-none:0 0 0 0 rgba(0,0,0,0);
+  --shadow-2xs:0 1px 0 0 rgba(0,0,0,.05);
+  --shadow-xs:0 1px 2px 0 rgba(0,0,0,.05);
+  --shadow-sm:0 1px 2px -1px rgba(0,0,0,.1), 0 1px 3px 0 rgba(0,0,0,.1);
+  --shadow:0 2px 4px -2px rgba(0,0,0,.1), 0 4px 6px -1px rgba(0,0,0,.1);
+  --shadow-md:0 4px 6px -4px rgba(0,0,0,.1), 0 10px 15px -3px rgba(0,0,0,.1);
+  --shadow-lg:0 8px 10px -6px rgba(0,0,0,.1), 0 20px 25px -5px rgba(0,0,0,.1);
+  --shadow-xl:0 8px 10px -6px rgba(0,0,0,.1), 0 20px 25px -5px rgba(0,0,0,.1);
+  --shadow-2xl:0 25px 50px -12px rgba(0,0,0,.25);
+  --shadow-inner:inset 0 2px 4px 0 rgba(0,0,0,.05);
+
+  /* ---------- Blur ---------- */
+  --blur-none:0; --blur-sm:4px; --blur:8px; --blur-md:12px; --blur-lg:16px; --blur-xl:24px; --blur-2xl:40px; --blur-3xl:64px;
+
+  /* ---------- Border width ---------- */
+  --bw-0:0; --bw:1px; --bw-2:2px; --bw-4:4px; --bw-8:8px;
+
+  /* ---------- Layout ---------- */
+  --bp-sm:640px; --bp-md:768px; --bp-lg:1024px; --bp-xl:1280px; --bp-2xl:1536px;
+  --container-xs:320px; --container-sm:384px; --container-md:448px; --container-lg:512px; --container-xl:576px;
+  --container-2xl:672px; --container-3xl:768px; --container-4xl:896px; --container-5xl:1024px;
+  --container-6xl:1152px; --container-7xl:1280px;
+}
+
+/* ---------- Text styles semânticos (tamanho / line-height / peso) ---------- */
+.type-display-lg{font:700 48px/48px var(--font-sans)}
+.type-display-sm{font:700 30px/40px var(--font-sans)}
+.type-heading{font:700 20px/32px var(--font-sans)}
+.type-subtitle{font:700 16px/24px var(--font-sans)}
+.type-subtitle-extrabold{font:800 16px/24px var(--font-sans)}
+.type-price{font:700 18px/28px var(--font-sans)}
+.type-body{font:400 14px/20px var(--font-sans)}
+.type-body-medium{font:500 14px/20px var(--font-sans)}
+.type-body-semibold{font:600 14px/20px var(--font-sans)}
+.type-body-bold{font:700 14px/20px var(--font-sans)}
+.type-body-extrabold{font:800 14px/20px var(--font-sans)}
+.type-caption-light{font:300 12px/16px var(--font-sans)}
+.type-caption{font:400 12px/16px var(--font-sans)}
+.type-caption-medium{font:500 12px/16px var(--font-sans)}
+.type-caption-semibold{font:600 12px/16px var(--font-sans)}
+.type-caption-bold{font:700 12px/16px var(--font-sans)}
+.type-caption-extrabold{font:800 12px/16px var(--font-sans)}
+/* mobile: caption/body/subtitle = 10px/12px (pesos light a extrabold); heading-area = 12px/16px bold */
+.type-mobile-caption{font:400 10px/12px var(--font-sans)}
+.type-mobile-body{font:400 10px/12px var(--font-sans)}
+.type-mobile-heading-area{font:700 12px/16px var(--font-sans)}

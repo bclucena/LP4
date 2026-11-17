@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ludos Pro: mockup navegável</title>
+    <!-- Dentro de um iframe (catálogo, visualizador) o atalho de volta não aparece. -->
+    <script>if (window.top !== window) document.documentElement.classList.add('is-embedded');</script>
+    <!-- Tema e contraste do menu do perfil antes do primeiro desenho, para não piscar o tema claro (js/core/appearance.js repete a regra). -->
+    <script>
+      try {
+        const a = JSON.parse(localStorage.getItem('lp-appearance') || 'null') || {};
+        const dark = a.mode === 'dark' || (a.mode === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        if (a.contrast) document.documentElement.dataset.contrast = 'more';
+      } catch (e) {}
+    </script>
+    <link rel="icon" href="assets/brand/logo-lp.svg" />
+    <link rel="stylesheet" href="css/app.css" />
+  </head>
+  <body>
+    <!-- Casca do produto e a tela da área (js/app.js). Abra por um servidor estático: npm start ou node serve.mjs. -->
+    <div id="shell" class="c-shell"></div>
+    <div id="overlay"></div>
+    <!-- Painel de tweaks (variações de cada tela para revisão; js/shell/tweaks.js). Não faz parte do produto. -->
+    <div id="tweaks"></div>
+    <!-- Atalho de apoio (não faz parte do produto): volta ao catálogo do design system. -->
+    <a class="c-back-catalog" href="index.html" aria-label="Voltar ao catálogo do design system">← Catálogo</a>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1491 @@
+/* Curso (js/screens/course-detail.js; Figma LP-DesignSystem 4.0, página "Curso Classica").
+   Dois layouts, com o corte em 1179:
+   - abaixo de 1179 (360 e 768): componentes mobile (texto 10/12 a 12/18), abas de verdade e cards de 8 de raio;
+   - a partir de 1179: capa larga, coluna lateral de 400 que sobe sobre a capa e cards de 16 de raio.
+   A casca liga data-layout="focus" (sem menu lateral); no Curso ela mantém a app bar e a navigation bar
+   (data-focus-nav, ver css/shell.css). A tela cuida do próprio padding e da largura máxima (1248, como no Figma 1440). */
+
+.c-course-detail {
+  min-height: calc(100vh - var(--topbar-height));
+  background-color: var(--color-background-subtle);
+  color: var(--color-text-default);
+  font-family: var(--font-sans);
+}
+
+.c-cd-bullet {
+  flex: none;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background-color: var(--color-icon-tertiary);
+}
+
+/* ======================================================================================================================
+   Mobile e tablet (abaixo de 1179)
+   ====================================================================================================================== */
+
+/* "menu top mobile" (component=title): linha do Voltar. */
+.c-cd-mback {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--color-border-default);
+  background-color: var(--color-background-default);
+}
+
+.c-cd-mback__link {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-surface-system-emphasis);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 800;
+}
+
+.c-cd-mback__link:hover { color: var(--color-action-hover); }
+
+/* "menu top mobile" (component=line): abas. */
+.c-cd-mtabs {
+  position: sticky;
+  top: var(--topbar-height);
+  z-index: 10;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border-default);
+  background-color: var(--color-background-default);
+}
+
+.c-cd-mtabs__row {
+  display: flex;
+  gap: 4px;
+  padding: 0 8px;
+}
+
+.c-cd-mtab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  padding: 6px;
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+  color: var(--color-surface-system-emphasis);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.c-cd-mtab:hover { background-color: var(--color-surface-system-subtle); }
+.c-cd-mtab.is-active { background-color: var(--color-surface-system-light); }
+
+.c-cd-mtab__count {
+  padding: 0 2px;
+  border-radius: 999px;
+  background-color: var(--color-background-subtle);
+  color: var(--color-text-default);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+}
+
+.c-cd-mtab.is-active .c-cd-mtab__count {
+  background-color: var(--color-surface-system-soft);
+  color: var(--color-surface-system-emphasis);
+}
+
+/* Conteúdo da aba: 8 de margem no 360, 24 no 768; 80 embaixo para a navigation bar. */
+.c-cd-mbody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 8px 80px;
+}
+
+@media (min-width: 768px) {
+  .c-cd-mbody { padding: 24px 24px 96px; }
+  .c-cd-mtabs__row { padding: 0 24px; }
+}
+
+/* Card do curso ("side card cursos mobile"). */
+.c-cd-mcard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+}
+
+.c-cd-mcard__media {
+  position: relative;
+  padding: 8px 8px 0;
+}
+
+.c-cd-mcard__cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+/* Selos e duração sobre a borda de baixo da imagem. */
+.c-cd-mcard__over {
+  position: absolute;
+  right: 8px;
+  bottom: -7px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 8px;
+}
+
+.c-cd-mcard__flags {
+  display: flex;
+  gap: 2px;
+}
+
+.c-cd-mcard__time {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background-color: var(--color-surface-dark);
+  color: var(--color-text-on-color);
+  font-size: 8px;
+  line-height: 12px;
+  font-weight: 600;
+}
+
+.c-cd-mcard__name {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 8px;
+}
+
+.c-cd-mcard__title {
+  color: var(--color-text-primary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+}
+
+.c-cd-mcard__author {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+.c-cd-mcard__author b {
+  color: var(--color-text-primary);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.c-cd-mcard__rule {
+  height: 1px;
+  margin: 0 8px;
+  border: 0;
+  border-radius: 4px;
+  background-color: var(--color-background-muted);
+}
+
+.c-cd-mcard__facts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 8px;
+}
+
+.c-cd-mcard__facts li {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+.c-cd-mcard__facts svg { flex: none; color: var(--color-icon-default); }
+.c-cd-mcard__facts b { color: var(--color-text-default); font-weight: 700; }
+
+.c-cd-mcard__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 8px;
+}
+
+.c-cd-mcard__progress-head {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-text-default);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+}
+
+.c-cd-mcard__track {
+  height: 8px;
+  padding: 1px;
+  border-radius: 999px;
+  background-color: var(--color-background-muted);
+}
+
+.c-cd-mcard__track span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background-color: var(--color-surface-system-strong);
+}
+
+.c-cd-mcard__track span.is-done { background-color: var(--color-icon-success); }
+
+.c-cd-mcard__pad { padding: 0 8px; }
+
+/* "button mobile": 30 de altura, texto 12/18. */
+.c-cd-mcard__cta {
+  gap: 4px;
+  height: 30px;
+  padding: 6px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.c-cd-mcard__rewards {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+}
+
+.c-cd-mcard__rewards b {
+  margin-right: 4px;
+  color: var(--color-text-default);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+}
+
+/* ======================================================================================================================
+   Cards de seção (os dois layouts; o mobile vem primeiro e o desktop amplia a partir de 1179)
+   ====================================================================================================================== */
+.c-cd-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+}
+
+.c-cd-card__head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.c-cd-card__title {
+  color: var(--color-text-primary);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+}
+
+.c-cd-card__info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.c-cd-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+.c-cd-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: var(--color-text-primary);
+  font-size: 12px;
+  line-height: 18px;
+  text-wrap: pretty;
+}
+
+.c-cd-card__group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-default);
+}
+
+.c-cd-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Lista de conteúdo e de materiais no mobile: o card tem 16 entre os blocos e nenhuma borda. */
+#sec-conteudo,
+#sec-materiais {
+  gap: 16px;
+}
+
+.c-course-detail--mobile #sec-conteudo { border-color: transparent; }
+
+/* ---------- Conteúdo: acordeão de módulos ---------- */
+.c-cd-modules {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.c-cd-module {
+  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+}
+
+.c-cd-module__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px;
+  text-align: left;
+}
+
+.c-cd-module__head:hover { background-color: var(--color-background-subtle); }
+
+/* Progresso do módulo: base de 10 (background/muted) com o preenchimento de 6 recuado 2 (surface/system-strong; verde quando
+   conclui) e o % em texto regular. Fica na linha do meta ("12 atividades · 1h25min"): alinhado ao pé do cabeçalho, com a
+   mesma altura de linha do meta. */
+.c-cd-module__progress {
+  display: flex;
+  flex: none;
+  align-self: flex-end;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+.c-cd-module__track {
+  width: 56px;
+  height: 10px;
+  padding: 2px; /* o preenchimento fica recuado 2 dentro da base */
+  border-radius: 999px;
+  background-color: var(--color-background-muted);
+}
+
+.c-cd-module__track span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background-color: var(--color-surface-system-strong);
+}
+
+.c-cd-module__track span.is-done { background-color: var(--color-icon-success); }
+
+.c-cd-module__pct { min-width: 28px; font-weight: 400; text-align: right; }
+
+.c-cd-module__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.c-cd-module__title {
+  overflow: hidden;
+  color: var(--color-text-primary);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.c-cd-module__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+/* "button icon mobile" (small): 28, raio 8. */
+.c-cd-module__chev {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--color-icon-default);
+}
+
+.c-cd-module__acts {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  border-top: 1px solid var(--color-background-muted);
+}
+
+/* Sem divisória entre as atividades: cada card tem a própria borda, com 8 de espaço entre eles. */
+.c-cd-module__acts li + li { margin-top: 8px; }
+
+.c-cd-act {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+}
+
+
+.c-cd-act__icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background-color: var(--color-background-subtle);
+  color: var(--color-icon-default);
+}
+
+.c-cd-act__icon svg { width: 16px; height: 16px; }
+
+.c-cd-act__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 10px;
+  line-height: 12px;
+}
+
+/* "Atividade 1 · 8 min": o tipo e o tempo separados pelo ponto (missão só o tipo). */
+.c-cd-act__type {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.c-cd-act__type .c-cd-bullet { background-color: currentColor; }
+
+/* Pontos e moedas: ícone + ganhos/máximo ("0/160"). */
+.c-cd-act__reward {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.c-cd-act__reward > .c-icon { width: 12px; height: 12px; color: var(--color-surface-system-emphasis); } /* 16 a partir de 1179 */
+.c-cd-act__reward b { color: var(--color-text-default); font-weight: 700; }
+.c-cd-act--locked .c-cd-act__reward > .c-icon,
+.c-cd-act--locked .c-cd-act__reward b { color: var(--color-text-tertiary); }
+
+.c-cd-act__title {
+  overflow: hidden;
+  color: var(--color-text-default);
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.c-cd-act__end {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+.c-cd-act__status { display: flex; color: var(--color-surface-system-emphasis); }
+.c-cd-act--done .c-cd-act__status { color: var(--color-icon-success); }
+
+/* Estados do card (Figma "activityItem"): enabled (acima: background/default, borda border/default, ícones de pontos, moedas e
+   status em surface/system-emphasis), hover, pressed e disabled (bloqueada, abaixo).
+   Hover: fundo background/subtle (o mesmo do cabeçalho do módulo no hover), mesma borda. Pressed (clicando ou com o
+   detalhe aberto): o mesmo fundo, rótulo e duração em surface/system-default e o título e o status em surface/system-emphasis. */
+:is(a, button).c-cd-act { transition: background-color 0.15s, color 0.15s; }
+
+:is(a, button).c-cd-act:is(:hover, :focus-visible, :active, .is-pressed) { background-color: var(--color-background-subtle); }
+
+:is(a, button).c-cd-act:is(:active, .is-pressed) .c-cd-act__type,
+:is(a, button).c-cd-act:is(:active, .is-pressed) .c-cd-act__end { color: var(--color-surface-system-default); }
+:is(a, button).c-cd-act:is(:active, .is-pressed) .c-cd-act__title,
+:is(a, button).c-cd-act:is(:active, .is-pressed) .c-cd-act__status { color: var(--color-surface-system-emphasis); }
+
+/* Bloqueada: fundo background/default com a borda border/subtle; texto e ícones em text/tertiary. */
+.c-cd-act--locked { border-color: var(--color-border-subtle); background-color: var(--color-background-default); cursor: not-allowed; }
+.c-cd-act--locked .c-cd-act__type,
+.c-cd-act--locked .c-cd-act__title,
+.c-cd-act--locked .c-cd-act__end,
+.c-cd-act--locked .c-cd-act__status,
+.c-cd-act--locked .c-cd-act__icon { color: var(--color-text-tertiary); }
+
+/* ---------- Materiais de apoio ---------- */
+.c-cd-materials {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.c-cd-material {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+}
+
+/* Estados ("materialInfo"): enabled, hover, pressed e disabled, como os cards de atividade.
+   Hover: fundo background/subtle (o mesmo do cabeçalho do módulo no hover) e a caixa do ícone some no fundo. Pressed: o mesmo fundo, nome em
+   surface/system-emphasis, tipo e tamanho na cor da marca e o botão da direita com fundo surface/system-light.
+   Disabled (material indisponível, `disabled` nos dados): texto e ícones apagados e o botão com fundo background/subtle. */
+a.c-cd-material { transition: background-color 0.15s; }
+
+a.c-cd-material:is(:hover, :focus-visible, :active) { background-color: var(--color-background-subtle); }
+a.c-cd-material:is(:hover, :focus-visible, :active) .c-cd-material__icon { background-color: transparent; }
+
+a.c-cd-material:active .c-cd-material__name { color: var(--color-surface-system-emphasis); }
+a.c-cd-material:active .c-cd-material__meta { color: var(--color-text-brand); }
+a.c-cd-material:active .c-cd-material__meta .c-cd-bullet { background-color: currentColor; }
+a.c-cd-material:active .c-cd-material__action { background-color: var(--color-surface-system-light); }
+
+.c-cd-material--disabled { cursor: not-allowed; }
+.c-cd-material--disabled .c-cd-material__name,
+.c-cd-material--disabled .c-cd-material__meta,
+.c-cd-material--disabled .c-cd-material__icon,
+.c-cd-material--disabled .c-cd-material__action { color: var(--color-text-tertiary); }
+.c-cd-material--disabled .c-cd-material__action { background-color: var(--color-background-subtle); }
+
+.c-cd-material__icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background-color: var(--color-background-subtle);
+  color: var(--color-icon-default);
+}
+
+.c-cd-material__icon svg { width: 16px; height: 16px; }
+
+.c-cd-material__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 10px;
+  line-height: 12px;
+}
+
+.c-cd-material__name {
+  overflow: hidden;
+  color: var(--color-text-default);
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.c-cd-material__meta {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.c-cd-material__action {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--color-surface-system-emphasis);
+  transition: background-color 0.15s;
+}
+
+/* ======================================================================================================================
+   Desktop (a partir de 1179)
+   ====================================================================================================================== */
+.c-course-detail__wrap {
+  /* Contêiner de consulta: a altura da capa acompanha a largura útil (cqw). */
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: calc(1248px + 48px);
+  margin: 0 auto;
+  padding: 16px 24px 48px;
+}
+
+/* Em 1179 a navigation bar ainda aparece (o menu lateral só entra em 1180): espaço para ela no fim. */
+@media (max-width: 1179px) {
+  .c-course-detail__wrap { padding-bottom: 96px; }
+}
+
+/* Coluna principal + coluna lateral de 416 (card de 400 + 16 até a borda da capa). */
+.c-course-detail__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 416px;
+  gap: 16px 24px;
+  align-items: start;
+}
+
+.c-course-detail__main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* Sobe sobre a capa (a base da capa fica 306 abaixo do topo do card, como no Figma) e fica sticky. */
+.c-course-detail__aside {
+  position: sticky;
+  top: 80px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  margin-top: -322px;
+  padding-right: 16px;
+}
+
+/* ---------- Voltar ---------- */
+.c-cd-back {
+  display: flex;
+  align-items: center;
+}
+
+.c-cd-back__link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-brand);
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.c-cd-back__link:hover { color: var(--color-action-hover); }
+
+/* ---------- Capa ("imageBanner" desk) ---------- */
+.c-cd-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 416px;
+  gap: 24px;
+  isolation: isolate;
+}
+
+/* Fundo: imagem na largura da coluna principal, escuro à direita e um véu desfocado por cima de tudo. */
+.c-cd-hero__back {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  border-radius: 16px;
+  background-color: var(--color-surface-dark);
+}
+
+.c-cd-hero__image {
+  width: calc(100% - 440px);
+  height: 100%;
+  object-fit: cover;
+}
+
+.c-cd-hero__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-surface-dark) 50%, transparent) 0%, var(--color-surface-dark) 72%);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* Texto: a altura acompanha a imagem (16:9 da coluna principal) e cresce se o título quebrar em mais linhas. */
+.c-cd-hero__info,
+.c-cd-skel--hero {
+  min-height: calc((100cqw - 440px) * 9 / 16);
+}
+
+.c-cd-hero__info {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+}
+
+.c-cd-hero__flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.c-cd-hero__group {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 0;
+}
+
+.c-cd-hero__titles {
+  display: flex;
+  flex-direction: column;
+  color: var(--color-text-on-color);
+  font-weight: 700;
+}
+
+.c-cd-hero__kicker {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+/* display-lg com o leading/8 (44) do Figma. */
+.c-cd-hero__title {
+  font-size: 48px;
+  line-height: 44px;
+  text-wrap: balance;
+}
+
+.c-cd-hero__creator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.c-cd-hero__author,
+.c-cd-hero__meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-on-color);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-cd-hero__author .c-avatar { margin-right: 4px; }
+
+.c-cd-hero__author b {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.c-cd-hero .c-cd-bullet { background-color: var(--color-text-on-color); }
+
+/* ---------- Coluna lateral ("side card cursos desk") ---------- */
+.c-cd-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+  padding: 16px 0;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+}
+
+.c-cd-side--course { padding-top: 0; }
+
+.c-cd-side__cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.c-cd-side__pad { padding: 0 16px; }
+
+.c-cd-side__title {
+  padding: 0 16px;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.c-cd-side__facts {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 16px;
+}
+
+.c-cd-side__facts li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-cd-side__facts svg { flex: none; color: var(--color-icon-default); }
+.c-cd-side__facts b { color: var(--color-text-default); font-weight: 700; }
+
+.c-cd-side__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.c-cd-side__progress-sub {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.c-cd-side__rewards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* "infoCard" infoBox: valor (com ícone opcional) e rótulo. */
+.c-cd-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+}
+
+.c-cd-box__value {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 20px;
+  color: var(--color-text-default);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.c-cd-box__icon {
+  display: flex;
+  flex: none;
+  padding: 4px;
+  border-radius: 4px;
+  background-color: var(--color-background-subtle);
+  color: var(--color-icon-default);
+}
+
+/* "620/3.500": recebidos em destaque, o total possível em cinza. */
+.c-cd-box__of {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.c-cd-box__label {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-cd-boxes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px; /* o mesmo entre Módulos e Atividades e entre eles e Tempo do curso (Figma 5149:53581: 8 e 8) */
+}
+
+.c-cd-boxes__wide { grid-column: 1 / -1; }
+
+/* ---------- Abas ("menuHeader" component=tabs; hoje só na coluna do curso do Tabuleiro) ---------- */
+/* Tweak de fundo (cor escurecida ou imagem): a camada fixa .c-board-bg fica atrás; a página fica transparente e o conteúdo
+   sobe acima da camada. Sobre a imagem, o "Voltar" passa a texto claro. */
+.c-course-detail--bg { background-color: transparent; }
+
+.c-course-detail--bg .c-course-detail__wrap,
+.c-course-detail--bg .c-cd-mback,
+.c-course-detail--bg .c-cd-mbody {
+  position: relative;
+  z-index: 1;
+}
+
+.c-course-detail--bg-image .c-cd-back__link,
+.c-course-detail--bg-image .c-cd-back__link:hover { color: var(--color-text-on-color); }
+
+.c-cd-tabs {
+  position: sticky;
+  top: 80px;
+  z-index: 2;
+  align-self: stretch; /* de ponta a ponta, na largura dos cards de Descrição, Conteúdo e Materiais */
+  max-width: 100%;
+  padding: 16px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+}
+
+.c-cd-tabs__row {
+  display: flex;
+  gap: 4px;
+}
+
+.c-cd-tabs .c-button-badge { white-space: nowrap; }
+.c-cd-tabs .c-button-badge.is-active { background-color: var(--color-surface-system-light); }
+.c-cd-tabs .c-button-badge.is-active .c-button-badge__count { background-color: var(--color-surface-system-soft); color: var(--color-surface-system-emphasis); }
+
+/* "Expandir"/"Recolher": componente Link, tamanho small (c-text-link c-text-link--small, css/components/misc.css), com o
+   LP-Icon open-all/close-all à esquerda. Só não encolhe no cabeçalho do card. */
+.c-cd-expand { flex: none; }
+
+@media (min-width: 1179px) {
+  .c-cd-card {
+    gap: 16px;
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .c-cd-card__title {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .c-cd-card__meta {
+    gap: 4px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .c-cd-card__text {
+    gap: 20px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  /* Módulo ("moduleActivity"): título e info à esquerda; progresso e seta à direita. */
+  .c-cd-module__head { gap: 16px; padding: 16px; }
+
+  .c-cd-module__progress { font-size: 12px; line-height: 16px; }
+  .c-cd-module__track { width: 90px; }
+
+  .c-cd-module__title {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .c-cd-module__meta {
+    gap: 4px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  /* "button icon" large: 36, raio 12. */
+  .c-cd-module__chev {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+  }
+
+  /* Sem o número, a lista ocupa a largura do módulo: 8 de margem e o card com 16 de respiro (ícone alinhado ao título). */
+  .c-cd-module__acts { padding: 0 8px 8px; }
+
+  .c-cd-module__acts li:first-child { padding-top: 8px; }
+
+  /* Atividade, avaliação e missão ("activityItem"). */
+  .c-cd-act {
+    gap: 4px;
+    /* À esquerda, o mesmo respiro visual de cima e de baixo: a caixa do ícone (26) fica centrada na linha de 32, com 11 em
+       cima e embaixo; 12 é o múltiplo de 4 mais próximo. */
+    padding: 8px 16px 8px 12px;
+  }
+
+  .c-cd-act__icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+  }
+
+  .c-cd-act__icon svg { width: 18px; height: 18px; }
+
+  .c-cd-act__text {
+    gap: 0;
+    margin-left: 4px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .c-cd-act__end {
+    gap: 16px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .c-cd-act__reward { gap: 4px; }
+  .c-cd-act__reward > .c-icon { width: 16px; height: 16px; }
+
+  /* Material ("materialInfo"): 68 de altura, ícone de 26 e botão de 36. */
+  .c-cd-material {
+    gap: 8px;
+    padding: 16px;
+  }
+
+  .c-cd-material__icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+  }
+
+  .c-cd-material__icon svg { width: 18px; height: 18px; }
+
+  .c-cd-material__text {
+    margin-left: -4px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .c-cd-material__meta { gap: 4px; }
+
+  .c-cd-material__action {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+  }
+}
+
+/* ---------- Vazio ---------- */
+.c-cd-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.c-cd-empty__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 4px;
+  border-radius: 999px;
+  background-color: var(--color-background-subtle);
+  color: var(--color-icon-secondary);
+}
+
+.c-cd-empty b {
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.c-cd-empty > span:last-child {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+
+/* ---------- Aviso (toast) ---------- */
+.c-cd-toast {
+  position: fixed;
+  bottom: 96px;
+  left: 50%;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: var(--color-background-tooltip);
+  color: var(--color-text-on-color);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 12px);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.c-cd-toast svg {
+  color: var(--color-icon-success);
+}
+
+.c-cd-toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (min-width: 1179px) {
+  .c-cd-toast { bottom: 24px; }
+}
+
+/* ---------- Esqueleto ---------- */
+.c-cd-skel,
+.c-cd-skel__line,
+.c-cd-skel__cover,
+.c-cd-skel__button {
+  display: block;
+  background-color: var(--color-background-muted);
+  animation: lp-pulse 1.6s ease-in-out infinite;
+}
+
+.c-cd-skel--line,
+.c-cd-skel__line {
+  height: 14px;
+  border-radius: 4px;
+}
+
+.c-cd-mback .c-cd-skel--line { height: 12px; }
+
+.c-cd-skel--hero { border-radius: 16px; }
+
+.c-cd-skel--tabs {
+  width: 100%;
+  max-width: 100%;
+  height: 72px;
+  border-radius: 16px;
+}
+
+.c-cd-skel--mtab {
+  width: 80px;
+  height: 30px;
+  border-radius: 8px;
+}
+
+.c-cd-skel--card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+  padding: 16px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+  animation: none;
+}
+
+.c-cd-skel__cover {
+  aspect-ratio: 16 / 9;
+  margin: -16px -16px 4px;
+}
+
+.c-cd-skel__button {
+  height: 40px;
+  border-radius: 12px;
+}
+
+.c-cd-skel--mcard {
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.c-cd-skel--mcard .c-cd-skel__line { height: 10px; }
+.c-cd-skel--mcard .c-cd-skel__cover { margin: 0 0 8px; border-radius: 4px; }
+.c-cd-skel--mcard .c-cd-skel__button { height: 30px; border-radius: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .c-cd-skel,
+  .c-cd-skel__line,
+  .c-cd-skel__cover,
+  .c-cd-skel__button {
+    animation: none;
+  }
+
+  .c-cd-toast { transition: none; }
+}
+
+
+/* ---------- Lista de atividades em linha do tempo (tweak lista=linha) ----------
+   Trilho de 2 que liga os marcadores (verde até a última concluída, depois a borda padrão); marcador de 20 com a situação;
+   linha sem moldura (fundo só no hover) e a atividade atual em destaque com o "Continuar". */
+.c-cd-tl {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 8px 12px;
+  border-top: 1px solid var(--color-background-muted);
+}
+
+.c-cd-tl__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 60px;
+}
+
+/* Trilho: um traço por item, do topo à base, passando pelo meio do marcador (o 1º começa no marcador; o último termina nele). */
+.c-cd-tl__item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 9px; /* meio do marcador de 20 */
+  width: 2px;
+  background-color: var(--color-border-default);
+}
+
+.c-cd-tl__item:first-child::before { top: 50%; }
+.c-cd-tl__item:last-child::before { bottom: 50%; }
+.c-cd-tl__item:only-child::before { display: none; }
+.c-cd-tl__item--done::before { background-color: var(--color-icon-success); }
+/* Da concluída para a atual: o trecho de cima já foi feito. */
+.c-cd-tl__item--current::before { background: linear-gradient(var(--color-icon-success) 50%, var(--color-border-default) 50%); }
+
+.c-cd-tl__node {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border-default);
+  border-radius: 50%;
+  background-color: var(--color-background-default);
+  color: var(--color-icon-tertiary);
+}
+
+.c-cd-tl__item--done .c-cd-tl__node {
+  border-color: var(--color-icon-success);
+  background-color: var(--color-background-success);
+  color: var(--color-text-success);
+}
+
+.c-cd-tl__item--current .c-cd-tl__node {
+  border-color: var(--color-surface-system-default);
+  background-color: var(--color-surface-system-default);
+  box-shadow: 0 0 0 3px var(--color-surface-system-light);
+  color: var(--color-on-action);
+}
+
+/* Liberada (estado "Todas liberadas"): círculo vazio no mesmo cinza do trilho (border/default, o padrão do marcador). */
+
+.c-cd-tl__node .c-icon { width: 10px; height: 10px; stroke-width: 3; }
+
+.c-cd-tl__row {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+:is(a, button).c-cd-tl__row:is(:hover, :focus-visible) { background-color: var(--color-background-subtle); }
+
+.c-cd-tl__item--current .c-cd-tl__row {
+  border-color: var(--color-surface-system-soft);
+  background-color: var(--color-surface-system-subtle);
+}
+
+.c-cd-tl__item--current :is(a, button).c-cd-tl__row:is(:hover, :focus-visible) { background-color: var(--color-surface-system-light); }
+
+.c-cd-tl__item--locked .c-cd-tl__row { cursor: not-allowed; }
+
+.c-cd-tl__body {
+  display: flex;
+  flex: 1 1 220px;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.c-cd-tl__kicker {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.c-cd-tl__kicker .c-icon,
+.c-cd-tl__kicker svg { flex: none; width: 14px; height: 14px; }
+
+/* Estrelas ganhas (atividade concluída), na linha do tipo: 12 cada, douradas com contorno um tom mais escuro; as que faltam
+   em contorno cinza. */
+.c-cd-tl__kicker .c-cd-bullet { background-color: currentColor; }
+
+.c-cd-tl__stars {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.c-cd-tl__star { display: flex; }
+
+.c-cd-tl__kicker .c-cd-tl__star .c-icon {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: var(--color-icon-tertiary);
+  stroke-width: 1.6;
+}
+
+.c-cd-tl__kicker .c-cd-tl__star.is-on .c-icon {
+  fill: var(--color-icon-warning);
+  stroke: color-mix(in srgb, var(--color-icon-warning) 70%, var(--color-surface-dark));
+}
+
+.c-cd-tl__title {
+  overflow: hidden;
+  margin-left: 18px; /* alinhado ao texto do tipo ("Atividade 1"): ícone de 14 + 4 */
+  color: var(--color-text-default);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.c-cd-tl__item--done .c-cd-tl__title { color: var(--color-text-secondary); font-weight: 600; }
+.c-cd-tl__item--current .c-cd-tl__title { color: var(--color-text-primary); }
+.c-cd-tl__item--current .c-cd-tl__kicker { color: var(--color-text-brand); }
+.c-cd-tl__item--locked :is(.c-cd-tl__title, .c-cd-tl__kicker) { color: var(--color-text-tertiary); }
+
+.c-cd-tl__end {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+}
+
+.c-cd-tl__rewards {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background-color: var(--color-background-subtle);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.c-cd-tl__rewards > span { display: flex; align-items: center; gap: 4px; }
+.c-cd-tl__rewards .c-icon,
+.c-cd-tl__rewards svg { width: 14px; height: 14px; color: var(--color-surface-system-emphasis); }
+.c-cd-tl__rewards b { color: var(--color-text-default); font-weight: 700; }
+
+/* Hover (e foco pelo teclado) numa atividade que abre: o play-circle entra à direita e empurra a pílula para a esquerda.
+   Fora do hover ele não ocupa espaço (largura 0 e a margem negativa anula o gap). */
+.c-cd-tl__go {
+  display: flex;
+  width: 0;
+  margin-left: -12px;
+  overflow: hidden;
+  color: var(--color-surface-system-emphasis);
+  opacity: 0;
+  transition: width 0.2s ease-out, margin 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+.c-cd-tl__go .c-icon { flex: none; width: 20px; height: 20px; }
+
+.c-cd-tl__row:is(:hover, :focus-visible) .c-cd-tl__go {
+  width: 20px;
+  margin-left: 0;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-cd-tl__go { transition: none; }
+}
+
+/* Mobile: pontos e moedas descem para baixo do título (alinhados a ele). */
+@media (max-width: 1178px) {
+  .c-cd-tl { padding: 4px 4px 8px; }
+  .c-cd-tl__end { flex: 1 1 100%; margin-left: 18px; }
+  .c-cd-tl__title { white-space: normal; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-cd-tl__row { transition: none; }
+}
+
+
+/* Títulos longos (até 100 caracteres): o da atividade e o do módulo vão até 2 linhas e só então cortam com "…"; o texto
+   inteiro fica no title (hover). */
+.c-cd-act__title,
+.c-cd-module__title,
+.c-cd-tl__title {
+  display: -webkit-box;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}

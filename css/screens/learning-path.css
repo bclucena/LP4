@@ -1,0 +1,296 @@
+/* Rota de aprendizagem (js/screens/learning-path.js; Figma LP-DesignSystem 4.0, página "Rota").
+   A montagem (capa, coluna lateral, abas, cards de seção, mobile) usa as classes c-cd-* de course-detail.css; aqui fica só
+   o que é da rota: o trilho dos cursos, o card do curso ("cardCourse" use=path). O certificado usa a linha de Materiais de apoio (c-cd-material).
+   Mobile primeiro (abaixo de 1179, escala mobile); a partir de 1179, a escala do desktop. */
+
+.c-lp-mkicker {
+  margin-bottom: -12px;
+  color: var(--color-text-brand);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+}
+
+/* ---------- Trilho + lista de cursos ("sideCard/pathRoute" + "courseList") ---------- */
+.c-lp-route {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cada item: trilho de 24 e o card; 8 entre os cards (o trilho atravessa esse espaço). */
+.c-lp-route__item {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.c-lp-route__item + .c-lp-route__item { padding-top: 8px; }
+
+.c-lp-route__rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -8px; /* a linha de cima ocupa também o espaço entre os cards */
+}
+
+.c-lp-route__item:first-child .c-lp-route__rail { margin-top: 0; }
+
+.c-lp-route__line {
+  flex: 1;
+  width: 1px;
+  background-color: var(--color-border-default);
+}
+
+.c-lp-route__line.is-on { background-color: var(--color-border-strong); }
+.c-lp-route__line.is-hidden { visibility: hidden; }
+
+.c-lp-route__icon {
+  display: flex;
+  padding: 8px 0;
+  color: var(--color-border-default);
+}
+
+.c-lp-route__icon.is-done,
+.c-lp-route__icon.is-current { color: var(--color-border-strong); }
+
+/* ---------- Card do curso ---------- */
+.c-lp-course {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+}
+
+.c-lp-course__media {
+  position: relative;
+  flex: none;
+}
+
+.c-lp-course__media img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.c-lp-course.is-locked .c-lp-course__media img { filter: grayscale(1); opacity: 0.7; }
+
+.c-lp-course__pills {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  left: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.c-lp-course__pills > span {
+  display: flex;
+  gap: 4px;
+}
+
+/* Selo de prazo ("tag" escura com desfoque). */
+.c-lp-course__deadline {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background-color: var(--color-surface-dark);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  color: var(--color-text-on-color);
+  font-size: 8px;
+  line-height: 12px;
+  font-weight: 600;
+}
+
+.c-lp-course__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: 8px;
+}
+
+.c-lp-course__info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.c-lp-course__meta {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+.c-lp-course__meta > svg { margin-right: 2px; color: var(--color-icon-default); }
+
+.c-lp-course__title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--color-text-primary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+}
+
+.c-lp-course__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.c-lp-course__row .c-cd-tags { flex-wrap: nowrap; gap: 4px; }
+
+.c-lp-course__author {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+.c-lp-course__foot {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.c-lp-course__progress {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.c-lp-course__progress-head {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-text-default);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 800;
+}
+
+.c-lp-course__track {
+  height: 8px;
+  padding: 1px;
+  border-radius: 999px;
+  background-color: var(--color-background-muted);
+}
+
+.c-lp-course__track span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background-color: var(--color-surface-system-strong);
+}
+
+.c-lp-course__track span.is-done { background-color: var(--color-icon-success); }
+
+/* "Ir para o curso" (link 14 extrabold com seta). */
+.c-lp-course__link {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-surface-system-accent);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.c-lp-course__link:hover { color: var(--color-action-hover); }
+.c-lp-course__link svg { width: 16px; height: 16px; }
+
+.c-lp-course.is-locked .c-lp-course__link {
+  color: var(--color-text-tertiary);
+  cursor: not-allowed;
+}
+
+/* No 768 o card já fica com a imagem ao lado. */
+@media (min-width: 768px) {
+  .c-lp-course { flex-direction: row; }
+
+  .c-lp-course__media {
+    width: 45%;
+    max-width: 334px;
+  }
+
+  .c-lp-course__media img { height: 100%; }
+}
+
+/* ---------- Desktop (a partir de 1179) ---------- */
+@media (min-width: 1179px) {
+  .c-lp-route__item { gap: 8px; }
+
+  /* Card de 188 de altura: imagem 16:9 de 334 à esquerda, raio 12. */
+  .c-lp-course { border-radius: 12px; }
+
+  .c-lp-course__media { width: 334px; }
+
+  .c-lp-course__deadline {
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .c-lp-course__body {
+    gap: 24px;
+    padding: 16px;
+  }
+
+  .c-lp-course__meta {
+    gap: 4px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .c-lp-course__meta > svg { margin-right: 0; }
+
+  .c-lp-course__title {
+    min-height: 48px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .c-lp-course__author {
+    gap: 8px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .c-lp-course__progress { gap: 4px; }
+
+  .c-lp-course__progress-head {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .c-lp-course__link {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .c-lp-course__link svg { width: 18px; height: 18px; }
+
+}

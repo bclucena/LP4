@@ -1,0 +1,23 @@
+/* Capa de exemplo com o título (no produto é a imagem do material ou do curso). */
+
+.c-cover {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  background-image: linear-gradient(to bottom right, var(--color-surface-system-emphasis), var(--color-surface-system-default), var(--color-red-500));
+}
+
+.c-cover__title {
+  display: -webkit-box;
+  max-width: 60%;
+  margin: 16px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}

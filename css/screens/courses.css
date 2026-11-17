@@ -1,0 +1,335 @@
+/* Cursos (js/screens/courses.js). Cortes: 768 tablet (3 colunas), 1000 (4 colunas), 1180 desktop (cards grandes). */
+
+.c-courses-swipe {
+  touch-action: pan-y;
+}
+
+/* ---------- Grades ---------- */
+.c-course-grid--desktop {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(336px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.c-course-grid--compact {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+
+@media (min-width: 768px) {
+  .c-course-grid--compact {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 16px 24px;
+  }
+}
+
+@media (min-width: 1000px) {
+  .c-course-grid--compact {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Card do desktop ---------- */
+.c-course-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+  transition: box-shadow 0.15s ease-out;
+}
+
+/* Os cards são links: com progresso abrem o Curso, sem progresso o Tabuleiro (js/screens/courses.js). */
+.c-course-card:hover,
+.c-course-compact:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.c-course-card__top {
+  position: relative;
+}
+
+.c-course-card__flags {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  left: 8px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.c-course-card__flags-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.c-course-card__ends {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 10;
+}
+
+.c-course-card__cover {
+  aspect-ratio: 160 / 90;
+}
+
+.c-course-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 16px;
+}
+
+.c-course-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.c-course-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-course-card__kind {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 4px;
+}
+
+.c-course-card__time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.c-course-card__title {
+  display: -webkit-box;
+  height: 40px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.c-course-card__tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.c-course-card__tag-row {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 4px;
+}
+
+.c-course-card__author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-course-card__rewards {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ---------- Card compacto ---------- */
+.c-course-compact {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+}
+
+.c-course-compact__top {
+  position: relative;
+  padding: 8px 8px 0;
+}
+
+.c-course-compact__pills {
+  position: absolute;
+  right: 8px;
+  bottom: -7px;
+  left: 8px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  height: 14px;
+  padding: 0 4px;
+  gap: 1px;
+}
+
+.c-course-compact__cover-wrap {
+  position: relative;
+}
+
+.c-course-compact__cover {
+  width: 100%;
+  aspect-ratio: 160 / 90;
+  border-radius: 4px;
+}
+
+.c-course-compact__cover .c-cover__title {
+  margin: 8px;
+  font-size: 10px;
+}
+
+.c-course-compact__time {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background-color: var(--color-surface-dark);
+  color: var(--color-text-on-color);
+  font-size: 8px;
+  line-height: 12px;
+  font-weight: 600;
+}
+
+.c-course-compact__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 8px 8px;
+}
+
+.c-course-compact__title {
+  display: -webkit-box;
+  height: 36px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--color-text-primary);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+}
+
+.c-course-compact__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-left: 10px;
+}
+
+.c-course-compact__tags {
+  display: flex;
+  gap: 2px;
+}
+
+.c-course-compact__done {
+  color: var(--color-green-600);
+}
+
+/* ---------- Esqueletos ---------- */
+.c-course-skeleton {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+}
+
+.c-course-skeleton--compact {
+  border-radius: 8px;
+}
+
+.c-course-skeleton__cover {
+  aspect-ratio: 160 / 90;
+  background-color: var(--color-background-muted);
+}
+
+.c-course-skeleton--compact .c-course-skeleton__cover {
+  margin: 8px 8px 0;
+  border-radius: 4px;
+}
+
+.c-course-skeleton__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+}
+
+.c-course-skeleton--compact .c-course-skeleton__body {
+  padding: 12px 8px 8px;
+}
+
+.c-course-skeleton__body span {
+  height: 14px;
+  border-radius: 4px;
+  background-color: var(--color-background-muted);
+}
+
+.c-course-skeleton--compact .c-course-skeleton__body span {
+  height: 10px;
+}
+
+/* ---------- Bottom sheet de filtros ---------- */
+.c-panel__box--filters {
+  height: min(494px, 92vh);
+  max-height: none;
+}
+
+.c-panel__box--full {
+  height: 100%;
+  max-height: none;
+  border-radius: 0;
+}
+
+@media (min-width: 768px) {
+  .c-panel__box--full {
+    border-radius: 16px 16px 0 0;
+  }
+}
+
+.c-panel__handle-button {
+  display: flex;
+  flex: none;
+  justify-content: center;
+  width: 100%;
+  padding: 16px 0;
+  touch-action: none;
+}
+
+.c-panel__handle-button .c-panel__handle {
+  display: block;
+  margin: 0;
+}

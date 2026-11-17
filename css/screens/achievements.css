@@ -1,0 +1,286 @@
+/* Conquistas (js/screens/achievements.js). Cortes: 768 tablet, 1000 quatro colunas, 1180 desktop. */
+
+/* ---------- Grade ---------- */
+.c-ac-grid--desktop {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.c-ac-grid--compact {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+
+@media (min-width: 768px) {
+  .c-ac-grid--compact {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 16px 24px;
+  }
+}
+
+@media (min-width: 1000px) {
+  .c-ac-grid--compact {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Selo hexagonal ---------- */
+.c-ac-badge {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  background-image: linear-gradient(to bottom, var(--color-gray-300), var(--color-gray-400));
+  clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);
+  color: #fff;
+  font-weight: 900;
+}
+
+.c-ac-badge.is-done {
+  background-image: linear-gradient(to bottom, #facc15, #ea580c);
+}
+
+.c-ac-badge__text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.c-ac-badge__text span + span {
+  margin-top: 4px;
+}
+
+/* ---------- Card ---------- */
+.c-ac-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+  text-align: center;
+}
+
+.c-ac-card:hover {
+  background-color: var(--color-surface-system-subtle);
+}
+
+.c-ac-card__top {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.c-ac-card__kind {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-ac-card__title {
+  color: var(--color-text-primary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.c-ac-card__done {
+  color: var(--color-text-success);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.c-ac-card__progress {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.c-ac-card__progress-head {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-text-default);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+}
+
+.c-ac-card__track {
+  display: block;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background-color: var(--color-background-muted);
+}
+
+.c-ac-card__track span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background-color: var(--color-surface-system-strong);
+}
+
+@media (min-width: 1180px) {
+  .c-ac-card {
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .c-ac-card__title {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .c-ac-card__done {
+    font-size: 14px;
+  }
+
+  .c-ac-card__progress-head {
+    font-size: 12px;
+    line-height: 16px;
+  }
+}
+
+/* ---------- Carregando e vazio ---------- */
+.c-ac-skeleton {
+  aspect-ratio: 3 / 4;
+  border-radius: 8px;
+  background-color: var(--color-background-skeleton);
+  animation: c-ac-pulse 2s ease-in-out infinite;
+}
+
+@media (min-width: 1180px) {
+  .c-ac-skeleton { border-radius: 16px; }
+}
+
+@keyframes c-ac-pulse {
+  50% { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-ac-skeleton { animation: none; }
+}
+
+.c-ac-empty {
+  margin-top: 16px;
+  padding: 48px 24px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ---------- Detalhe (drawer e bottom sheet) ---------- */
+.c-ac-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 8px;
+}
+
+.c-panel__box--drawer .c-ac-detail {
+  padding: 0;
+}
+
+.c-ac-detail__kind {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-ac-detail__badge {
+  display: flex;
+  justify-content: center;
+}
+
+.c-ac-detail__text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.c-ac-detail__text h2 {
+  color: var(--color-text-primary);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.c-ac-detail__text p {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.c-ac-detail__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.c-ac-detail__progress-head {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-text-default);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 800;
+}
+
+.c-ac-detail__track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background-color: var(--color-background-muted);
+}
+
+.c-ac-detail__track div {
+  height: 100%;
+  border-radius: 999px;
+  background-color: var(--color-surface-system-strong);
+}
+
+.c-ac-detail__track div.is-done {
+  background-color: var(--color-green-600);
+}
+
+.c-ac-detail__rewards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.c-ac-detail__rewards b {
+  color: var(--color-text-primary);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.c-ac-detail__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}

@@ -1,0 +1,2744 @@
+/* Tabuleiro (js/screens/board.js; Figma LP-DesignSystem 4.0, página "Curso Ludica - Versao A").
+   Abaixo de 1179: app bar e navigation bar da casca, "Voltar" e abas (os estilos c-cd-* vêm de course-detail.css).
+   A partir de 1179: trilha à esquerda e coluna do curso (400, sticky) à direita. */
+
+.c-board {
+  /* Topo do cartão fixo: abaixo das abas do mobile (55) ou da app bar no desktop. */
+  --board-top: calc(var(--topbar-height) + 55px + 8px);
+  overflow-x: clip; /* a coluna do curso sai pela borda direita da tela sem criar rolagem (clip não quebra o sticky) */
+  font-family: var(--font-sans);
+  color: var(--color-text-default);
+}
+
+.c-board--desk { --board-top: calc(var(--topbar-height) + 16px); }
+
+.c-board__wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px 8px 96px; /* 96: navigation bar */
+}
+
+@media (min-width: 768px) {
+  .c-board__wrap { padding: 24px 24px 96px; }
+}
+
+.c-board--desk .c-board__wrap {
+  max-width: 1440px;
+  padding: 16px 24px 0;
+}
+
+/* Trilha + coluna do curso (400, com o botão de recolher 44 à esquerda dela). */
+.c-board__stage {
+  --board-ease: 600ms cubic-bezier(0.42, 0, 0.58, 1); /* ease-in-out de 600ms: mostrar e esconder a coluna do curso */
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.c-board__main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+}
+
+/* No desktop a trilha (cartão de 832) fica no centro da área à esquerda; com a coluna recolhida, no centro da tela. */
+.c-board--desk .c-board__main {
+  align-items: center;
+  padding-bottom: 8px;
+}
+
+.c-board--desk .c-board-band,
+.c-board--desk .c-board-trail { width: min(100%, 832px); }
+
+.c-board-kicker {
+  color: var(--color-text-brand);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ---------- Voltar (desktop) ---------- */
+.c-board-top {
+  display: flex;
+  align-items: center;
+}
+
+.c-board-top__back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-brand);
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.c-board-top__back:hover { color: var(--color-action-hover); }
+
+/* ---------- Cartão fixo do módulo visível ("board module band") ---------- */
+/* Como as abas do Curso: uma faixa da cor do fundo, reta em cima, cobre o respiro acima do cartão (8 no mobile, 16 no
+   desktop) e os cantos de cima dele; embaixo é transparente, então os cantos de baixo continuam arredondados. Assim a trilha
+   que rola por baixo não aparece entre o cartão e as abas (mobile) ou a app bar (desktop). Com os tweaks de fundo (cor,
+   imagem ou escurecer) a faixa repete o fundo: a mesma cor, ou a mesma imagem fixa na tela (alinha com a camada do fundo),
+   com a mesma película escura por cima. A faixa é um ::before atrás do cartão (z-index -1 dentro do cartão sticky). */
+.c-board-band {
+  --band-gap: 8px;
+  --band-r: 8px;
+  position: sticky;
+  top: calc(var(--board-top) - var(--band-gap));
+  z-index: 5;
+  align-self: stretch;
+  margin-top: calc(-1 * var(--band-gap));
+  padding-top: var(--band-gap);
+}
+
+.c-board-band::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: -1;
+  height: calc(var(--band-gap) + var(--band-r));
+  background-color: var(--color-background-subtle);
+  pointer-events: none;
+}
+
+/* Fundo de cor (tweak): a cor escolhida com a película. */
+.c-board--bg .c-board-band::before {
+  background-color: var(--board-cover);
+  background-image: linear-gradient(color-mix(in srgb, var(--color-surface-dark) var(--board-shade, 0%), transparent), color-mix(in srgb, var(--color-surface-dark) var(--board-shade, 0%), transparent));
+}
+
+/* Fundo de imagem (tweak): a mesma imagem, fixa na tela e em cover como a camada .c-board-bg, então as duas se encaixam. */
+.c-board--bg-image .c-board-band::before {
+  background-color: var(--color-surface-dark);
+  background-image: linear-gradient(color-mix(in srgb, var(--color-surface-dark) var(--board-shade, 0%), transparent), color-mix(in srgb, var(--color-surface-dark) var(--board-shade, 0%), transparent)), var(--board-cover);
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.c-board--desk .c-board-band {
+  --band-gap: 16px;
+  --band-r: 16px;
+  align-self: center;
+}
+
+
+
+.c-board-band__card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px 8px;
+  padding: 8px;
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-lg);
+}
+
+.c-board-band__avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 0 0 2px var(--color-background-muted);
+}
+
+.c-board-band__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.c-board-band__kicker {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-brand);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+}
+
+.c-board-band__kicker .c-cd-bullet { background-color: currentColor; }
+
+.c-board-band__title {
+  overflow: hidden;
+  color: var(--color-text-primary);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* No mobile o selo fica numa linha própria, à direita. */
+.c-board-band__status {
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+}
+
+.c-board--desk .c-board-band__card {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.c-board--desk .c-board-band__kicker { font-size: 12px; line-height: 16px; }
+
+.c-board--desk .c-board-band__title {
+  font-size: 20px;
+  line-height: 32px;
+}
+
+.c-board--desk .c-board-band__status { grid-column: auto; }
+
+/* ---------- Trilha "Versão A" ---------- */
+.c-board-trail {
+  position: relative;
+  flex: none;
+  width: 100%;
+  margin-top: 40px;
+}
+
+.c-board-trail__list {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.c-board-marker {
+  position: absolute;
+  top: 0;
+  height: 0;
+}
+
+/* Pontilhado entre os pins (Versão A): 3 pontos de 6 no vão entre um pin e o seguinte. Na cor da marca até o pin atual; depois,
+   lilás claro. Fica atrás dos pins. */
+.c-board-dots {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 0;
+}
+
+.c-board-dots__dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background-color: var(--color-surface-system-soft);
+}
+
+.c-board-dots.is-reached .c-board-dots__dot { background-color: var(--color-surface-system-default); }
+
+/* Separador ("board module divider"): mobile = cartão à esquerda e linha; desktop = linha, cartão no centro, linha. */
+.c-board-divider {
+  position: absolute;
+  right: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.c-board-divider__line {
+  flex: 1;
+  height: 1px;
+  border-radius: 4px;
+  background-color: var(--color-background-muted);
+}
+
+.c-board-divider__line--start { display: none; }
+
+.c-board-divider__card {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+  padding: 8px;
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-md);
+}
+
+.c-board-divider__kicker {
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+.c-board-divider__title {
+  color: var(--color-text-primary);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+}
+
+.c-board--desk .c-board-divider__line--start { display: block; }
+
+.c-board--desk .c-board-divider__card {
+  padding: 12px 24px;
+  border-radius: 12px;
+}
+
+.c-board--desk .c-board-divider__kicker { font-size: 12px; line-height: 16px; }
+.c-board--desk .c-board-divider__title { font-size: 14px; line-height: 20px; }
+
+/* Pin ("pin trilha"): estrelas (30) em cima e o pin embaixo; centro = meio da trilha + onda (--off). */
+.c-board-node {
+  --w: 72px;
+  position: absolute;
+  left: calc(50% + var(--off) * var(--wave-scale, 1) - var(--w) / 2); /* --wave-scale: layout moderno (trilha mais larga) */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: var(--w);
+}
+
+.c-board-node--current { --w: 112px; }
+
+.c-board-node__stars {
+  position: relative;
+  flex: none;
+  width: 68px;
+  height: 30px;
+}
+
+.c-board-node__pin {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: flex-start;
+  justify-content: center;
+  width: 72px;
+  height: 80px;
+  padding-top: 4px;
+}
+
+.c-board-node--current .c-board-node__pin {
+  width: 112px;
+  height: 112px;
+  padding-top: 16px;
+}
+
+.c-board-node__ring {
+  position: absolute;
+  top: 0;
+  left: 4px;
+  width: 104px;
+  height: 104px;
+}
+
+.c-board-node__ring :is(circle, ellipse, path) {
+  fill: none;
+  stroke-width: 6;
+}
+
+/* Anel achatado (pins ovais): 122 × 112 (raios 58 × 53), centrado um pouco abaixo do meio da face, no chão em volta da base
+   do pin, com 10 de folga dos lados e uns 8 em cima e embaixo. */
+.c-board-node__ring--flat {
+  top: -2px;
+  left: -5px;
+  width: 122px;
+  max-width: none; /* passa da área do pin (112): sem isso o max-width global de svg encolhe e descentraliza o anel */
+  height: 112px;
+}
+
+.c-board-node__ring-track { stroke: var(--color-surface-system-light); }
+
+.c-board-node__ring-fill {
+  stroke: var(--color-surface-system-default);
+  stroke-linecap: round;
+}
+
+/* Pin ("board/pin-icon"): disco de 64 (72 no atual) com aro de 4 e sombra. */
+.c-board-pin {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background-color: var(--color-surface-system-default);
+  box-shadow: 0 0 0 4px var(--color-background-default), 0 10px 16px 4px rgba(0, 0, 0, 0.1);
+  color: var(--color-on-action);
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+
+.c-board-node--current .c-board-pin {
+  width: 72px;
+  height: 72px;
+}
+
+.c-board-pin__num {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.c-board-pin .c-icon { stroke-width: 2; }
+
+/* Hover só no desktop: no mobile e no tablet o toque abre o bottom sheet. */
+.c-board--desk .c-board-pin--done:hover,
+.c-board--desk .c-board-pin--current:hover { filter: brightness(1.08); }
+
+.c-board-pin--open {
+  background-color: var(--color-surface-system-soft);
+  cursor: not-allowed;
+}
+
+.c-board-pin--locked {
+  background-color: var(--color-background-muted);
+  color: var(--color-icon-tertiary);
+  cursor: not-allowed;
+}
+
+/* Pin disponível: leve crescimento no hover e no foco, para mostrar que dá para clicar. */
+.c-board--desk .c-board-pin--done:is(:hover, :focus-visible),
+.c-board--desk .c-board-pin--current:is(:hover, :focus-visible) { transform: scale(1.06); }
+
+/* Pin em relevo (Versão A): botão oval visto de cima, com a "espessura" embaixo num tom mais escuro da mesma cor e uma
+   sombra suave no chão. --pin-top é a cor da face; a lateral mistura a face com a superfície escura. Ao apertar, o pin
+   afunda (desce 4 e a espessura diminui). Números e ícones continuam os mesmos. */
+.c-board-pin:not(.c-board-pin--b) {
+  --pin-top: var(--color-surface-system-default);
+  --pin-depth: 8px;
+  width: 72px;
+  height: 60px;
+  background-color: var(--pin-top);
+  box-shadow:
+    inset 0 -3px 0 color-mix(in srgb, var(--pin-top) 88%, var(--color-surface-dark)),
+    0 var(--pin-depth) 0 color-mix(in srgb, var(--pin-top) 72%, var(--color-surface-dark)),
+    0 calc(var(--pin-depth) + 6px) 10px rgba(0, 0, 0, 0.12);
+  transition: filter 0.15s, transform 0.12s ease-out, box-shadow 0.12s ease-out;
+}
+
+/* Avaliação (e prova): o mesmo pin em relevo, mas hexagonal (pontas à esquerda e à direita). A face (::after) e a espessura
+   (::before, descida e mais escura) são hexágonos recortados com clip-path; a sombra no chão é um drop-shadow, que acompanha o
+   recorte. O ícone fica por cima das duas camadas. */
+.c-board-pin--hex:not(.c-board-pin--b) {
+  /* Hexágono regular inscrito no mesmo oval dos pins redondos (achatado na mesma proporção, 60/72): pontas à esquerda e
+     à direita no meio da altura e as arestas de cima e de baixo a 6,7% das bordas. Assim ele fica na mesma perspectiva. */
+  --pin-h: 60px;
+  --hex-top: 6.7%;
+  --hex-bottom: 93.3%;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  filter: drop-shadow(0 calc(var(--pin-depth) + 4px) 6px rgba(0, 0, 0, 0.14));
+}
+
+.c-board-node--current .c-board-pin--hex:not(.c-board-pin--b) { --pin-h: 70px; }
+
+/* Face. */
+.c-board-pin--hex:not(.c-board-pin--b)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(25% var(--hex-top), 75% var(--hex-top), 100% 50%, 75% var(--hex-bottom), 25% var(--hex-bottom), 0 50%);
+  background: linear-gradient(to bottom, var(--pin-top) 80%, color-mix(in srgb, var(--pin-top) 88%, var(--color-surface-dark)));
+}
+
+/* Espessura: as paredes laterais visíveis (as três arestas de baixo descidas pela profundidade), sem o recorte em V nas
+   pontas que uma cópia deslocada da face deixaria. */
+.c-board-pin--hex:not(.c-board-pin--b)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: calc(var(--pin-h) + var(--pin-depth));
+  clip-path: polygon(
+    0 calc(var(--pin-h) / 2),
+    25% calc(var(--pin-h) * 0.933),
+    75% calc(var(--pin-h) * 0.933),
+    100% calc(var(--pin-h) / 2),
+    100% calc(var(--pin-h) / 2 + var(--pin-depth)),
+    75% calc(var(--pin-h) * 0.933 + var(--pin-depth)),
+    25% calc(var(--pin-h) * 0.933 + var(--pin-depth)),
+    0 calc(var(--pin-h) / 2 + var(--pin-depth))
+  );
+  background-color: color-mix(in srgb, var(--pin-top) 72%, var(--color-surface-dark));
+}
+
+.c-board-pin--hex:not(.c-board-pin--b) > * {
+  position: relative;
+  z-index: 1;
+}
+
+.c-board--desk .c-board-pin--hex:not(.c-board-pin--b):hover {
+  filter: drop-shadow(0 calc(var(--pin-depth) + 4px) 6px rgba(0, 0, 0, 0.14)) brightness(1.08);
+}
+
+.c-board-node--current .c-board-pin:not(.c-board-pin--b) {
+  width: 84px;
+  height: 70px;
+}
+
+.c-board-pin--open:not(.c-board-pin--b) { --pin-top: var(--color-surface-system-soft); }
+
+.c-board-pin--locked:not(.c-board-pin--b) {
+  --pin-top: var(--color-background-muted);
+  color: var(--color-icon-tertiary);
+}
+
+/* Apertar: o pin desce até quase encostar no chão. */
+.c-board-pin--done:not(.c-board-pin--b):active,
+.c-board-pin--current:not(.c-board-pin--b):active {
+  --pin-depth: 3px;
+  transform: translateY(5px);
+}
+
+.c-board--desk .c-board-pin--done:not(.c-board-pin--b):is(:hover, :focus-visible),
+.c-board--desk .c-board-pin--current:not(.c-board-pin--b):is(:hover, :focus-visible) { transform: translateY(-2px); }
+
+.c-board--desk .c-board-pin--done:not(.c-board-pin--b):active,
+.c-board--desk .c-board-pin--current:not(.c-board-pin--b):active { transform: translateY(5px); }
+
+/* "Começar"/"Continuar" em cima do pin atual (no espaço das estrelas), sem contorno (só a sombra), com a ponta para o pin e
+   um leve balanço. */
+.c-board-start {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 2;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text-brand);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 800;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  animation: c-board-bob 1.8s ease-in-out infinite;
+}
+
+/* Ponta: quadrado de 10 girado com o centro na borda de baixo do balão (bottom = -metade), então só a metade de baixo aparece
+   (5 de altura) e ela continua a forma, sem descolar. */
+.c-board-start::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: 0 0 2px;
+  background-color: var(--color-background-default);
+  box-shadow: 2px 2px 3px -1px rgba(0, 0, 0, 0.08);
+  transform: rotate(45deg);
+}
+
+.c-board-start:hover { background-color: var(--color-surface-system-subtle); }
+.c-board-start:hover::after { background-color: var(--color-surface-system-subtle); }
+
+@keyframes c-board-bob {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -3px); }
+}
+
+/* Detalhe do pin (hover e foco pelo teclado): cartão ao lado do pin, para o lado com mais espaço. --pin-y é o centro do
+   disco a partir do topo da linha; --pin-r, metade da área do pin. */
+.c-board-node { --pin-y: 66px; --pin-r: 36px; }
+.c-board-node--current { --pin-y: 82px; --pin-r: 56px; }
+.c-board-node--b { --pin-y: 72px; --pin-r: 42px; }
+.c-board-node--b.c-board-node--current { --pin-y: 82px; --pin-r: 56px; }
+
+.c-board-tip {
+  position: absolute;
+  top: var(--pin-y);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 224px;
+  padding: 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 12px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-lg);
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+}
+
+.c-board-tip--right { left: calc(50% + var(--pin-r) + 8px); transform: translate(-4px, -50%); }
+.c-board-tip--left { right: calc(50% + var(--pin-r) + 8px); transform: translate(4px, -50%); }
+
+.c-board-node:has(.c-board-pin:focus-visible) { z-index: 6; }
+.c-board-node:has(.c-board-pin:focus-visible) .c-board-tip { opacity: 1; visibility: visible; transform: translate(0, -50%); }
+
+@media (hover: hover) {
+  .c-board-node:has(.c-board-pin:hover) { z-index: 6; }
+  .c-board-node:has(.c-board-pin:hover) .c-board-tip { opacity: 1; visibility: visible; transform: translate(0, -50%); }
+}
+
+.c-board-tip__kicker {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-board-tip__title {
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+/* Pontos e moedas: ícone na cor da marca e recebidos/possíveis (como nos cards da tela Curso). */
+.c-board-tip__rewards {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.c-board-tip__reward { display: flex; align-items: center; gap: 4px; }
+.c-board-tip__reward > .c-icon { width: 16px; height: 16px; color: var(--color-surface-system-emphasis); }
+.c-board-tip__reward b { color: var(--color-text-default); font-weight: 700; }
+
+.c-board-tip__status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+}
+
+.c-board-tip__status--done { color: var(--color-text-success); }
+.c-board-tip__status--current { color: var(--color-text-brand); }
+.c-board-tip__status--locked { color: var(--color-text-tertiary); }
+
+@media (prefers-reduced-motion: reduce) {
+  .c-board-start { animation: none; }
+  .c-board-pin, .c-board-tip { transition: none; }
+}
+
+/* ---------- Pins da Versão B (tweak pins=b) ----------
+   Disco branco de 84 com sombra; miolo de 66 colorido com o ícone do tipo (ou uma imagem, tweak "Imagens nos pins") e o
+   número num selo escuro de 26 que passa 10 da borda de baixo. Concluída: miolo dourado (background/level) com aro de 3 na
+   cor da marca; atual: cor da marca; aberta: surface/system-soft; bloqueada: background/muted com o ícone em cinza. */
+.c-board-node--b .c-board-node__pin {
+  width: 84px;
+  height: 96px;
+  padding-top: 0;
+}
+
+.c-board-node--b.c-board-node--current .c-board-node__pin {
+  width: 112px;
+  height: 112px;
+  padding-top: 10px;
+}
+
+.c-board-pin.c-board-pin--b {
+  width: 84px;
+  height: 84px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-on-action);
+}
+
+.c-board-pin--b .c-board-pin__core {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 66px;
+  height: 66px;
+  overflow: hidden;
+  border-radius: 50%;
+  background-color: var(--color-surface-system-default);
+}
+
+.c-board-pin--b.c-board-pin--done .c-board-pin__core {
+  background-color: var(--color-background-level);
+  box-shadow: 0 0 0 3px var(--color-background-default), 0 0 0 6px var(--color-surface-system-default);
+}
+
+.c-board-pin--b.c-board-pin--open .c-board-pin__core { background-color: var(--color-surface-system-soft); }
+
+.c-board-pin--b.c-board-pin--locked { color: var(--color-icon-secondary); }
+.c-board-pin--b.c-board-pin--locked .c-board-pin__core { background-color: var(--color-background-muted); }
+
+.c-board-pin--b .c-board-pin__core .c-icon { stroke-width: 1.5; }
+
+/* Imagem no miolo: cobre o círculo; nas que ainda não abriram, em tons de cinza. */
+.c-board-pin__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.c-board-pin--b:is(.c-board-pin--open, .c-board-pin--locked) .c-board-pin__img { filter: grayscale(1); opacity: 0.6; }
+
+.c-board-pin__badge {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border: 2px solid var(--color-background-default);
+  border-radius: 999px;
+  background-color: var(--color-surface-dark);
+  color: var(--color-text-on-color);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  transform: translateX(-50%);
+}
+
+/* Estrelas ("board/stars"): 20, 24 e 20, a do meio mais alta. */
+.c-board-stars {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  transform: translateX(-50%);
+}
+
+.c-board-node__stars .c-board-stars { bottom: 2px; }
+
+.c-board-stars__star { display: flex; }
+.c-board-stars__star--mid { margin-bottom: 6px; }
+
+.c-board-stars__star .c-icon {
+  fill: none;
+  stroke: var(--color-icon-tertiary);
+  stroke-width: 1.2;
+}
+
+.c-board-stars__star.is-on .c-icon {
+  fill: var(--color-icon-warning);
+  stroke: var(--color-icon-warning);
+}
+
+/* Estrelas ao lado do pin (concluídas): coluna de 3 em arco contornando o pin, centrada na altura da face (+ espessura).
+   À esquerda: a de cima e a de baixo encostam mais no pin e a do meio se afasta; à direita, espelhado. Ganhas em dourado
+   com contorno um tom mais escuro; as que faltam, em contorno cinza. */
+.c-board-stars--side {
+  top: 3px;
+  bottom: auto;
+  left: auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transform: none;
+  pointer-events: none;
+}
+
+.c-board-node--b .c-board-stars--side { top: 9px; }
+
+.c-board-stars--left { right: calc(100% + 4px); }
+.c-board-stars--right { left: calc(100% + 4px); }
+
+.c-board-stars--side .c-board-stars__star--mid { margin: 0; }
+.c-board-stars--left .c-board-stars__star:not(.c-board-stars__star--mid) { transform: translateX(6px); }
+.c-board-stars--left .c-board-stars__star--mid { transform: translateX(-4px); }
+.c-board-stars--right .c-board-stars__star:not(.c-board-stars__star--mid) { transform: translateX(-6px); }
+.c-board-stars--right .c-board-stars__star--mid { transform: translateX(4px); }
+
+.c-board-stars--side .c-board-stars__star.is-on .c-icon {
+  stroke: color-mix(in srgb, var(--color-icon-warning) 70%, var(--color-surface-dark));
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+
+/* Curso concluído: aviso com o atalho para a área de Certificados. No mobile o botão vai embaixo do texto; no desktop, ao lado. */
+.c-board-finished {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: var(--color-background-success);
+  color: var(--color-text-success);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.c-board-finished__text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.c-board-finished__text .c-icon { color: var(--color-icon-success); }
+
+.c-board-finished__cta {
+  flex: none;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.c-board--desk .c-board-finished {
+  flex-direction: row;
+  justify-content: center;
+  gap: 24px;
+  padding: 16px 24px;
+  border-radius: 16px;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.c-board--desk .c-board-finished__cta {
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* Ir para a atividade atual ("button icon" com contorno, 36): no centro, embaixo da área da trilha. */
+.c-board-jump {
+  position: sticky;
+  bottom: 80px; /* acima da navigation bar */
+  z-index: 4;
+  align-self: center;
+  margin-top: 16px;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px) scale(0.9);
+  transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.15s;
+}
+
+.c-board--desk .c-board-jump { bottom: 8px; }
+
+/* Em 1179 a navigation bar ainda aparece (o menu lateral só entra em 1180). */
+@media (max-width: 1179px) {
+  .c-board--desk .c-board__wrap { padding-bottom: 72px; }
+  .c-board--desk .c-board-jump { bottom: 80px; }
+}
+
+.c-board-jump.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
+
+.c-board-jump .c-icon { transition: transform 0.2s; }
+.c-board-jump.is-up .c-icon { transform: rotate(180deg); }
+
+/* ---------- Coluna do curso (desktop; Figma "Curso Ludica - Versao 12/11") ----------
+   Coluna de 364 presa à direita da tela, da app bar até a base, com rolagem própria: abas, o card do curso, "Sobre o curso"
+   e "Categorias" sem a moldura de card (direto na coluna). A trilha ocupa o resto (a área abre espaço com margin-right).
+   Esconder: a coluna desliza para fora pela borda direita e a trilha volta ao centro da tela, os dois em 600ms. */
+.c-board--desk .c-board__wrap {
+  width: auto;
+  max-width: none;
+  margin-right: 396px; /* 364 da coluna + 32: com os 24 de respiro, sobra o lugar do botão de ocultar (38 + 8 de cada lado) */
+  transition: margin-right var(--board-ease);
+}
+
+.c-board.is-panel-hidden .c-board__wrap { margin-right: 0; }
+
+.c-board { --board-ease: 600ms cubic-bezier(0.42, 0, 0.58, 1); }
+
+.c-board-side {
+  position: fixed;
+  top: var(--topbar-height);
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 364px;
+  padding: 16px 24px 24px 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-left: 1px solid var(--color-border-default);
+  background-color: var(--color-background-default);
+  transition: transform var(--board-ease), visibility 0s linear 0s;
+}
+
+.c-board-side__tabs {
+  position: static;
+  flex: none;
+  align-self: stretch;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+/* Conteúdo direto na coluna: sem borda, fundo nem respiro de card. */
+.c-board-side .c-cd-side,
+.c-board-side .c-cd-card {
+  flex: none;
+  overflow: visible;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+.c-board-side .c-cd-side__pad,
+.c-board-side .c-cd-side__title,
+.c-board-side .c-cd-side__facts { padding: 0; }
+
+.c-board-side .c-cd-side__cover { border-radius: 16px; }
+
+/* Ocultar: colado à esquerda da coluna (36 + 8), na altura das abas. */
+.c-board-side__toggle {
+  position: fixed;
+  top: calc(var(--topbar-height) + 18px);
+  right: calc(364px + 8px);
+  z-index: 4;
+  transition: transform var(--board-ease), opacity 200ms ease-in-out, visibility 0s linear 0s;
+}
+
+.c-board-side__show {
+  position: fixed;
+  top: calc(var(--topbar-height) + 18px);
+  right: 24px;
+  z-index: 6;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(16px);
+  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out, visibility 0s linear 300ms;
+}
+
+.c-board.is-panel-hidden .c-board-side {
+  visibility: hidden;
+  transform: translateX(100%);
+  transition: transform var(--board-ease), visibility 0s linear 600ms;
+}
+
+.c-board.is-panel-hidden .c-board-side__toggle {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(364px);
+  transition: transform var(--board-ease), opacity 200ms ease-in-out, visibility 0s linear 600ms;
+}
+
+/* O botão de mostrar aparece quando a coluna termina de sair. */
+.c-board.is-panel-hidden .c-board-side__show {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 300ms ease-in-out 450ms, transform 300ms ease-in-out 450ms, visibility 0s linear 450ms;
+}
+
+/* Em 1179 a navigation bar ainda aparece embaixo: a coluna para acima dela. */
+@media (max-width: 1179px) {
+  .c-board-side { bottom: 72px; border-bottom: 1px solid var(--color-border-default); border-bottom-left-radius: 16px; }
+}
+
+/* Sobre fundo escuro (tweaks) o que fica direto sobre ele usa texto claro. */
+.c-board.is-on-dark .c-board-top__back,
+.c-board.is-on-dark .c-board-top__back:hover { color: var(--color-text-on-color); }
+
+/* ---------- Tweaks de fundo: cor, imagem e escurecer ---------- */
+/* Camada fixa atrás da tela; a película escura (--board-shade, 0 a 80%) mistura a superfície sempre escura sobre ela. */
+.c-board-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.c-board-bg--image {
+  background-position: center;
+  background-size: cover;
+}
+
+.c-board-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: color-mix(in srgb, var(--color-surface-dark) var(--board-shade, 0%), transparent);
+}
+
+/* O conteúdo sobe acima da camada (só quando ela existe, para o padrão ficar igual). */
+.c-board--bg .c-board__wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* Fundo escuro (cor "escuro", imagem ou escurecer alto): o que fica direto sobre o fundo passa a texto claro. */
+.c-board.is-on-dark .c-board-top__back { color: var(--color-text-on-color); }
+
+.c-board.is-on-dark .c-board-top__back:hover {
+  background-color: color-mix(in srgb, var(--color-text-on-color) 14%, transparent);
+  color: var(--color-text-on-color);
+}
+
+.c-board.is-on-dark .c-board-divider__line {
+  background-color: color-mix(in srgb, var(--color-text-on-color) 48%, transparent);
+}
+
+
+/* ---------- Trilha "Versão B" (tweak trilha=b; Figma "Curso Ludica - Versao B") ---------- */
+.c-board-btrail {
+  position: relative;
+  flex: none;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.c-board-road {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+.c-board-road path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Sombra (text/primary a 8%, 24), caminho (background/default, 20) e progresso (surface/system-default, 8). */
+.c-board-road__shadow {
+  stroke: color-mix(in srgb, var(--color-text-primary) 8%, transparent);
+  stroke-width: 24;
+}
+
+/* No tema escuro o caminho fica perto do fundo: a sombra vira um contorno visível. */
+:root[data-theme='dark'] .c-board-road__shadow {
+  stroke: var(--color-border-default);
+  transform: none;
+}
+
+.c-board-road__way {
+  stroke: var(--color-background-default);
+  stroke-width: 20;
+}
+
+.c-board-road__progress {
+  stroke: var(--color-surface-system-default);
+  stroke-width: 8;
+}
+
+/* Cartão do módulo: o "board module band" da Versão A, na largura toda da trilha; a estrada passa por baixo dele. */
+.c-board-bcard {
+  position: absolute;
+  right: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.c-board--b .c-board-node { z-index: 2; }
+
+
+/* ---------- Aviso (toast) ---------- */
+.c-board-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+  padding: 8px 16px;
+  border-radius: 12px;
+  background-color: var(--color-background-tooltip);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text-on-color);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 12px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.c-board-toast.is-on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.c-board-toast .c-icon {
+  color: var(--color-icon-success);
+  stroke-width: 2.5;
+}
+
+.c-board-toast.is-warn .c-icon { color: var(--color-icon-warning); }
+
+/* ---------- Esqueleto ---------- */
+.c-board-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: min(100%, 832px);
+  margin: 0 auto;
+}
+
+.c-board-skeleton__band,
+.c-board-skeleton__pin {
+  background-color: var(--color-background-skeleton);
+  animation: lp-pulse 1.4s ease-in-out infinite;
+}
+
+.c-board-skeleton__band {
+  height: 90px;
+  border-radius: 8px;
+}
+
+.c-board--desk .c-board-skeleton__band {
+  height: 80px;
+  border-radius: 16px;
+}
+
+.c-board-skeleton__trail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 46px;
+  padding-top: 70px;
+}
+
+.c-board-skeleton__pin {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  transform: translateX(var(--off));
+}
+
+/* ---------- Menos movimento ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .c-board-skeleton__band,
+  .c-board-skeleton__pin {
+    animation: none;
+  }
+
+  .c-board-pin,
+  .c-board-side,
+  .c-board.is-panel-hidden .c-board-side,
+  .c-board-side__show,
+  .c-board.is-panel-hidden .c-board-side__show,
+  .c-board-side__toggle,
+  .c-board--desk .c-board__wrap,
+  .c-board-jump,
+  .c-board-jump .c-icon,
+  .c-board-toast {
+    transition: none;
+  }
+}
+
+/* Fundo por módulo (tweak Fundo = Imagem por módulo): uma camada por módulo, empilhadas; a opacidade e a escala vêm da
+   rolagem (revealBackgrounds em board.js). A película (::after) fica por cima de todas. */
+.c-board-bg--modules { overflow: hidden; background-color: var(--color-surface-dark); }
+
+.c-board-bg__layer {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  will-change: opacity, transform;
+}
+
+/* ---------- Bottom sheet do pin (toque): o conteúdo do cartão de hover e o botão de começar ---------- */
+.c-board-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 8px 8px;
+}
+
+.c-board-sheet__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.c-board-sheet__icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: var(--color-background-subtle);
+  color: var(--color-icon-default);
+}
+
+.c-board-sheet__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.c-board-sheet__title {
+  color: var(--color-text-primary);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.c-board-sheet .c-board-tip__rewards,
+.c-board-sheet .c-board-tip__status { margin-top: 4px; }
+
+.c-board-sheet__cta {
+  justify-content: center;
+  width: 100%;
+  height: 44px;
+  margin-top: 12px;
+}
+
+.c-board-sheet__cta:disabled {
+  background-color: var(--color-background-muted);
+  color: var(--color-text-tertiary);
+  cursor: not-allowed;
+}
+
+
+/* ---------- Layout moderno (tweak layout=moderno) ----------
+   Aproveita a largura: a onda da trilha A abre (--wave-scale 1,6 no tablet e 2,1 no desktop) e a trilha ocupa a área toda;
+   cada pin ganha o nome ao lado; o cartão do módulo fica compacto e translúcido; no desktop, a navegação dos módulos ocupa o
+   vão à esquerda. Superfícies "vidro": fundo da página a 82% com desfoque, borda clara e sombra suave. */
+.c-board--modern { --glass: color-mix(in srgb, var(--color-background-default) 82%, transparent); }
+
+@media (min-width: 768px) {
+  .c-board--modern .c-board-trail { --wave-scale: 1.6; }
+}
+
+.c-board--modern.c-board--desk .c-board-trail {
+  --wave-scale: 2.1;
+  width: 100%;
+}
+
+/* Cartão do módulo compacto e translúcido. */
+.c-board--modern .c-board-band__card {
+  border: 1px solid color-mix(in srgb, var(--color-background-default) 70%, transparent);
+  background-color: var(--glass);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-md);
+}
+
+.c-board--modern.c-board--desk .c-board-band__card {
+  width: min(100%, 600px);
+  margin: 0 auto;
+  padding: 12px 16px;
+}
+
+.c-board--modern.c-board--desk .c-board-band__title { font-size: 16px; line-height: 24px; }
+
+/* Nome ao lado do pin: no mesmo eixo do disco (--pin-y), virado para o meio da trilha. */
+.c-board-label {
+  position: absolute;
+  top: var(--pin-y);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: max-content;
+  max-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid color-mix(in srgb, var(--color-background-default) 70%, transparent);
+  border-radius: 12px;
+  background-color: var(--glass);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-sm);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.c-board-label--right { left: calc(50% + var(--pin-r) + 12px); }
+.c-board-label--left { right: calc(50% + var(--pin-r) + 12px); text-align: right; }
+
+.c-board-label__kicker {
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.c-board-label__title {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 700;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.c-board-label--current {
+  border-color: var(--color-surface-system-soft);
+  box-shadow: 0 0 0 3px var(--color-surface-system-light), var(--shadow-md);
+}
+
+.c-board-label--current .c-board-label__kicker { color: var(--color-text-brand); }
+.c-board-label--locked { opacity: 0.72; }
+.c-board-label--locked .c-board-label__title { color: var(--color-text-secondary); }
+
+/* Desktop mais estreito (1179 a 1365): onda um pouco menor. */
+@media (max-width: 1365px) {
+  .c-board--modern.c-board--desk .c-board-trail { --wave-scale: 1.6; }
+}
+
+
+/* ---------- Layout moderno: hierarquia da trilha ----------
+   O olhar vai direto para o próximo passo: a atividade atual é a maior (com um halo que pulsa) e tem o cartão da próxima
+   atividade ao lado; as concluídas ficam um pouco menores; as bloqueadas, menores e esmaecidas. O "Continuar" em cima do
+   pin sai (o cartão já tem o botão). */
+.c-board--modern .c-board-node:not(.c-board-node--current) .c-board-pin { transition: transform 0.2s, filter 0.2s, opacity 0.2s; }
+.c-board--modern .c-board-pin--done { transform: scale(0.92); }
+.c-board--modern .c-board-pin:is(.c-board-pin--locked, .c-board-pin--open) {
+  opacity: 0.85;
+  filter: saturate(0.6);
+  transform: scale(0.78);
+}
+
+.c-board--modern.c-board--desk .c-board-pin--done:is(:hover, :focus-visible) { transform: scale(0.98) translateY(-2px); }
+
+.c-board--modern .c-board-start { display: none; }
+
+/* Halo da atual: um círculo na cor da marca que cresce e some, atrás do pin. */
+.c-board--modern .c-board-node--current .c-board-node__pin::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 96px;
+  height: 96px;
+  margin: -48px 0 0 -48px;
+  border-radius: 50%;
+  background-color: var(--color-surface-system-default);
+  opacity: 0;
+  animation: c-board-halo 2.4s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes c-board-halo {
+  0% { opacity: 0.35; transform: scale(0.8); }
+  100% { opacity: 0; transform: scale(1.45); }
+}
+
+/* Cartão da próxima atividade (ao lado do pin atual, virado para o meio da trilha). */
+.c-board-next {
+  position: absolute;
+  top: var(--pin-y);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 248px;
+  padding: 14px 16px 16px;
+  border: 1px solid var(--color-surface-system-soft);
+  border-radius: 16px;
+  background-color: var(--glass);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 0 4px var(--color-surface-system-light), var(--shadow-lg);
+  transform: translateY(-50%);
+}
+
+.c-board-next--right { left: calc(50% + var(--pin-r) + 16px); }
+.c-board-next--left { right: calc(50% + var(--pin-r) + 16px); }
+
+.c-board-next__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+  color: var(--color-text-brand);
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.c-board-next__eyebrow .c-icon { width: 12px; height: 12px; }
+
+.c-board-next__title {
+  color: var(--color-text-primary);
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 800;
+}
+
+.c-board-next__rewards {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-board-next__rewards > span { display: flex; align-items: center; gap: 4px; }
+.c-board-next__rewards .c-icon,
+.c-board-next__rewards svg { width: 14px; height: 14px; color: var(--color-surface-system-emphasis); }
+.c-board-next__rewards b { color: var(--color-text-default); font-weight: 700; }
+
+.c-board-next__cta {
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-board--modern .c-board-node--current .c-board-node__pin::before { animation: none; opacity: 0.15; }
+  .c-board--modern .c-board-node:not(.c-board-node--current) .c-board-pin { transition: none; }
+}
+
+
+/* ---------- Trilha Versão C (tweak trilha=c) ----------
+   A estrada da B com: nome (2 linhas) e estrelas embaixo de cada pin; setas no caminho entre os pins; e o cartão do módulo
+   com a barra de andamento, as estrelas ganhas e o botão que abre ou fecha as atividades (só o módulo atual abre de início). */
+.c-board-clabel {
+  position: absolute;
+  top: calc(100% - 52px + 2px);
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 132px;
+  text-align: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.c-board-clabel__title {
+  display: -webkit-box;
+  overflow: hidden;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background-color: color-mix(in srgb, var(--color-background-default) 88%, transparent);
+  color: var(--color-text-primary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.c-board-clabel--current .c-board-clabel__title {
+  background-color: var(--color-surface-system-default);
+  color: var(--color-on-action);
+}
+
+.c-board-clabel--locked .c-board-clabel__title { color: var(--color-text-tertiary); }
+
+.c-board-clabel__stars { display: flex; gap: 1px; }
+.c-board-clabel__stars .c-icon { width: 12px; height: 12px; }
+.c-board-clabel__stars .c-board-stars__star.is-on .c-icon { stroke: color-mix(in srgb, var(--color-icon-warning) 70%, var(--color-surface-dark)); }
+
+@media (max-width: 767px) {
+  .c-board-clabel { width: 112px; }
+  .c-board-clabel__title { font-size: 11px; line-height: 14px; }
+}
+
+/* Seta no caminho: bolinha branca com o chevron, na cor da marca no trecho já feito. */
+.c-board-chev {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border-radius: 50%;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-icon-tertiary);
+}
+
+.c-board-chev.is-done { background-color: var(--color-surface-system-default); color: var(--color-on-action); }
+.c-board-chev .c-icon { stroke-width: 2.6; }
+
+/* Cartão do módulo: barra + contagem + estrelas e o botão abrir/fechar. */
+.c-board-ccard .c-board-band__card { grid-template-columns: auto minmax(0, 1fr) auto; }
+
+.c-board-ccard__end {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.c-board--desk .c-board-ccard__end { grid-column: auto; justify-content: flex-end; }
+
+.c-board-ccard__prog {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 96px;
+}
+
+.c-board-ccard__bar {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background-color: var(--color-background-muted);
+}
+
+.c-board-ccard__bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background-color: var(--color-surface-system-default);
+}
+
+.c-board-ccard--done .c-board-ccard__bar span { background-color: var(--color-icon-success); }
+
+.c-board-ccard__count {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+}
+
+.c-board-ccard__count .c-icon { width: 12px; height: 12px; }
+.c-board-ccard__count .c-icon[class*='star'],
+.c-board-ccard__count svg:last-child { color: var(--color-icon-warning); }
+
+.c-board-ccard__toggle {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-surface-system-soft);
+  border-radius: 8px;
+  color: var(--color-text-brand);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.c-board-ccard__toggle:hover { background-color: var(--color-surface-system-subtle); }
+.c-board-ccard.is-open .c-board-ccard__toggle { border-color: transparent; }
+.c-board-ccard--locked .c-board-band__title { color: var(--color-text-secondary); }
+
+
+/* ---------- Versão C: estrada fina, estrelas em cima e maiores ----------
+   A estrada tem a espessura do aro branco do pin B (84 - 66 = 18, 9 de cada lado): caminho e progresso com 9; a sombra, 13.
+   Estrelas em cima do pin concluído: 26, 30 e 26 (a do meio mais alta), douradas com contorno escuro e um halo claro em
+   volta para destacar do fundo; as que faltam, brancas com contorno cinza. */
+.c-board--c .c-board-road__shadow { stroke-width: 13; }
+.c-board--c .c-board-road__way { stroke-width: 9; }
+.c-board--c .c-board-road__progress { stroke-width: 9; }
+
+.c-board--c .c-board-chev {
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+}
+
+.c-board--c .c-board-chev .c-icon { width: 12px; height: 12px; }
+
+.c-board--c .c-board-node__stars .c-board-stars { bottom: 0; gap: 0; }
+.c-board--c .c-board-stars__star .c-icon { width: 26px; height: 26px; }
+.c-board--c .c-board-stars__star--mid { margin-bottom: 8px; }
+.c-board--c .c-board-stars__star--mid .c-icon { width: 30px; height: 30px; }
+
+.c-board--c .c-board-stars__star .c-icon {
+  fill: var(--color-background-default);
+  stroke: var(--color-icon-tertiary);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+}
+
+.c-board--c .c-board-stars__star.is-on .c-icon {
+  fill: var(--color-icon-warning);
+  stroke: color-mix(in srgb, var(--color-icon-warning) 55%, var(--color-surface-dark));
+  filter:
+    drop-shadow(0 0 1px var(--color-background-default))
+    drop-shadow(0 0 1px var(--color-background-default))
+    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+
+/* ---------- Versão C: ajustes (cartões sólidos, progresso fino, estrelas menores) ----------
+   Cartões dos módulos e navegação dos módulos sem o vidro fosco: fundo sólido. Na Versão C o cartão ocupa a largura entre as
+   descidas da estrada (o left/right vem do layout). O progresso roxo da estrada tem a espessura do aro roxo do pin concluído
+   (3), no meio do caminho branco. Estrelas 25% menores (20/22) com contorno branco. */
+.c-board--modern .c-board-band__card {
+  border-color: var(--color-border-default);
+  background-color: var(--color-background-default);
+  backdrop-filter: none;
+}
+
+.c-board--c .c-board-ccard .c-board-band__card {
+  width: auto;
+  margin: 0;
+}
+
+.c-board--c .c-board-road__progress { stroke-width: 3; }
+
+.c-board--c .c-board-stars__star .c-icon { width: 20px; height: 20px; }
+.c-board--c .c-board-stars__star--mid { margin-bottom: 6px; }
+.c-board--c .c-board-stars__star--mid .c-icon { width: 22px; height: 22px; }
+
+.c-board--c .c-board-stars__star .c-icon {
+  fill: color-mix(in srgb, var(--color-on-brand) 35%, transparent);
+  stroke: var(--color-on-brand);
+  stroke-width: 1.8;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.c-board--c .c-board-stars__star.is-on .c-icon {
+  fill: var(--color-icon-warning);
+  stroke: var(--color-on-brand);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+
+/* Versão C: estrelas com contorno branco de verdade (o ícone tem stroke no próprio path; aqui o contorno branco mais grosso
+   fica atrás do preenchimento com paint-order). Cartão do módulo: só a barra de progresso (a da tela Curso) à direita. */
+.c-board--c .c-board-stars__star .c-icon,
+.c-board--c .c-board-stars__star .c-icon * {
+  stroke: var(--color-on-brand); /* branco */
+  stroke-width: 2.2;
+  paint-order: stroke fill;
+}
+
+.c-board--c .c-board-stars__star .c-icon { fill: color-mix(in srgb, var(--color-on-brand) 30%, transparent); }
+.c-board--c .c-board-stars__star .c-icon * { fill: inherit; }
+.c-board--c .c-board-stars__star.is-on .c-icon { fill: var(--color-icon-warning); }
+
+.c-board-ccard .c-board-ccard__end .c-cd-module__progress { align-self: center; }
+
+
+/* ---------- Menu lateral "float" (tweak painel=float) ----------
+   Coluna de ícones (32, raio 8) presa à direita, abaixo da app bar; o ativo fica com fundo surface/system-light e o "x".
+   O cartão flutua ao lado dela (330), por cima da trilha, com os mesmos cards da coluna fixa empilhados e rolagem própria. */
+.c-board.c-board--float .c-board__wrap,
+.c-board.c-board--float.is-panel-hidden .c-board__wrap { margin-right: 56px; }
+
+.c-board-rail {
+  position: fixed;
+  top: calc(var(--topbar-height) + 16px);
+  right: 12px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.c-board-rail__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text-brand);
+  transition: background-color 0.15s;
+}
+
+.c-board-rail__btn:hover { background-color: var(--color-surface-system-subtle); }
+
+.c-board-rail__btn.is-active {
+  border-color: transparent;
+  background-color: var(--color-surface-system-light);
+  color: var(--color-surface-system-emphasis);
+}
+
+.c-board-float {
+  position: fixed;
+  top: calc(var(--topbar-height) + 16px);
+  right: 56px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 330px;
+  max-height: calc(100vh - var(--topbar-height) - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 16px;
+}
+
+.c-board-float.is-entering { animation: c-board-float-in 200ms ease-out; }
+
+@keyframes c-board-float-in {
+  from { opacity: 0; transform: translateX(12px); }
+}
+
+/* Em 1179 a navigation bar ainda aparece embaixo: o cartão para acima dela. */
+@media (max-width: 1179px) {
+  .c-board-float { max-height: calc(100vh - var(--topbar-height) - 104px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-board-float.is-entering { animation: none; }
+  .c-board-rail__btn { transition: none; }
+}
+
+
+/* ---------- Barra integrada (tweak painel=barra) ----------
+   Uma barra de 64 em cima da trilha, presa logo abaixo da app bar: Voltar (ícone), capa e nome do curso com o andamento, pontos
+   e moedas e as ações (Sobre o curso, Materiais e o botão principal). Sem coluna lateral: a trilha usa a largura toda; o cartão
+   fixo do módulo (trilha A) passa a prender abaixo da barra. */
+.c-board.c-board--hud .c-board__wrap,
+.c-board.c-board--hud.is-panel-hidden .c-board__wrap { margin-right: 0; }
+
+.c-board--hud { --board-top: calc(var(--topbar-height) + 12px + 64px + 16px); }
+
+/* Invólucro preso logo abaixo da app bar: 12 de respiro em cima, coberto pela faixa (::before) que repete o fundo da tela
+   (cor, imagem fixa ou a imagem do módulo, com a película) do topo até a metade dos cantos arredondados da barra. Assim nada
+   que rola por trás aparece entre a app bar e a barra. (Mesma técnica do cartão fixo do módulo.) */
+.c-board-hudwrap {
+  position: sticky;
+  top: var(--topbar-height);
+  z-index: 6;
+  width: min(100%, 1120px);
+  margin: -12px auto 0;
+  padding-top: 12px;
+}
+
+.c-board-hudwrap::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: -1;
+  height: calc(12px + 16px);
+  background-color: var(--color-background-subtle);
+  pointer-events: none;
+}
+
+.c-board--bg .c-board-hudwrap::before {
+  background-color: var(--board-cover);
+  background-image: linear-gradient(color-mix(in srgb, var(--color-surface-dark) var(--board-shade, 0%), transparent), color-mix(in srgb, var(--color-surface-dark) var(--board-shade, 0%), transparent));
+}
+
+.c-board--bg-image .c-board-hudwrap::before {
+  background-color: var(--color-surface-dark);
+  background-image: linear-gradient(color-mix(in srgb, var(--color-surface-dark) var(--board-shade, 0%), transparent), color-mix(in srgb, var(--color-surface-dark) var(--board-shade, 0%), transparent)), var(--board-cover);
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.c-board-hud {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 64px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-md);
+}
+
+.c-board-hud__back {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: var(--color-text-brand);
+}
+
+.c-board-hud__back:hover { background-color: var(--color-surface-system-subtle); }
+
+.c-board-hud__cover {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background-position: center;
+  background-size: cover;
+}
+
+.c-board-hud__course {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.c-board-hud__title {
+  overflow: hidden;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.c-board-hud__progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.c-board-hud__progress .c-cd-module__track { flex: none; width: 120px; }
+
+.c-board-hud__rewards {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background-color: var(--color-background-subtle);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.c-board-hud__rewards > span { display: flex; align-items: center; gap: 4px; }
+.c-board-hud__rewards .c-icon,
+.c-board-hud__rewards svg { width: 16px; height: 16px; color: var(--color-surface-system-emphasis); }
+.c-board-hud__rewards b { color: var(--color-text-default); font-weight: 700; }
+
+.c-board-hud__actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.c-board-hud__btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  color: var(--color-text-brand);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.c-board-hud__btn:hover { background-color: var(--color-surface-system-subtle); }
+
+.c-board-hud__cta {
+  height: 36px;
+  margin-left: 4px;
+  padding: 0 14px;
+  white-space: nowrap;
+}
+
+.c-board-hud-drawer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Desktop mais estreito: some a pílula de pontos e moedas e os botões ficam só com o ícone (o nome vai no aria). */
+@media (max-width: 1365px) {
+  .c-board-hud__rewards { display: none; }
+}
+
+@media (max-width: 1279px) {
+  .c-board-hud__btn > span:not(.c-button-badge__count) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+}
+
+/* No navdrawer de Materiais o título já está no cabeçalho do drawer: o do card some (fica para leitores de tela). */
+.c-board-hud-drawer #sec-materiais .c-cd-card__title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+
+/* Barra integrada: linha embaixo do nome do curso — "4 módulos · 3h 04min · barra 24%" — e ícones dos botões com traço um pouco
+   mais grosso (no info de 16 o ponto do "i" sumia com o traço de 1). */
+.c-board-hud__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.c-board-hud__meta .c-cd-bullet { background-color: currentColor; }
+.c-board-hud__meta .c-board-hud__progress .c-cd-module__track { width: 96px; }
+
+.c-board-hud__btn .c-icon { flex: none; width: 16px; height: 16px; stroke-width: 1.6; }
+
+
+/* Drawer "Sobre o curso" (Figma 5149:53581): a Descrição no mesmo card das outras (raio 16, respiro 16) e os cards com o
+   mesmo intervalo de 16. */
+.c-board-hud-drawer #sec-sobre {
+  gap: 16px;
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.c-board-hud-drawer #sec-sobre .c-cd-card__title { font-size: 14px; line-height: 20px; }
+
+
+/* Pin bloqueado (ou aberto mas ainda não liberado) da Versão B: o selo do número nas cores do card de atividade bloqueado —
+   fundo background/default e o número em text/tertiary — em vez do selo escuro. */
+.c-board-pin--b:is(.c-board-pin--locked, .c-board-pin--open) .c-board-pin__badge {
+  background-color: var(--color-background-default);
+  color: var(--color-text-tertiary);
+}
+
+/* Seta antes de uma atividade bloqueada: o cadeado, em text/tertiary. */
+.c-board-chev.is-locked { color: var(--color-text-tertiary); }
+.c-board--c .c-board-chev.is-locked .c-icon { width: 10px; height: 10px; stroke-width: 2.2; }
+
+
+/* Marcador roxo (trecho já feito): aro em background/default da mesma espessura da borda branca da estrada em volta do
+   progresso (3), como o aro do pin. */
+.c-board-chev.is-done { box-shadow: 0 0 0 3px var(--color-background-default), var(--shadow-sm); }
+
+
+/* Cartão do módulo (Versão C): título até 2 linhas, depois "…" (o texto inteiro no title). A trilha mede a altura do cartão
+   (measureCards) para a estrada continuar entrando pelo meio da lateral. */
+.c-board-ccard .c-board-band__title {
+  display: -webkit-box;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+
+/* ---------- Trilha liberada (tweak estado=liberado) ----------
+   Pin "free": disponível sem ser o próximo da sequência. Mesmo visual do pin atual (cor da marca, imagem colorida, selo escuro),
+   no tamanho dos demais, sem anel nem "Começar": clicável e com o mesmo hover. */
+.c-board-pin--free { background-color: var(--color-surface-system-default); }
+.c-board-pin--free:not(.c-board-pin--b) { --pin-top: var(--color-surface-system-default); }
+.c-board--desk .c-board-pin--free:hover { filter: brightness(1.08); }
+.c-board--desk .c-board-pin--free.c-board-pin--b:is(:hover, :focus-visible) { transform: scale(1.06); }
+.c-board-pin--free:not(.c-board-pin--b):active { --pin-depth: 3px; transform: translateY(5px); }
+.c-board--desk .c-board-pin--free:not(.c-board-pin--b):is(:hover, :focus-visible) { transform: translateY(-2px); }
+
+
+/* ---------- Estrelas em arco sobre o pin (Versão C, pins B) ----------
+   As três estrelas seguem a curva do disco: a origem fica no centro do pin (42 abaixo da caixa das estrelas) e cada uma é
+   girada em volta dele (-23°, 0°, 23°) a 55 do centro — as laterais mais baixas e inclinadas para fora, como no screenshot. */
+.c-board--c .c-board-node--b .c-board-node__stars .c-board-stars {
+  bottom: -42px;
+  width: 0;
+  height: 0;
+  display: block;
+  transform: none;
+}
+
+.c-board--c .c-board-node--b .c-board-node__stars .c-board-stars__star {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 0;
+  height: 0;
+  margin: 0;
+  transform-origin: 0 0;
+  transform: rotate(var(--a, 0deg)) translateY(-55px);
+}
+
+.c-board--c .c-board-node--b .c-board-node__stars .c-board-stars__star:first-child { --a: -23deg; }
+.c-board--c .c-board-node--b .c-board-node__stars .c-board-stars__star:last-child { --a: 23deg; }
+
+.c-board--c .c-board-node--b .c-board-node__stars .c-board-stars__star .c-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: none;
+  transform: translate(-50%, -50%);
+}
+
+
+/* ---------- Cartão do módulo (Versão C): imagem centralizada na altura do título ----------
+   O texto vira parte da grade (display: contents): título na 1ª linha, "N atividades · tempo" na 2ª. A imagem fica só na
+   linha do título, centralizada nela (1 ou 2 linhas); o progresso segue alinhado à linha das informações. */
+.c-board-ccard .c-board-band__card {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  row-gap: 0;
+}
+
+.c-board-ccard .c-board-band__text { display: contents; }
+.c-board-ccard .c-board-band__avatar { grid-column: 1; grid-row: 1; align-self: center; }
+.c-board-ccard .c-board-band__title { grid-column: 2 / -1; grid-row: 1; align-self: center; }
+.c-board-ccard .c-board-band__kicker { grid-column: 2; grid-row: 2; align-self: center; }
+.c-board-ccard .c-board-ccard__end { grid-column: 1 / -1; grid-row: 3; margin-top: 8px; }
+.c-board--desk .c-board-ccard .c-board-ccard__end { grid-column: 3; grid-row: 2; align-self: center; margin-top: 0; }
+
+
+/* ---------- Cartão do pin (hover): ícone do tipo e conteúdo alinhado ----------
+   Como na lista de atividades da tela Curso: ícone do tipo (14) antes de "Atividade N · X min", e o título, pontos e moedas e a
+   situação começam alinhados ao texto do tipo (14 do ícone + 4). Títulos com mais de 2 linhas: cartão mais largo (320). */
+.c-board-tip .c-board-tip__kicker {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.c-board-tip .c-board-tip__kicker > .c-icon,
+.c-board-tip .c-board-tip__kicker > svg { flex: none; width: 14px; height: 14px; }
+
+.c-board-tip > :not(.c-board-tip__kicker) { margin-left: 18px; }
+
+.c-board-tip.c-board-tip--wide { width: 320px; }
+
+
+
+/* ---------- Trilha "Versão D" (tweak trilha=d): horizontal ----------
+   A faixa rola para o lado e ocupa a largura da página (o JS tira o recuo da área e dá a altura que sobra até a base da tela);
+   a trilha fica centralizada na altura dela. O cartão de cada módulo fica numa faixa da largura do módulo, em cima dos pins, e
+   gruda à esquerda (16) enquanto o módulo passa. O botão de ir à atividade atual fica fixo embaixo, no meio. */
+.c-board-dscroll {
+  display: flex;
+  flex: none;
+  align-self: flex-start;
+  align-items: center;
+  height: calc(100vh - 220px);
+  overflow: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  outline: none;
+}
+
+.c-board-dscroll::-webkit-scrollbar { display: none; }
+
+.c-board-dscroll .c-board-dtrail {
+  flex: none;
+  max-width: none;
+  margin: auto 0;
+}
+
+.c-board-dcard { pointer-events: none; }
+
+.c-board--d .c-board-dcard .c-board-band__card {
+  position: sticky;
+  left: var(--card-left, 16px); /* gruda no meio da tela: (largura da faixa - cartão) / 2, vem do layout */
+  width: min(100%, var(--card-w, 400px)); /* a largura do cartão da Versão C (vem do layout) */
+  pointer-events: auto;
+}
+
+.c-board--d .c-board-jump {
+  position: fixed;
+  bottom: 96px;
+  left: calc(50% - 19px);
+  margin: 0;
+}
+
+.c-board--d.c-board--desk .c-board-jump { bottom: 24px; }
+
+
+
+/* ---------- Dock recolhível (tweak painel=dock) ----------
+   Cartão de 296 preso no canto inferior esquerdo (fora da faixa central da trilha, que usa a largura toda): anel com o %,
+   nome do curso, "x de N atividades · tempo", pontos e moedas e os atalhos "Sobre o curso" e
+   "Materiais" (os mesmos cards soltos da barra integrada). Recolhido, vira uma pílula com o anel e o nome. */
+.c-board.c-board--dock .c-board__wrap,
+.c-board.c-board--dock.is-panel-hidden .c-board__wrap { margin-right: 0; }
+
+.c-board-dock {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 296px;
+  padding: 16px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-lg);
+}
+
+.c-board-dock.is-entering { animation: c-board-dock-in 200ms ease-out; }
+
+@keyframes c-board-dock-in {
+  from { opacity: 0; transform: translateY(12px); }
+}
+
+.c-board-dock__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.c-board-dock__ring {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+
+.c-board-dock__ring svg { position: absolute; inset: 0; width: 44px; height: 44px; max-width: none; }
+.c-board-dock__ring-track,
+.c-board-dock__ring-fill { fill: none; stroke-width: 4; }
+.c-board-dock__ring-track { stroke: var(--color-background-muted); }
+.c-board-dock__ring-fill { stroke: var(--color-surface-system-default); stroke-linecap: round; }
+.c-board-dock__ring-fill.is-done { stroke: var(--color-icon-success, var(--color-text-success)); }
+
+.c-board-dock__ring b {
+  position: relative;
+  color: var(--color-text-default);
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 700;
+}
+
+.c-board-dock__course {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.c-board-dock__title {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.c-board-dock__meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-board-dock__toggle {
+  display: flex;
+  flex: none;
+  align-self: flex-start;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: var(--color-icon-default);
+}
+
+.c-board-dock__toggle:hover { background-color: var(--color-surface-system-subtle); }
+
+.c-board-dock__rewards {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background-color: var(--color-background-subtle);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-board-dock__rewards > span { display: flex; align-items: center; gap: 4px; }
+.c-board-dock__rewards .c-icon,
+.c-board-dock__rewards svg { width: 16px; height: 16px; color: var(--color-surface-system-emphasis); }
+.c-board-dock__rewards b { color: var(--color-text-default); font-weight: 700; }
+
+.c-board-dock__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.c-board-dock__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 10px;
+  color: var(--color-text-brand);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.c-board-dock__btn:hover { background-color: var(--color-surface-system-subtle); }
+
+.c-board-dock :is(button, a):focus-visible {
+  outline: 2px solid var(--color-surface-system-default);
+  outline-offset: 2px;
+}
+
+/* Recolhido: pílula com o anel, o nome do curso e a seta para abrir. */
+.c-board-dock--closed {
+  width: auto;
+  max-width: 296px;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.c-board-dock__pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 6px 14px 6px 6px;
+  border-radius: 999px;
+  color: var(--color-icon-default);
+}
+
+.c-board-dock__pill:hover { background-color: var(--color-surface-system-subtle); }
+
+.c-board-dock__pill-title {
+  overflow: hidden;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Em 1179 a navigation bar ainda aparece embaixo: o dock fica acima dela. */
+@media (max-width: 1179px) {
+  .c-board-dock { bottom: 88px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-board-dock.is-entering { animation: none; }
+}
+
+/* Dock: a linha "x de N atividades · tempo" fica numa linha só. */
+.c-board-dock__meta { white-space: nowrap; }
+
+/* Dock: a pílula de pontos e moedas fica embaixo do título e das informações, alinhada a eles (não ao anel), só com a largura
+   do conteúdo. */
+.c-board-dock__course .c-board-dock__rewards {
+  align-self: flex-start;
+  gap: 12px;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.c-board-dock__head { align-items: flex-start; }
+
+
+/* ---------- Barra integrada: rola com a página e liga ao 1º módulo ----------
+   A barra do curso deixa de ficar presa embaixo da app bar: sobe com o resto da página (sem a faixa que cobria o vão).
+   Um trecho da estrada (o mesmo caminho branco com sombra da Versão C, com o progresso roxo se o curso começou) desce do meio
+   da barra até o 1º cartão de módulo; ele entra 8 por baixo da barra e 16 por baixo do cartão. */
+.c-board-hudwrap { position: relative; top: auto; }
+.c-board-hudwrap::before { display: none; }
+
+.c-board-hudlink {
+  position: absolute;
+  inset: auto;
+  top: calc(-1 * var(--hud-gap, 40px) - 8px);
+  left: calc(50% - 10px);
+  width: 20px;
+  height: calc(var(--hud-gap, 40px) + 8px + 16px);
+  overflow: visible;
+}
+
+/* Com a ligação (Versão C), mais respiro entre a barra do curso e o 1º cartão de módulo, para o trecho do caminho aparecer. */
+.c-board--hud.c-board--c:not(.c-board--d) .c-board-hudwrap { margin-bottom: 32px; }
+
+
+/* ---------- Dock recolhível aberto: abas com o conteúdo dentro ----------
+   O dock (340) vai até perto da app bar: o cartão tem o curso (título, "x de N · tempo", a barra de progresso do cartão de
+   módulo e a pílula de pontos e moedas), as abas "Sobre o curso" e "Materiais" e, embaixo, o conteúdo da aba, rolando por
+   dentro (os mesmos cards do navdrawer da barra integrada). O botão de recolher fica fora do cartão, à direita do topo.
+   Fechado (pílula) não muda. */
+.c-board-dock--tabs {
+  top: calc(var(--topbar-height) + 16px);
+  width: 340px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.c-board-dock__card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  max-height: 100%;
+  padding: 16px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-lg);
+}
+
+.c-board-dock--tabs .c-board-dock__toggle {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 8px);
+  border: 1px solid var(--color-border-default);
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-sm);
+}
+
+.c-board-dock--tabs .c-board-dock__toggle:hover { background-color: var(--color-surface-system-subtle); }
+
+.c-board-dock--tabs .c-board-dock__progress { margin-top: 6px; }
+.c-board-dock--tabs .c-board-dock__progress .c-cd-module__track { flex: 1 1 auto; }
+
+/* Abas: a ativa com o fundo e a borda da marca suaves. */
+.c-board-dock__btn.is-active {
+  border-color: var(--color-surface-system-soft);
+  background-color: var(--color-surface-system-subtle);
+  color: var(--color-surface-system-emphasis);
+}
+
+.c-board-dock__content {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0 -16px -16px;
+  padding: 0 16px 16px;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  outline: none;
+}
+
+.c-board-dock__content:focus-visible { box-shadow: inset 0 0 0 2px var(--color-surface-system-default); border-radius: 0 0 16px 16px; }
+
+@media (max-width: 1179px) {
+  .c-board-dock--tabs { top: calc(var(--topbar-height) + 16px); }
+}
+
+/* Os cards dentro do dock mantêm a altura deles (quem rola é a área do conteúdo). Largura de 300: o botão de recolher, fora do
+   cartão, fica antes do caminho da trilha (em 1440). */
+.c-board-dock__content > * { flex: none; }
+.c-board-dock--tabs { width: 300px; }
+
+/* No dock (mais estreito), pontos e moedas do card do curso ficam um embaixo do outro, para "620 /3.500" caber inteiro. */
+.c-board-dock__content .c-cd-side__rewards { grid-template-columns: 1fr; }
+
+
+/* ---------- Dock aberto: topo com a capa e abas do design system ----------
+   Capa (16:9, raio 12) em cima do título; o título inteiro, sem reticências; "N módulos · tempo"; e o progresso do card do
+   curso. As abas são os botões de aba do design system (c-button-badge, como na coluna fixa), sem a moldura de botão do dock.
+   Em "Sobre o curso", o card do curso fica sem moldura e as informações usam a largura toda. */
+.c-board-dock--tabs .c-board-dock__course { gap: 4px; }
+
+.c-board-dock__cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.c-board-dock--tabs .c-board-dock__title {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: none;
+}
+
+.c-board-dock--tabs .c-board-dock__progress { margin-top: 8px; }
+
+.c-board-dock__tabs { margin: 0; }
+.c-board-dock__tabs .c-cd-tabs__row { gap: 4px; }
+
+
+.c-board-dock__content .c-cd-side--course {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.c-board-dock__content .c-cd-side--course :is(.c-cd-side__facts, .c-cd-side__pad) { padding-right: 0; padding-left: 0; }
+
+/* Abas do dock: como na coluna fixa, só os botões de aba (sem a moldura nem o sticky da barra de abas da tela Curso). */
+.c-board-dock__tabs {
+  position: static;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+
+/* ---------- Dock: rolagem do conteúdo todo, Materiais sem card e botão circular no topo ----------
+   O cartão inteiro rola (capa, título, progresso, abas e o conteúdo da aba), não só a área da aba. Em Materiais, o card some
+   (sem moldura nem respiro) e a lista usa a largura toda. O botão de abrir e recolher é um círculo de 36 sobreposto à borda de
+   cima do dock, metade para fora, à direita — aberto (seta para baixo) e fechado (seta para cima, sobre a pílula). */
+.c-board-dock--tabs { top: calc(var(--topbar-height) + 32px); }
+
+.c-board-dock__card {
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.c-board-dock__content {
+  flex: none;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+.c-board-dock__content #sec-materiais {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.c-board-dock .c-board-dock__toggle {
+  position: absolute;
+  top: -18px;
+  right: 16px;
+  left: auto;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 50%;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-md);
+  color: var(--color-icon-default);
+}
+
+.c-board-dock .c-board-dock__toggle:hover { background-color: var(--color-surface-system-subtle); }
+
+.c-board-dock--closed { overflow: visible; }
+.c-board-dock--closed .c-board-dock__pill { padding-right: 56px; }
+.c-board-dock--closed .c-board-dock__pill > .c-icon:last-child { display: none; } /* a seta da pílula vira o botão circular */
+
+
+/* ---------- Dock: botão circular no meio e animação de abrir e recolher ----------
+   O círculo fica no meio da borda de cima (aberto e fechado). Abrir: a pílula some (120ms) e o cartão cresce a partir do
+   lugar e do tamanho dela — um recorte (clip-path) que vai da pílula ao cartão inteiro (340ms, desacelerando) —, com o
+   conteúdo aparecendo logo depois e o círculo surgindo no topo. Recolher: o inverso — o conteúdo e o círculo somem e o cartão
+   encolhe até a pílula (260ms, acelerando); então a pílula aparece. Com movimento reduzido, troca direto. */
+.c-board-dock .c-board-dock__toggle {
+  right: auto;
+  left: calc(50% - 18px);
+}
+
+.c-board-dock--closed .c-board-dock__pill { padding: 14px 14px 10px 6px; }
+
+.c-board-dock.is-entering { animation: none; }
+
+/* Abrir */
+.c-board-dock--tabs.is-entering .c-board-dock__card { animation: c-board-dock-grow 340ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+.c-board-dock--tabs.is-entering .c-board-dock__card > * { animation: c-board-dock-fade-up 260ms ease-out 140ms backwards; }
+.c-board-dock--tabs.is-entering .c-board-dock__toggle { animation: c-board-dock-pop 220ms cubic-bezier(0.2, 0.8, 0.2, 1.2) 220ms backwards; }
+
+/* Recolher */
+.c-board-dock--tabs.is-leaving .c-board-dock__card { animation: c-board-dock-shrink 260ms cubic-bezier(0.4, 0, 1, 1) forwards; }
+.c-board-dock--tabs.is-leaving .c-board-dock__card > * { animation: c-board-dock-fade-out 120ms ease-in forwards; }
+.c-board-dock--tabs.is-leaving .c-board-dock__toggle { animation: c-board-dock-fade-out 120ms ease-in forwards; }
+
+/* Pílula: aparece depois que o cartão encolheu; some rápido quando o cartão vai abrir. */
+.c-board-dock--closed.is-entering { animation: c-board-dock-pill-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+.c-board-dock--closed.is-entering .c-board-dock__toggle { animation: c-board-dock-pop 200ms cubic-bezier(0.2, 0.8, 0.2, 1.2) 80ms backwards; }
+.c-board-dock--closed.is-leaving { animation: c-board-dock-fade-out 120ms ease-in forwards; }
+
+@keyframes c-board-dock-grow {
+  from { clip-path: inset(calc(100% - 66px) calc(100% - 294px) 0 0 round 33px); }
+  to { clip-path: inset(0 0 0 0 round 16px); }
+}
+
+@keyframes c-board-dock-shrink {
+  from { clip-path: inset(0 0 0 0 round 16px); }
+  to { clip-path: inset(calc(100% - 66px) calc(100% - 294px) 0 0 round 33px); }
+}
+
+@keyframes c-board-dock-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+@keyframes c-board-dock-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes c-board-dock-pop {
+  from { opacity: 0; transform: scale(0.6); }
+}
+
+@keyframes c-board-dock-pill-in {
+  from { opacity: 0; transform: scale(0.96); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-board-dock.is-entering,
+  .c-board-dock.is-entering *,
+  .c-board-dock.is-leaving,
+  .c-board-dock.is-leaving * { animation: none !important; }
+}
+
+/* O dock aberto fica preso embaixo, como a pílula (cresce para cima a partir dela), com a altura do conteúdo até o limite
+   abaixo da app bar; o círculo acompanha a borda de cima do cartão. */
+.c-board-dock--tabs { top: auto; }
+.c-board-dock--tabs .c-board-dock__card { max-height: calc(100vh - var(--topbar-height) - 64px); }
+
+
+/* ---------- Dock: pontos e moedas acima das abas e conteúdo sem cards ----------
+   A pílula de pontos e moedas volta, entre o progresso do curso e as abas. Na aba "Sobre o curso", todos os blocos ficam
+   sem moldura (card do curso, Sobre o curso, Descrição e Categorias) e usam a largura toda; uma linha fina separa um bloco do
+   outro. */
+.c-board-dock--tabs .c-board-dock__course .c-board-dock__rewards { margin-top: 12px; }
+
+.c-board-dock__content { gap: 16px; }
+
+.c-board-dock__content :is(.c-cd-side, .c-cd-card),
+.c-board-hud-drawer.c-board-dock__content #sec-sobre {
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.c-board-dock__content :is(.c-cd-side, .c-cd-card) :is(.c-cd-side__title, .c-cd-side__pad, .c-cd-side__facts) {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.c-board-dock__content > * + * {
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+/* Respiro acima da linha que separa os blocos (vence o padding 0 dos blocos sem moldura). */
+.c-board-dock__content > * + :is(.c-cd-side, .c-cd-card),
+.c-board-hud-drawer.c-board-dock__content > * + #sec-sobre { padding-top: 16px; }
+.c-board-dock__content > * + :is(.c-cd-side, .c-cd-card),
+.c-board-hud-drawer.c-board-dock__content > * + #sec-sobre { border-top: 1px solid var(--color-border-subtle); }
+
+/* Dock: só a pílula de pontos e moedas e as abas ficam centralizadas no cartão (o resto segue alinhado à esquerda). */
+.c-board-dock--tabs .c-board-dock__course .c-board-dock__rewards { align-self: center; }
+.c-board-dock__tabs .c-cd-tabs__row { justify-content: center; }
+
+
+/* ---------- Dock: barra de rolagem como a dos navdrawers do Figma ----------
+   Trilho fino e arredondado (background/muted) com o polegar mais escuro (background/skeleton), sem setas, recuado 16 do topo
+   e da base do cartão. Ela ocupa o respiro da direita (o padding passa de 16 para 2 + 14 da barra, com o espaço sempre
+   reservado): o conteúdo fica com o mesmo respiro dos dois lados e os itens centralizados batem com o meio do cartão. */
+.c-board-dock__card {
+  padding-right: 2px;
+  scrollbar-width: auto;
+  scrollbar-gutter: stable;
+}
+
+.c-board-dock__card::-webkit-scrollbar { width: 14px; }
+.c-board-dock__card::-webkit-scrollbar-button { display: none; height: 0; }
+
+.c-board-dock__card::-webkit-scrollbar-track {
+  margin: 16px 0;
+  border: 5px solid transparent;
+  border-radius: 999px;
+  background-color: var(--color-background-muted);
+  background-clip: padding-box;
+}
+
+.c-board-dock__card::-webkit-scrollbar-thumb {
+  border: 5px solid transparent;
+  border-radius: 999px;
+  background-color: var(--color-background-skeleton);
+  background-clip: padding-box;
+}
+
+.c-board-dock__card::-webkit-scrollbar-thumb:hover { background-color: var(--color-icon-tertiary); }
+
+/* Firefox (sem os pseudo-elementos do WebKit): barra fina nas mesmas cores. */
+@supports not selector(::-webkit-scrollbar) {
+  .c-board-dock__card {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-background-skeleton) var(--color-background-muted);
+  }
+}
+
+
+/* Mobile e tablet: o "Voltar" fica preso logo abaixo da app bar (a trilha abre já rolada até a atividade atual e ele sumia),
+   e as abas Visão geral / Conteúdo / Materiais ficam presas logo abaixo dele (40). */
+.c-board:not(.c-board--desk) .c-cd-mback {
+  position: sticky;
+  top: var(--topbar-height);
+  z-index: 11;
+}
+
+.c-board:not(.c-board--desk) .c-cd-mtabs { top: calc(var(--topbar-height) + 40px); }
+
+
+/* ---------- Dock: botão menor com hover e clique; animação "montando" o cartão ----------
+   Botão: círculo de 28 (seta de 14) no meio da borda de cima, metade para fora. Hover: fundo surface/system-subtle e borda
+   da marca suave; clique: fundo surface/system-light, seta na cor da marca e um leve afundar; foco visível pelo teclado.
+   Animação (sem crescer nem encolher o cartão): ao abrir, o cartão aparece (opacidade e 8 de deslocamento) e os elementos
+   entram um a um — capa, título, módulos e tempo, progresso, pontos e moedas, abas e conteúdo — subindo 12 e aparecendo,
+   45ms entre um e outro. Ao recolher, saem na ordem inversa (de baixo para cima), descendo 8 e sumindo, e o cartão some por
+   último; então a pílula entra subindo. */
+.c-board-dock .c-board-dock__toggle {
+  top: -14px;
+  left: calc(50% - 14px);
+  width: 28px;
+  height: 28px;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+}
+
+.c-board-dock .c-board-dock__toggle .c-icon { width: 14px; height: 14px; }
+
+.c-board-dock .c-board-dock__toggle:hover {
+  border-color: var(--color-surface-system-soft);
+  background-color: var(--color-surface-system-subtle);
+  color: var(--color-surface-system-emphasis);
+}
+
+.c-board-dock .c-board-dock__toggle:active {
+  border-color: var(--color-surface-system-soft);
+  background-color: var(--color-surface-system-light);
+  color: var(--color-surface-system-emphasis);
+  transform: scale(0.92);
+}
+
+.c-board-dock .c-board-dock__toggle:focus-visible {
+  outline: 2px solid var(--color-surface-system-default);
+  outline-offset: 2px;
+}
+
+.c-board-dock--closed .c-board-dock__pill { padding-top: 12px; }
+
+/* Abrir: o cartão aparece sem mudar de tamanho; os elementos entram um a um. */
+.c-board-dock--tabs.is-entering .c-board-dock__card { animation: c-board-dock-card-in 220ms ease-out; }
+.c-board-dock--tabs.is-entering .c-board-dock__card > * { animation: none; }
+.c-board-dock--tabs.is-entering [style*="--i"] {
+  animation: c-board-dock-assemble 380ms cubic-bezier(0.2, 0.8, 0.2, 1) calc(80ms + var(--i) * 45ms) backwards;
+}
+.c-board-dock--tabs.is-entering .c-board-dock__toggle { animation: c-board-dock-toggle-in 240ms ease-out 200ms backwards; }
+
+/* Recolher: os elementos saem do último para o primeiro e o cartão some por último. */
+.c-board-dock--tabs.is-leaving .c-board-dock__card { animation: c-board-dock-card-out 160ms ease-in 160ms forwards; }
+.c-board-dock--tabs.is-leaving .c-board-dock__card > * { animation: none; }
+.c-board-dock--tabs.is-leaving [style*="--i"] {
+  animation: c-board-dock-disassemble 160ms ease-in calc((6 - var(--i)) * 25ms) forwards;
+}
+.c-board-dock--tabs.is-leaving .c-board-dock__toggle { animation: c-board-dock-fade-out 120ms ease-in forwards; }
+
+/* Pílula: entra subindo e some descendo (sem escala). */
+.c-board-dock--closed.is-entering { animation: c-board-dock-card-in 220ms ease-out; }
+.c-board-dock--closed.is-entering .c-board-dock__toggle { animation: c-board-dock-toggle-in 200ms ease-out 100ms backwards; }
+.c-board-dock--closed.is-leaving { animation: c-board-dock-card-out 140ms ease-in forwards; }
+
+@keyframes c-board-dock-card-in {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+@keyframes c-board-dock-card-out {
+  to { opacity: 0; transform: translateY(8px); }
+}
+
+@keyframes c-board-dock-assemble {
+  from { opacity: 0; transform: translateY(12px); }
+}
+
+@keyframes c-board-dock-disassemble {
+  to { opacity: 0; transform: translateY(8px); }
+}
+
+@keyframes c-board-dock-toggle-in {
+  from { opacity: 0; transform: translateY(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-board-dock .c-board-dock__toggle { transition: none; }
+}
+
+/* Barra integrada + Versão C: a barra do curso deixa 72 livres de cada lado para o caminho sair da lateral direita dela (curva
+   de 44 + 12 de reta + metade da estrada + respiro até a borda da tela), em qualquer largura. */
+.c-board--hud.c-board--c:not(.c-board--d) .c-board-hudwrap { width: min(100% - 144px, 1120px); }

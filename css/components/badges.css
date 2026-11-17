@@ -1,0 +1,104 @@
+/* Tag, pill e selo do mobile (js/components/badges.js). */
+
+/* ---------- Tag ---------- */
+.c-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 8px;
+  background-color: var(--color-background-subtle);
+  color: var(--color-text-default);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.c-tag--outlined {
+  border-color: var(--color-border-strong);
+}
+
+.c-tag--dark {
+  border-color: transparent;
+  background-color: var(--color-surface-dark);
+  color: var(--color-text-on-color);
+  backdrop-filter: blur(2px);
+}
+
+.c-tag--mobile {
+  gap: 2px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 8px;
+  line-height: 12px;
+}
+
+/* ---------- Pill ---------- */
+.c-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px 4px 4px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.c-pill--text-only {
+  padding: 4px 8px;
+}
+
+.c-pill--icon-only {
+  padding: 4px;
+}
+
+.c-pill--system { background-color: var(--color-surface-system-light); color: var(--color-surface-system-emphasis); }
+.c-pill--blue { background-color: var(--color-background-info); color: var(--color-text-link); }
+.c-pill--red { background-color: var(--color-background-error); color: var(--color-text-error); }
+.c-pill--green { background-color: var(--color-background-success); color: var(--color-text-success); }
+.c-pill--yellow { background-color: var(--color-background-warning); color: var(--color-text-warning); }
+.c-pill--grey { background-color: var(--color-background-subtle); color: var(--color-text-default); }
+.c-pill--white { background-color: var(--color-background-default); color: var(--color-text-default); }
+.c-pill--disabled { background-color: var(--color-background-muted); color: var(--color-text-tertiary); }
+
+/* Ícone do pill como no Figma: traço de 1px no tamanho final (os SVGs são desenhados em 24 e reduzidos para 16, o que
+   afinaria o traço para 0,67px) e, no vermelho, a cor icon/error (#e63a5e) em vez da cor do texto. */
+.c-pill .c-icon * { vector-effect: non-scaling-stroke; }
+.c-pill--red .c-icon { color: var(--color-icon-error); }
+
+.c-pill--outline::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.c-pill--system.c-pill--outline::after { border-color: var(--color-surface-system-default); }
+.c-pill--blue.c-pill--outline::after { border-color: var(--color-blue-700); }
+.c-pill--red.c-pill--outline::after { border-color: var(--color-icon-error); }
+.c-pill--green.c-pill--outline::after { border-color: var(--color-green-700); }
+.c-pill--yellow.c-pill--outline::after { border-color: var(--color-icon-warning-strong); }
+.c-pill--grey.c-pill--outline::after,
+.c-pill--white.c-pill--outline::after { border-color: var(--color-border-strong); }
+.c-pill--disabled.c-pill--outline::after { border-color: var(--color-border-default); }
+
+/* ---------- Selo pequeno do mobile ---------- */
+.c-mobile-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+}
+
+.c-mobile-pill--info { background-color: var(--color-background-info); color: var(--color-text-link); }
+.c-mobile-pill--warning { background-color: var(--color-background-warning); color: var(--color-text-warning); }
+.c-mobile-pill--error { background-color: var(--color-background-error); color: var(--color-text-error); }

@@ -1,0 +1,424 @@
+/* Passo a passo do PWA no iPhone (js/screens/install-guide.js). Tela cheia; no primeiro acesso (.c-ig--auto) some a partir de 768. */
+
+.c-ig {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background-default);
+}
+
+@media (min-width: 768px) {
+  .c-ig--auto { display: none; }
+}
+
+/* Barra do topo */
+.c-ig__bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+  padding: 0 8px 0 16px;
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.c-ig__logo { width: 84px; height: 28px; }
+
+.c-ig__skip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 8px;
+  color: var(--color-surface-system-emphasis);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.c-ig__skip:active { background-color: var(--color-surface-system-subtle); }
+
+/* Conteúdo do passo */
+.c-ig__scroll {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.c-ig__step {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  animation: lp-slide-in-right 0.25s ease-out;
+}
+
+.c-ig__text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.c-ig__counter {
+  width: fit-content;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: var(--color-surface-system-light);
+  color: var(--color-surface-system-emphasis);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+}
+
+.c-ig__title {
+  color: var(--color-text-primary);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.c-ig__title--intro {
+  font-size: 18px;
+  line-height: 28px;
+}
+
+.c-ig__desc {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.c-ig__tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background-color: var(--color-background-subtle);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.c-ig__tip .c-icon {
+  flex: none;
+  margin-top: 1px;
+  color: var(--color-icon-default);
+}
+
+/* Rodapé: pontos e botões */
+.c-ig__foot {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 16px 24px;
+  border-top: 1px solid var(--color-border-default);
+}
+
+.c-ig__dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.c-ig__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background-color: var(--color-background-muted);
+  transition: all 0.15s;
+}
+
+.c-ig__dot.is-on {
+  width: 24px;
+  background-color: var(--color-surface-system-strong);
+}
+
+.c-ig__buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.c-ig__buttons .c-button { min-height: 44px; }
+.c-ig__back { flex: 1; }
+.c-ig__next { flex: 2; }
+
+/* ---------- Ilustrações ---------- */
+.c-ig-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 248px;
+  padding: 16px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-subtle);
+}
+
+.c-ig-art {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.c-ig-art--gap { align-items: stretch; }
+
+/* Ponto de toque: anel pulsante */
+.c-ig-spot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.c-ig-spot__ring {
+  position: absolute;
+  inset: -6px;
+  border: 2px solid var(--color-surface-system-strong);
+  border-radius: 12px;
+  animation: c-ig-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes c-ig-pulse {
+  50% { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-ig-spot__ring,
+  .c-ig-row--on,
+  .c-ig__step { animation: none; }
+}
+
+/* Abertura */
+.c-ig-app {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 20px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-sm);
+}
+
+.c-ig-app__logo { width: 88px; height: 32px; }
+
+.c-ig-app__badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background-color: var(--color-red-500);
+  box-shadow: 0 0 0 2px var(--color-background-subtle);
+  color: #fff;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+}
+
+.c-ig-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.c-ig-benefits li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text-default);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-ig-benefits__icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background-color: var(--color-surface-system-light);
+  color: var(--color-surface-system-emphasis);
+}
+
+/* Passo 1: barra do Safari */
+.c-ig-page {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background-color: var(--color-background-default);
+  opacity: 0.6;
+}
+
+.c-ig-page span {
+  height: 8px;
+  border-radius: 999px;
+  background-color: var(--color-background-muted);
+}
+
+.c-ig-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-sm);
+}
+
+.c-ig-toolbar__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--color-icon-default);
+}
+
+.c-ig-toolbar__icon--on {
+  border-radius: 12px;
+  background-color: var(--color-surface-system-light);
+  color: var(--color-surface-system-emphasis);
+}
+
+/* Cartões (lista de compartilhar e diálogo de adicionar) */
+.c-ig-card {
+  width: 100%;
+  max-width: 300px;
+  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-sm);
+}
+
+.c-ig-card__rule {
+  height: 1px;
+  margin: 0 16px;
+  background-color: var(--color-background-muted);
+}
+
+.c-ig-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  color: var(--color-text-default);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.c-ig-row--dim { opacity: 0.6; }
+
+.c-ig-row--on {
+  background-color: var(--color-surface-system-light);
+  box-shadow: inset 0 0 0 2px var(--color-surface-system-strong);
+  color: var(--color-surface-system-emphasis);
+  font-weight: 700;
+  animation: c-ig-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Passo 3: diálogo */
+.c-ig-dialog__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border-default);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.c-ig-dialog__cancel { color: var(--color-text-secondary); }
+
+.c-ig-dialog__title {
+  color: var(--color-text-primary);
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.c-ig-dialog__add {
+  padding: 4px 8px;
+  border-radius: 8px;
+  background-color: var(--color-surface-system-light);
+  color: var(--color-surface-system-emphasis);
+}
+
+.c-ig-dialog__body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.c-ig-dialog__icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 12px;
+  background-color: var(--color-background-subtle);
+}
+
+.c-ig-dialog__logo { width: 58px; height: 20px; }
+
+.c-ig-dialog__info {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.c-ig-dialog__info b {
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.c-ig-dialog__info span {
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -1,0 +1,284 @@
+/* Folha de estilo do mockup navegável (app.html). A ordem importa: tokens, base, componentes, casca e telas. */
+
+@import url('./tokens.css');
+@import url('./base.css');
+
+@import url('./components/button.css');
+@import url('./components/badges.css');
+@import url('./components/avatar.css');
+@import url('./components/cover.css');
+@import url('./components/panel.css');
+@import url('./components/filters.css');
+@import url('./components/pagination.css');
+@import url('./components/progress.css');
+@import url('./components/misc.css');
+@import url('./components/mobile.css');
+@import url('./components/mobile-sheets.css');
+@import url('./components/profile-menu.css');
+@import url('./components/tweaks.css');
+
+@import url('./shell.css');
+
+@import url('./screens/library.css');
+@import url('./screens/courses.css');
+@import url('./screens/team.css');
+@import url('./screens/missions.css');
+@import url('./screens/ranking.css');
+@import url('./screens/achievements.css');
+@import url('./screens/certificates.css');
+@import url('./screens/faq.css');
+@import url('./screens/store.css');
+@import url('./screens/feed.css');
+@import url('./screens/events.css');
+@import url('./screens/extract.css');
+@import url('./screens/install-guide.css');
+@import url('./screens/course-detail.css');
+@import url('./screens/board.css');
+@import url('./screens/learning-path.css');
+@import url('./screens/activity.css');
+
+/* ---------- Atalho de volta ao catálogo (só no mockup) ---------- */
+.c-back-catalog {
+  position: fixed;
+  right: 12px;
+  bottom: 84px; /* acima da navigation bar */
+  z-index: 40;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 999px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-md, 0 2px 8px rgb(0 0 0 / 0.12));
+  color: var(--color-text-primary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+.is-embedded .c-back-catalog { display: none; }
+
+.c-back-catalog:hover { opacity: 1; background-color: var(--color-surface-system-subtle); }
+
+@media (min-width: 1180px) {
+  .c-back-catalog { bottom: 12px; }
+}
+
+/* ---------- Skeleton da primeira carga ---------- */
+.c-boot {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: hidden;
+  background-color: var(--color-background-default);
+  transition: opacity 0.2s ease-out;
+}
+
+.c-boot.is-fading {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.c-bone {
+  display: block;
+  border-radius: 4px;
+  background-color: var(--color-background-muted);
+}
+
+.c-bone--pill { border-radius: 999px; }
+
+.c-boot__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 44px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.c-boot__logo { width: 80px; height: 28px; }
+.c-boot__actions { display: flex; gap: 4px; }
+.c-boot__actions .c-bone { width: 28px; height: 28px; border-radius: 8px; }
+.c-boot__actions .c-bone--pill { width: 56px; border-radius: 999px; }
+
+.c-boot__search { padding: 8px; border-bottom: 1px solid var(--color-border-default); }
+.c-boot__search .c-bone { height: 32px; }
+
+.c-boot__side { display: none; padding: 16px 16px 16px 24px; }
+.c-boot__side .c-bone { height: 600px; border-radius: 16px; }
+
+.c-boot__menu { display: flex; flex-direction: column; gap: 12px; padding: 12px 8px; border-bottom: 1px solid var(--color-border-default); }
+.c-boot__menu .c-bone:first-child { width: 64px; height: 16px; }
+.c-boot__menu .c-bone--tabs { width: 240px; height: 28px; border-radius: 8px; }
+.c-boot__filters { display: none; }
+
+.c-boot__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+
+.c-boot__card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+}
+
+.c-boot__card .c-bone:first-child { aspect-ratio: 160 / 90; }
+.c-boot__card .c-bone:not(:first-child) { height: 10px; }
+
+@media (min-width: 768px) {
+  .c-boot__bar { height: 64px; padding: 0 24px; }
+  .c-boot__search { display: none; }
+  .c-boot__menu { padding-inline: 24px; }
+  .c-boot__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 16px 24px; }
+}
+
+@media (min-width: 1180px) {
+  .c-boot__layout { display: grid; grid-template-columns: 264px minmax(0, 1fr); }
+  .c-boot__side { display: block; }
+  .c-boot__menu { display: none; }
+  .c-boot__main { padding: 16px; }
+  .c-boot__filters { display: block; height: 121px; border-radius: 16px; background-color: var(--color-background-muted); }
+  .c-boot__grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: 16px; padding: 0; }
+  .c-boot__card { padding: 0; border-radius: 16px; overflow: hidden; }
+  .c-boot__card .c-bone:first-child { aspect-ratio: 1 / 1; border-radius: 0; }
+  .c-boot__card .c-bone:not(:first-child) { margin: 0 16px; }
+  .c-boot__card .c-bone:last-child { margin-bottom: 16px; }
+}
+
+@media (min-width: 1366px) {
+  .c-boot__layout { grid-template-columns: 296px minmax(0, 1fr); }
+}
+
+@media (min-width: 1440px) {
+  .c-boot__layout { grid-template-columns: 330px minmax(0, 1fr); }
+}
+
+/* ---------- Tela ainda não portada: captura do handoff ---------- */
+.c-handoff {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 8px;
+}
+
+@media (min-width: 1180px) {
+  .c-handoff { padding: 0; }
+}
+
+.c-handoff__note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.c-handoff__note b {
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.c-handoff__img {
+  width: 100%;
+  max-width: 1062px;
+  height: auto;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+}
+
+.c-handoff__skeleton {
+  height: 480px;
+  border-radius: 16px;
+  background-color: var(--color-background-skeleton);
+  animation: lp-pulse 1.4s ease-in-out infinite;
+}
+
+.c-handoff--empty {
+  align-items: center;
+  padding: 64px 24px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+  text-align: center;
+}
+
+/* ---------- "Mais" da navigation bar (Figma "side menu mobile") ----------
+   Card flutuante centralizado, 8 acima da base (cobre a navigation bar): 8 de margem lateral no mobile e 532 de largura no
+   tablet, raio 24 e 8 de respiro. Itens de 40
+   (ícone 16, texto 10/12) e títulos de seção 10/12 bold com a linha em background/muted. Fundo: scrim claro com desfoque. */
+.c-panel:has(.c-more-panel) .c-panel__scrim {
+  background-color: color-mix(in srgb, var(--color-surface-dark) 20%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.c-panel__box--sheet.c-more-panel {
+  bottom: 8px;
+  width: min(532px, calc(100% - 16px));
+  max-height: calc(100% - 16px);
+  border: 0;
+  border-radius: 24px;
+  box-shadow: var(--shadow-md);
+}
+
+.c-more-panel .c-panel__body { gap: 0; padding: 8px; }
+.c-more-panel .c-panel__body::after { content: none; }
+
+.c-more-menu__section {
+  display: flex;
+  flex-direction: column;
+}
+
+.c-more-menu__heading {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 18px;
+  margin-bottom: 8px;
+  color: var(--color-text-primary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+}
+
+/* Divisória sem título (antes de "Perguntas frequentes"): 18 de altura e 2 até o item. */
+.c-more-menu__heading:not(:has(span + span)) { margin-bottom: 2px; }
+
+.c-more-menu__rule {
+  flex: 1;
+  height: 1px;
+  border-radius: 4px;
+  background-color: var(--color-background-muted);
+}
+
+.c-more-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 12px;
+  border-radius: 8px;
+  color: var(--color-text-default);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.c-more-menu__item .c-icon { width: 16px; height: 16px; }
+
+.c-more-menu__item:hover { background-color: var(--color-surface-system-subtle); }
+
+.c-more-menu__item.is-active {
+  background-color: var(--color-surface-system-strong);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text-on-system);
+}

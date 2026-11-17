@@ -1,0 +1,231 @@
+/* Certificados (js/screens/certificates.js). Cortes: 768 tablet, 1000 quatro colunas, 1180 desktop. */
+
+/* ---------- Grade ---------- */
+.c-ce-grid--desktop {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.c-ce-grid--compact {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+
+@media (min-width: 768px) {
+  .c-ce-grid--compact {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 16px 24px;
+  }
+}
+
+@media (min-width: 1000px) {
+  .c-ce-grid--compact {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Card ---------- */
+.c-ce-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+}
+
+.c-ce-card__cover {
+  aspect-ratio: 16 / 9;
+}
+
+.c-ce-card__cover-title {
+  max-width: 60%;
+  font-size: 14px;
+}
+
+.c-ce-card__badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 1;
+}
+
+.c-ce-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.c-ce-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-ce-card__kind {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 4px;
+}
+
+.c-ce-card__title {
+  display: -webkit-box;
+  height: 40px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+/* Card compacto (mobile e tablet) */
+.c-ce-card--compact {
+  gap: 8px;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.c-ce-card--compact .c-ce-card__cover {
+  border-radius: 4px;
+}
+
+.c-ce-card--compact .c-ce-card__cover-title {
+  max-width: 70%;
+  margin: 8px;
+  font-size: 10px;
+}
+
+.c-ce-card--compact .c-ce-card__body {
+  flex: 1;
+  gap: 8px;
+  padding: 0 4px 4px;
+}
+
+.c-ce-card--compact .c-ce-card__title {
+  height: 36px;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.c-ce-card__info {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+.c-ce-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.c-ce-card__done {
+  color: var(--color-text-success);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* ---------- Botão de baixar ---------- */
+.c-ce-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: var(--color-action);
+  color: var(--color-on-action);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.c-ce-download:hover:not(:disabled) {
+  background-color: var(--color-action-hover);
+}
+
+.c-ce-download:active:not(:disabled) {
+  background-color: var(--color-action-active);
+}
+
+.c-ce-download:disabled {
+  background-color: var(--color-background-muted);
+  color: var(--color-text-tertiary);
+  cursor: not-allowed;
+}
+
+.c-ce-download--compact {
+  padding: 4px;
+  font-size: 10px;
+  line-height: 12px;
+}
+
+/* ---------- Carregando, vazio e aviso ---------- */
+.c-ce-skeleton {
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  background-color: var(--color-background-skeleton);
+  animation: c-ce-pulse 2s ease-in-out infinite;
+}
+
+@media (min-width: 1180px) {
+  .c-ce-skeleton { border-radius: 16px; }
+}
+
+@keyframes c-ce-pulse {
+  50% { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-ce-skeleton { animation: none; }
+}
+
+.c-ce-empty {
+  margin-top: 16px;
+  padding: 48px 24px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.c-ce-toast {
+  position: fixed;
+  bottom: 96px;
+  left: 50%;
+  z-index: 70;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 12px;
+  background-color: var(--color-surface-dark);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text-on-color);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+@media (min-width: 1180px) {
+  .c-ce-toast { bottom: 24px; }
+}

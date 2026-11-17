@@ -1,0 +1,96 @@
+/* Visualizador de telas (visualizador.html): barra de controles e o quadro do mockup. */
+
+@import url('./tokens.css');
+@import url('./base.css');
+
+html, body { height: 100%; }
+
+body {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background-subtle);
+}
+
+.v-bar {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--color-border-default);
+  background-color: var(--color-background-default);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.v-bar__back {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.v-bar__field,
+.v-bar__check { display: inline-flex; align-items: center; gap: 6px; color: var(--color-text-secondary); font-size: 12px; }
+
+.v-bar select {
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: 14px;
+}
+
+.v-bar__sizes { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.v-bar__sizes button,
+.v-bar__btn {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.v-bar__sizes button:hover,
+.v-bar__btn:hover { background-color: var(--color-surface-system-subtle); }
+
+.v-bar__sizes button[aria-pressed='true'] {
+  border-color: var(--color-surface-system-default);
+  background-color: var(--color-surface-system-subtle);
+  color: var(--color-text-primary);
+}
+
+.v-bar__info { margin-left: auto; color: var(--color-text-secondary); font-size: 12px; }
+
+/* Palco: o quadro fica centralizado; o tamanho já reduzido (--vw, --vh) reserva o espaço do iframe escalado. */
+.v-stage {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  justify-content: center;
+  overflow: auto;
+  padding: 16px;
+}
+
+.v-box {
+  flex: none;
+  width: var(--vw);
+  height: var(--vh);
+  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+}
+
+.v-box > iframe {
+  display: block;
+  border: 0;
+  transform-origin: top left;
+}

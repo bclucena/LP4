@@ -1,0 +1,91 @@
+/* Chip de categoria, link e tooltip (js/components/misc.js). */
+
+/* ---------- Chip de categoria ---------- */
+.c-category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 4px 8px;
+  border: 1px solid var(--color-surface-system-soft);
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+  color: var(--color-surface-system-emphasis);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.c-category-chip:not(:disabled):is(:hover, [data-state='hover']) {
+  border-color: var(--color-surface-system-default);
+  background-color: var(--color-surface-system-light);
+  font-weight: 600;
+}
+
+.c-category-chip:not(:disabled):is(:active, [data-state='pressed']) {
+  border-color: var(--color-surface-system-default);
+  background-color: var(--color-surface-system-subtle);
+  font-weight: 600;
+}
+
+.c-category-chip:is(:disabled, [data-state='disabled']) {
+  border-color: var(--color-border-default);
+  background-color: var(--color-background-subtle);
+  color: var(--color-text-tertiary);
+}
+
+/* ---------- Link ---------- */
+.c-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  color: var(--color-text-brand);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 800;
+}
+
+.c-text-link--small {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+}
+
+.c-text-link:not([aria-disabled]):is(:hover, [data-state='hover']) { color: var(--color-action-hover); }
+.c-text-link:not([aria-disabled]):is(:active, [data-state='pressed']) { color: var(--color-brand-900); }
+.c-text-link[aria-disabled='true'] { color: var(--color-text-tertiary); pointer-events: none; }
+
+/* ---------- Tooltip ---------- */
+.c-tooltip {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: var(--color-background-tooltip);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text-on-color);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.c-tooltip__title {
+  font-weight: 700;
+}
+
+.c-tooltip__beak {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-background-tooltip);
+  transform: rotate(45deg);
+}
+
+.c-tooltip__beak--top { top: -4px; left: 50%; margin-left: -4px; }
+.c-tooltip__beak--bottom { bottom: -4px; left: 50%; margin-left: -4px; }
+.c-tooltip__beak--left { right: -4px; top: 50%; margin-top: -4px; }
+.c-tooltip__beak--right { left: -4px; top: 50%; margin-top: -4px; }

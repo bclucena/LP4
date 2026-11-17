@@ -1,0 +1,165 @@
+/* Botão (js/components/button.js). Variantes: primary, stroked, basic. */
+
+.c-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.c-button--mobile {
+  padding: 6px 8px;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.c-button--block {
+  width: 100%;
+}
+
+.c-button--primary {
+  background-color: var(--color-action);
+  color: var(--color-on-action);
+}
+
+.c-button--primary:not(:disabled):is(:hover, [data-state='hover']) {
+  background-color: var(--color-action-hover);
+}
+
+.c-button--primary:not(:disabled):is(:active, [data-state='pressed']) {
+  background-color: var(--color-action-active);
+}
+
+.c-button--stroked {
+  border-color: var(--color-surface-system-soft);
+  background-color: var(--color-background-default);
+  color: var(--color-surface-system-emphasis);
+}
+
+.c-button--stroked:not(:disabled):is(:hover, [data-state='hover']) {
+  border-color: var(--color-surface-system-emphasis);
+  background-color: var(--color-surface-system-subtle);
+}
+
+.c-button--stroked:not(:disabled):is(:active, [data-state='pressed']) {
+  border-color: var(--color-surface-system-emphasis);
+  background-color: var(--color-surface-system-light);
+}
+
+.c-button--basic {
+  background-color: var(--color-background-default);
+  color: var(--color-surface-system-emphasis);
+}
+
+.c-button--basic:not(:disabled):is(:hover, [data-state='hover']) {
+  background-color: var(--color-surface-system-subtle);
+}
+
+.c-button--basic:not(:disabled):is(:active, [data-state='pressed']) {
+  background-color: var(--color-surface-system-light);
+}
+
+.c-button:disabled,
+.c-button[data-state='disabled'] {
+  border-color: var(--color-border-default);
+  background-color: var(--color-background-muted);
+  color: var(--color-text-tertiary);
+}
+
+.c-button--stroked:is(:disabled, [data-state='disabled']),
+.c-button--basic:is(:disabled, [data-state='disabled']) {
+  background-color: var(--color-background-subtle);
+}
+
+/* Botão só com ícone */
+.c-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 12px;
+  background-color: var(--color-background-default);
+  color: var(--color-icon-default);
+}
+
+.c-icon-button--small {
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.c-icon-button:hover {
+  background-color: var(--color-surface-system-subtle);
+}
+
+/* ---------- Botão com contador (filtro) ---------- */
+.c-button-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background-color: var(--color-background-default);
+  color: var(--color-surface-system-emphasis);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.c-button-badge:not(:disabled):is(:hover, [data-state='hover']) { background-color: var(--color-surface-system-subtle); }
+.c-button-badge:not(:disabled):is(:active, [data-state='pressed']) { background-color: var(--color-surface-system-light); }
+.c-button-badge:is(:disabled, [data-state='disabled']) { background-color: var(--color-background-subtle); color: var(--color-text-tertiary); }
+
+.c-button-badge__count {
+  padding: 0 4px;
+  border-radius: 999px;
+  background-color: var(--color-background-subtle);
+  color: var(--color-text-default);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+}
+
+.c-button-badge:is(:active, [data-state='pressed']) .c-button-badge__count { background-color: var(--color-surface-system-soft); color: var(--color-surface-system-emphasis); }
+.c-button-badge:is(:disabled, [data-state='disabled']) .c-button-badge__count { background-color: var(--color-background-muted); color: var(--color-text-tertiary); }
+
+/* ---------- Botão de ícone (large, small, filled, ghost) ---------- */
+.c-button-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s;
+}
+
+.c-button-icon--large { padding: 10px; border-radius: 12px; color: var(--color-icon-default); }
+.c-button-icon--small { padding: 6px; border-radius: 8px; color: var(--color-icon-default); }
+.c-button-icon--large,
+.c-button-icon--small { background-color: var(--color-background-default); }
+.c-button-icon--large:not(:disabled):is(:hover, [data-state='hover']),
+.c-button-icon--small:not(:disabled):is(:hover, [data-state='hover']) { background-color: var(--color-surface-system-subtle); }
+.c-button-icon--large:not(:disabled):is(:active, [data-state='pressed']),
+.c-button-icon--small:not(:disabled):is(:active, [data-state='pressed']) { background-color: var(--color-surface-system-light); }
+.c-button-icon--large:is(:disabled, [data-state='disabled']),
+.c-button-icon--small:is(:disabled, [data-state='disabled']) { background-color: var(--color-background-subtle); color: var(--color-text-tertiary); }
+
+.c-button-icon--outlined { border: 1px solid var(--color-surface-system-soft); }
+.c-button-icon--outlined:not(:disabled):is(:hover, [data-state='hover'], :active, [data-state='pressed']) { border-color: var(--color-surface-system-emphasis); }
+.c-button-icon--outlined:is(:disabled, [data-state='disabled']) { border-color: var(--color-border-default); }
+
+.c-button-icon--filled { padding: 6px; border-radius: 8px; background-color: var(--color-action); color: var(--color-on-action); }
+.c-button-icon--filled:not(:disabled):is(:hover, [data-state='hover']) { background-color: var(--color-action-hover); }
+.c-button-icon--filled:not(:disabled):is(:active, [data-state='pressed']) { background-color: var(--color-action-active); }
+.c-button-icon--filled:is(:disabled, [data-state='disabled']) { background-color: var(--color-surface-system-subtle); color: var(--color-surface-system-soft); }
+
+.c-button-icon--ghost { padding: 6px; border-radius: 8px; background-color: rgba(248, 248, 248, 0.3); color: var(--color-icon-default); }
+.c-button-icon--ghost:not(:disabled):is(:hover, [data-state='hover']) { background-color: rgba(247, 245, 250, 0.6); }
+.c-button-icon--ghost:not(:disabled):is(:active, [data-state='pressed']) { background-color: var(--color-surface-system-light); }
+.c-button-icon--ghost:is(:disabled, [data-state='disabled']) { background-color: rgba(241, 238, 246, 0.3); }

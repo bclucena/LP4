@@ -1,0 +1,373 @@
+/* Missões (js/screens/missions.js). Cortes: 768 tablet, 1000 quatro colunas, 1180 desktop. */
+
+/* ---------- Grade ---------- */
+.c-mi-grid--desktop {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.c-mi-grid--compact {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+
+@media (min-width: 768px) {
+  .c-mi-grid--compact {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 16px 24px;
+  }
+}
+
+@media (min-width: 1000px) {
+  .c-mi-grid--compact {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Favoritar ---------- */
+.c-mi-fav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-surface-system-emphasis);
+}
+
+.c-mi-fav:hover {
+  background-color: var(--color-surface-system-subtle);
+}
+
+.c-mi-fav--small {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.c-mi-fav--small:hover {
+  background: none;
+}
+
+/* ---------- Card grande ---------- */
+.c-mi-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+}
+
+.c-mi-card__cover {
+  aspect-ratio: 16 / 9;
+}
+
+.c-mi-card__pills {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  left: 8px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.c-mi-card__cover-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 16px;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.c-mi-card__cover-text span {
+  display: -webkit-box;
+  max-width: 60%;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  font-size: 14px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.c-mi-card__cover-text small {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.c-mi-card__fav {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 10;
+}
+
+.c-mi-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.c-mi-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-mi-card__kind {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 4px;
+}
+
+.c-mi-card__period {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.c-mi-card__title {
+  display: -webkit-box;
+  height: 40px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.c-mi-card__tags,
+.c-mi-card__rewards {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.c-mi-card__rewards {
+  flex-wrap: wrap;
+}
+
+/* ---------- Card compacto (mobile e tablet) ---------- */
+.c-mi-card--compact {
+  gap: 8px;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.c-mi-card--compact .c-mi-card__cover {
+  border-radius: 4px;
+}
+
+.c-mi-card__cover-title {
+  display: -webkit-box;
+  max-width: 70%;
+  margin: 8px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  color: #fff;
+  font-size: 10px;
+  line-height: 1.25;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.c-mi-card__badges {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  display: flex;
+  gap: 1px;
+}
+
+.c-mi-card--compact .c-mi-card__body {
+  flex: 1;
+  gap: 8px;
+  padding: 0 4px 4px;
+}
+
+.c-mi-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.c-mi-card--compact .c-mi-card__title {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.c-mi-card__info {
+  display: flex;
+  flex-direction: column;
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+.c-mi-card__info-kind {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.c-mi-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.c-mi-card__tags-mobile {
+  display: flex;
+  gap: 2px;
+}
+
+.c-mi-card__count {
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+}
+
+/* ---------- Carregando e vazio ---------- */
+.c-mi-skeleton {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+}
+
+.c-mi-skeleton--compact {
+  gap: 8px;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.c-mi-skeleton__cover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: var(--color-background-muted);
+}
+
+.c-mi-skeleton--compact .c-mi-skeleton__cover {
+  border-radius: 4px;
+}
+
+.c-mi-skeleton__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+}
+
+.c-mi-skeleton--compact .c-mi-skeleton__body {
+  padding: 0 4px 4px;
+}
+
+.c-mi-skeleton__body span {
+  height: 14px;
+  border-radius: 4px;
+  background-color: var(--color-background-muted);
+}
+
+.c-mi-skeleton__body span:first-child {
+  height: 12px;
+}
+
+.c-mi-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 48px 24px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+  text-align: center;
+}
+
+.c-mi-empty b {
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.c-mi-empty span {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.c-mi-empty button {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-surface-system-soft);
+  border-radius: 12px;
+  color: var(--color-surface-system-emphasis);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.c-mi-empty button:hover {
+  background-color: var(--color-surface-system-subtle);
+}
+
+/* ---------- Rodapé: contagem e paginação ---------- */
+.c-mi-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.c-mi-footer b {
+  color: var(--color-text-default);
+}
+
+.c-mi-footer__size {
+  padding: 8px 12px;
+  border: 1px solid var(--color-surface-system-soft);
+  border-radius: 12px;
+  color: var(--color-surface-system-emphasis);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}

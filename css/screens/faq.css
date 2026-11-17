@@ -1,0 +1,216 @@
+/* Perguntas frequentes e Regulamentos (js/screens/faq.js). Figma: handoff, página 10.Perguntas frequentes e Regulamento.
+   Componentes do Figma: "card content faq mobile" / "card content desk", "preguntas frequentes (mobile)", "regulamento",
+   "div / lineHor" e "modal / regulamento full". Abaixo de 768 o card e os itens são compactos (mobile); a partir de 768,
+   o tamanho do desktop. O título vem do menu top da casca (só mobile e tablet). */
+
+.c-fq {
+  padding: 16px 8px;
+}
+
+@media (min-width: 768px) {
+  .c-fq { padding: 16px 24px; }
+}
+
+@media (min-width: 1180px) {
+  .c-fq { padding: 0; }
+}
+
+/* ---------- Card ---------- */
+.c-fq-card {
+  padding: 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-background-default);
+}
+
+@media (min-width: 768px) {
+  .c-fq-card {
+    padding: 16px;
+    border-radius: var(--radius-2xl);
+  }
+}
+
+.c-fq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.c-fq-divider {
+  height: 1px;
+  border-radius: 4px;
+  background-color: var(--color-background-muted);
+}
+
+/* ---------- Item (pergunta ou regulamento) ---------- */
+.c-fq-item {
+  border-radius: var(--radius-xl);
+  background-color: var(--color-background-default);
+}
+
+.c-fq-item__heading {
+  margin: 0;
+  font: inherit;
+}
+
+/* Cabeçalho: mobile py 4 (título com py 8, 12/18); a partir de 768, p 16 (título 14/20). */
+.c-fq-item__header {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-radius: var(--radius-xl);
+  text-align: left;
+}
+
+.c-fq-item__title {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 0;
+  color: var(--color-text-primary);
+  font-size: 12px;
+  line-height: 18px; /* type-mobile/body-bold */
+  font-weight: 700;
+}
+
+.c-fq-item__answer {
+  padding: 4px 0 8px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 18px; /* type-mobile/body */
+}
+
+@media (min-width: 768px) {
+  .c-fq-item__header { align-items: flex-start; padding: 16px; }
+  .c-fq-item__title,
+  .c-fq-item__answer { font-size: 14px; line-height: 20px; }
+  .c-fq-item__answer { padding: 8px 16px 16px; }
+}
+
+/* "button icon": 16 de ícone; mobile 28 (p 6, raio 8), a partir de 768 36 (p 10, raio 12). */
+.c-fq-icon-button {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-background-default);
+  color: var(--color-icon-default);
+  transition: background-color 0.15s;
+}
+
+.c-fq-icon-button--link { color: var(--color-text-brand); }
+
+@media (min-width: 768px) {
+  .c-fq-icon-button { padding: 10px; border-radius: var(--radius-xl); }
+}
+
+.c-fq-item__header:hover .c-fq-icon-button,
+button.c-fq-icon-button:hover {
+  background-color: var(--color-background-subtle);
+}
+
+/* ---------- Documento (páginas do regulamento) ---------- */
+.c-fq-doc {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-background-skeleton) var(--color-background-muted);
+}
+
+.c-fq-doc__page {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-2xl);
+  object-fit: cover;
+}
+
+/* Regulamento único: o card ocupa a altura útil da tela e o documento rola dentro dele. */
+.c-fq--doc .c-fq-card--doc {
+  display: flex;
+  height: calc(100dvh - var(--topbar-height) - 42px - 32px - 96px); /* app bar, menu top, respiro e navigation bar */
+  min-height: 320px;
+}
+
+.c-fq--doc .c-fq-card--doc .c-fq-doc { flex: 1; padding-right: 8px; }
+
+@media (min-width: 1180px) {
+  .c-fq--doc .c-fq-card--doc { height: calc(100dvh - var(--topbar-height) - 32px); }
+}
+
+/* ---------- Modal "regulamento full" ---------- */
+.c-fq-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.c-fq-modal__scrim {
+  position: absolute;
+  inset: 0;
+  background-color: color-mix(in srgb, var(--color-surface-dark) 40%, transparent);
+}
+
+.c-fq-modal__box {
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 804px;
+  max-height: min(720px, calc(100dvh - 32px));
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-xl);
+}
+
+.c-fq-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.c-fq-modal__title {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.c-fq-doc--modal { flex: 1; min-height: 0; padding-right: 8px; }
+
+/* ---------- Skeleton ---------- */
+.c-fq-card--skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.c-fq-skeleton__row {
+  height: 20px;
+  border-radius: 4px;
+  background-color: var(--color-background-muted);
+  animation: lp-pulse 1.4s ease-in-out infinite;
+}
+
+.c-fq-skeleton__row:nth-child(odd) { width: 70%; }
+
+@media (min-width: 768px) {
+  .c-fq-card--skeleton { gap: 40px; padding: 32px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-fq-skeleton__row { animation: none; }
+  .c-fq-icon-button { transition: none; }
+}

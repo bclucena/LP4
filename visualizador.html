@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ludos Pro: visualizador de telas</title>
+    <link rel="icon" href="assets/brand/logo-lp.svg" />
+    <link rel="stylesheet" href="css/viewer.css" />
+  </head>
+  <body>
+    <!-- Mostra o mockup (app.html) em página inteira, com a troca de tamanho de tela. Endereço: visualizador.html?tela=cursos&w=1440 -->
+    <header class="v-bar">
+      <a class="v-bar__back" href="index.html#produto-cursos">← Catálogo</a>
+      <label class="v-bar__field">Tela <select id="tela"></select></label>
+      <div class="v-bar__sizes" id="sizes" role="group" aria-label="Tamanho da tela"></div>
+      <button type="button" class="v-bar__btn" id="reload">Recarregar (primeiro carregamento)</button>
+      <label class="v-bar__check"><input type="checkbox" id="slow" /> Câmera lenta (5×)</label>
+      <span class="v-bar__info" id="info"></span>
+    </header>
+    <main class="v-stage" id="stage"><div class="v-box"><iframe id="frame" title="Mockup"></iframe></div></main>
+    <script type="module" src="js/viewer.js"></script>
+  </body>
+</html>

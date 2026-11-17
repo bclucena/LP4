@@ -1,0 +1,325 @@
+/* Filtros das listas (js/components/filters.js): dropdowns do desktop e chips do bottom sheet. */
+
+/* ---------- Marcas de rádio e checkbox ---------- */
+.c-mark {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--color-border-default);
+  background-color: var(--color-background-default);
+}
+
+.c-mark--radio { border-radius: 50%; }
+.c-mark--check { border-radius: 4px; }
+.c-mark.is-on { border-color: var(--color-surface-system-default); }
+
+.c-mark__dot {
+  width: 14px;
+  height: 14px;
+  background-color: var(--color-surface-system-strong);
+}
+
+.c-mark--radio .c-mark__dot { border-radius: 50%; }
+.c-mark--check .c-mark__dot { border-radius: 2px; }
+
+/* ---------- Menu (popover) ---------- */
+.c-menu {
+  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+  border-radius: 16px;
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-md);
+}
+
+.c-menu--padded {
+  padding: 8px;
+}
+
+.c-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 8px;
+  border-radius: 12px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.c-menu-row:hover {
+  background-color: var(--color-surface-system-subtle);
+}
+
+.c-menu-row.is-on {
+  color: var(--color-surface-system-emphasis);
+}
+
+.c-menu-row__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.c-menu-row__chevron {
+  color: var(--color-icon-default);
+}
+
+/* ---------- Pílula com popover ---------- */
+.c-pill-menu {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+.c-pill-menu__split {
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: 999px;
+}
+
+.c-pill-menu__label,
+.c-pill-menu__caret {
+  padding-block: 6px;
+  border: 1px solid var(--color-surface-system-soft);
+  background-color: var(--color-background-default);
+  color: var(--color-surface-system-emphasis);
+}
+
+.c-pill-menu__split.is-active .c-pill-menu__label,
+.c-pill-menu__split.is-active .c-pill-menu__caret {
+  background-color: var(--color-surface-system-light);
+}
+
+.c-pill-menu__label:hover,
+.c-pill-menu__caret:hover {
+  background-color: var(--color-surface-system-subtle);
+}
+
+.c-pill-menu__label {
+  max-width: 260px;
+  padding-right: 4px;
+  padding-left: 12px;
+  overflow: hidden;
+  border-right: 0;
+  border-radius: 999px 0 0 999px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.c-pill-menu__divider {
+  width: 1px;
+  background-color: var(--color-surface-system-soft);
+}
+
+.c-pill-menu__caret {
+  padding-right: 8px;
+  padding-left: 4px;
+  border-left: 0;
+  border-radius: 0 999px 999px 0;
+}
+
+.c-pill-menu__caret .c-icon {
+  transition: transform 0.15s;
+}
+
+.c-pill-menu__caret .c-icon.is-open {
+  transform: rotate(180deg);
+}
+
+.c-pill-menu__popover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 40;
+  width: 248px;
+  margin-top: 8px;
+}
+
+/* ---------- Menu de categorias com subcategorias que deslizam ---------- */
+.c-category__track {
+  display: flex;
+  align-items: flex-start;
+  width: 496px;
+}
+
+.c-category__track.is-sub {
+  transform: translateX(-248px);
+}
+
+.c-category__track.is-sliding-in { animation: c-category-in 200ms ease-out; }
+.c-category__track.is-sliding-out { animation: c-category-out 200ms ease-out; }
+
+@keyframes c-category-in { from { transform: none; } }
+@keyframes c-category-out { from { transform: translateX(-248px); } }
+
+.c-category__panel {
+  flex: none;
+  width: 248px;
+}
+
+.c-category__panel--sub {
+  padding-bottom: 8px;
+}
+
+.c-category__search {
+  padding: 16px 12px;
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.c-category__input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--color-text-default);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.c-category__input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.c-category__list {
+  max-height: 400px;
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.c-category__subs {
+  padding: 0 8px;
+}
+
+.c-category__empty {
+  padding: 12px 8px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.c-category__back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px 12px 0 0;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.c-category__back:hover {
+  background-color: var(--color-surface-system-subtle);
+}
+
+.c-category__back .c-icon {
+  color: var(--color-icon-default);
+}
+
+/* ---------- Chips do bottom sheet ---------- */
+.c-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.c-filter-group__title {
+  display: flex;
+  align-items: center;
+  height: 18px;
+  color: var(--color-text-primary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+}
+
+.c-filter-divider {
+  flex: none;
+  width: 100%;
+  height: 1px;
+  border-radius: 4px;
+  background-color: var(--color-background-muted);
+}
+
+.c-chips {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.c-chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border-default);
+  border-radius: 4px;
+  background-color: var(--color-background-default);
+  color: var(--color-surface-system-emphasis);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 400;
+}
+
+.c-chip.is-on {
+  border-color: var(--color-surface-system-default);
+  background-color: var(--color-surface-system-subtle);
+  font-weight: 600;
+}
+
+.c-chip__label {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+}
+
+.c-chip__check { padding-left: 4px; }
+.c-chip__caret { padding-right: 4px; }
+
+.c-chip__badge {
+  margin-left: 2px;
+  padding: 0 2px;
+  border-radius: 999px;
+  background-color: var(--color-surface-system-light);
+  color: var(--color-text-default);
+  font-weight: 700;
+}
+
+.c-subchips {
+  position: relative;
+  flex-basis: 100%;
+  width: 100%;
+  margin-top: 6px;
+  padding: 6px;
+  border-radius: 4px;
+  background-color: var(--color-surface-system-light);
+}
+
+.c-subchips__beak {
+  position: absolute;
+  top: -5px;
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-surface-system-light);
+  transform: rotate(45deg);
+}
+
+.c-subchips__list {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}

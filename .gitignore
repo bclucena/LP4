@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# Guardado só localmente até a migração terminar: o app antigo (React + Tailwind) e a proposta em Angular.
+_legado/
+
+# Configuração local de ferramentas
+.claude/
