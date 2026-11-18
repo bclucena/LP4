@@ -126,7 +126,8 @@ const STATUS = {
   locked: { icon: 'lock', label: 'Bloqueado' },
 };
 
-/** Card do curso dentro da rota ("cardCourse" use=path): miniatura à esquerda; selos, dados e progresso à direita. */
+/** Card do curso dentro da rota ("cardCourse" use=path): miniatura à esquerda; selos, dados e progresso à direita. O card todo
+    leva ao Curso. */
 function courseCard(c, mobile) {
   const p = mobile
     ? (tone, ic, label) => mpill({ tone, iconHtml: ic(8), label })
@@ -139,10 +140,12 @@ function courseCard(c, mobile) {
     c.sugerido && p('warning', px => lpIcon('bulb', px), 'Sugerido'),
     c.obrigatorio && p('error', px => icon('alert-circle', px), 'Obrigatório'),
   ].filter(Boolean).join('');
-  const link = locked
-    ? `<button type="button" class="c-text-link c-text-link--small c-lp-course__link" data-action="lockedCourse" aria-disabled="true">Ir para o curso${icon('arrow-right', 18)}</button>`
-    : `<a class="c-text-link c-text-link--small c-lp-course__link" href="#curso">${c.status === 'done' ? 'Revisar curso' : 'Ir para o curso'}${icon('arrow-right', 18)}</a>`;
-  return `<article class="${cx('c-lp-course', locked && 'is-locked')}" aria-label="${esc(`${c.index + 1}. ${c.title} (${STATUS[c.status].label})`)}">
+  // O card inteiro é o link para o Curso (só um chevron indica a ação). Bloqueado: não é link; o clique avisa por que.
+  const name = esc(`${c.index + 1}. ${c.title} (${STATUS[c.status].label})`);
+  const open = locked
+    ? `<div class="c-lp-course is-locked" aria-disabled="true" aria-label="${name}" title="Conclua o curso anterior para liberar este" data-action="lockedCourse">`
+    : `<a class="c-lp-course" href="#curso" aria-label="${name}" data-key="lp-course-${c.index}">`;
+  return `${open}
     <div class="c-lp-course__media">
       <img src="${esc(route.cover)}" alt="" />
       ${c.deadline ? `<span class="c-lp-course__deadline">${esc(c.deadline)}</span>` : ''}
@@ -164,10 +167,10 @@ function courseCard(c, mobile) {
           <div class="c-lp-course__progress-head"><span>${c.pct === 100 ? 'Concluído!' : 'Progresso'}</span><span>${c.pct}%</span></div>
           <div class="c-lp-course__track"><span class="${cx(c.pct === 100 && 'is-done')}" style="width:${c.pct}%"></span></div>
         </div>
-        ${link}
+        <span class="c-lp-course__go" aria-hidden="true">${icon('chevron-right', 20)}</span>
       </div>
     </div>
-  </article>`;
+  ${locked ? '</div>' : '</a>'}`;
 }
 
 /** "O que você verá nessa rota": trilho (check, círculo, x) ao lado da lista de cursos. */
