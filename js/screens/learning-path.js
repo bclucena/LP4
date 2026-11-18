@@ -118,33 +118,44 @@ const description = () => `<section class="c-cd-card" id="sec-sobre" aria-labell
     <div class="c-cd-card__text">${route.description.map(p => `<p>${esc(p)}</p>`).join('')}</div>
   </section>`;
 
+/* Marcador do trilho igual ao da linha do tempo de atividades do Curso (c-cd-tl__node): check na concluída, círculo cheio na
+   atual (sem ícone) e cadeado na bloqueada. */
 const STATUS = {
-  done: { icon: 'check-circle', label: 'Concluído' },
-  current: { icon: 'circle', label: 'Em andamento' },
-  locked: { icon: 'x-circle', label: 'Bloqueado' },
+  done: { icon: 'check', label: 'Concluído' },
+  current: { icon: null, label: 'Em andamento' },
+  locked: { icon: 'lock', label: 'Bloqueado' },
 };
 
-/** Card do curso dentro da rota ("cardCourse" use=path): imagem com selos à esquerda, dados e progresso à direita. */
+/** Card do curso dentro da rota ("cardCourse" use=path): miniatura à esquerda; selos, dados e progresso à direita. O card todo
+    leva ao Curso. */
 function courseCard(c, mobile) {
   const p = mobile
     ? (tone, ic, label) => mpill({ tone, iconHtml: ic(8), label })
-    : (tone, ic, label) => pill({ label, color: { info: 'blue', warning: 'yellow', error: 'red' }[tone], iconHtml: ic(16) });
+    // Tablet e desktop: só o ícone (o nome vai no title e no aria-label), para os selos caberem na linha do tempo.
+    : (tone, ic, label) => pill({ label, color: { info: 'blue', warning: 'yellow', error: 'red' }[tone], iconHtml: ic(16), iconOnly: true, attrs: { title: label, 'aria-label': label, role: 'img' } });
   const locked = c.status === 'locked';
-  const link = locked
-    ? `<button type="button" class="c-lp-course__link" data-action="lockedCourse" aria-disabled="true">Ir para o curso${icon('arrow-right', 18)}</button>`
-    : `<a class="c-lp-course__link" href="#curso">${c.status === 'done' ? 'Revisar curso' : 'Ir para o curso'}${icon('arrow-right', 18)}</a>`;
-  return `<article class="${cx('c-lp-course', locked && 'is-locked')}" aria-label="${esc(`${c.index + 1}. ${c.title} (${STATUS[c.status].label})`)}">
+  // Selos ficam no corpo, na linha do tempo e dos módulos: a imagem é uma miniatura e não comporta os três lado a lado.
+  const flags = [
+    c.novo && p('info', px => lpIcon('badge-2', px), 'Novo'),
+    c.sugerido && p('warning', px => lpIcon('bulb', px), 'Sugerido'),
+    c.obrigatorio && p('error', px => icon('alert-circle', px), 'Obrigatório'),
+  ].filter(Boolean).join('');
+  // O card inteiro é o link para o Curso (só um chevron indica a ação). Bloqueado: não é link; o clique avisa por que.
+  const name = esc(`${c.index + 1}. ${c.title} (${STATUS[c.status].label})`);
+  const open = locked
+    ? `<div class="c-lp-course is-locked" aria-disabled="true" aria-label="${name}" title="Conclua o curso anterior para liberar este" data-action="lockedCourse">`
+    : `<a class="c-lp-course" href="#curso" aria-label="${name}" data-key="lp-course-${c.index}">`;
+  return `${open}
     <div class="c-lp-course__media">
       <img src="${esc(route.cover)}" alt="" />
-      <div class="c-lp-course__pills">
-        <span>${c.novo ? p('info', px => lpIcon('badge-2', px), 'Novo') : ''}</span>
-        <span>${c.sugerido ? p('warning', px => lpIcon('bulb', px), 'Sugerido') : ''}${c.obrigatorio ? p('error', px => icon('alert-circle', px), 'Obrigatório') : ''}</span>
-      </div>
       ${c.deadline ? `<span class="c-lp-course__deadline">${esc(c.deadline)}</span>` : ''}
     </div>
     <div class="c-lp-course__body">
       <div class="c-lp-course__info">
-        <span class="c-lp-course__meta">${icon('clock', mobile ? 8 : 16)}${metaLine([fmtMinutes(c.min), `${c.modules} Módulos`])}</span>
+        <div class="c-lp-course__top">
+          ${flags ? `<div class="c-lp-course__pills">${flags}</div>` : ''}
+          <span class="c-lp-course__meta">${icon('clock', mobile ? 8 : 16)}${metaLine([fmtMinutes(c.min), `${c.modules} Módulos`])}</span>
+        </div>
         <h3 class="c-lp-course__title" title="${esc(c.title)}">${esc(c.title)}</h3>
         <div class="c-lp-course__row">
           <span class="c-cd-tags">${c.tags.map(t => tag({ label: t, size: mobile ? 'mobile' : 'md' })).join('')}${c.extraTags ? tag({ label: `+${c.extraTags}`, outlined: true, size: mobile ? 'mobile' : 'md' }) : ''}</span>
@@ -156,10 +167,10 @@ function courseCard(c, mobile) {
           <div class="c-lp-course__progress-head"><span>${c.pct === 100 ? 'Concluído!' : 'Progresso'}</span><span>${c.pct}%</span></div>
           <div class="c-lp-course__track"><span class="${cx(c.pct === 100 && 'is-done')}" style="width:${c.pct}%"></span></div>
         </div>
-        ${link}
+        <span class="c-lp-course__go" aria-hidden="true">${icon('chevron-right', 20)}</span>
       </div>
     </div>
-  </article>`;
+  ${locked ? '</div>' : '</a>'}`;
 }
 
 /** "O que você verá nessa rota": trilho (check, círculo, x) ao lado da lista de cursos. */
@@ -173,7 +184,7 @@ function coursesSection(d, mobile) {
     <ol class="c-lp-route">${d.courses.map((c, i) => `<li class="c-lp-route__item">
         <span class="c-lp-route__rail" aria-hidden="true">
           <span class="${cx('c-lp-route__line', i === 0 && 'is-hidden', i <= cur && 'is-on')}"></span>
-          <span class="${cx('c-lp-route__icon', `is-${c.status}`)}">${icon(STATUS[c.status].icon, 16)}</span>
+          <span class="${cx('c-lp-route__node', `is-${c.status}`)}">${STATUS[c.status].icon ? icon(STATUS[c.status].icon, 10) : ''}</span>
           <span class="${cx('c-lp-route__line', i === d.total - 1 && 'is-hidden', i < cur && 'is-on')}"></span>
         </span>
         ${courseCard(c, mobile)}

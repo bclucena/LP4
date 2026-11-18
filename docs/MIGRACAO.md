@@ -430,3 +430,109 @@ Catálogo (páginas de documentação, em `index.html`):
   O bottom sheet do toque (mobile e tablet) não mudou.
 - Cartão de hover do pin: sem as estrelas. Pin bloqueado (`.c-board-tip--locked`): título, ícone e "Atividade N · X min" em
   `--color-text-tertiary`, como a atividade bloqueada na trilha do Curso (a pílula de pontos e moedas não muda).
+
+### Tabuleiro: Dock recolhível é o menu lateral padrão (17/11/2026)
+
+- `#tabuleiro` sem parâmetro abre o **Dock recolhível** (antes, a Barra integrada). O tweak "Menu lateral" começa no Dock, que é
+  a primeira opção da lista; as outras continuam em `?painel=barra`, `?painel=fixo` e `?painel=float`. Mudança em
+  `looksFromHash` (js/screens/board.js) e no `default` do tweak (js/data/tweaks.js).
+
+### Rota de aprendizagem: card do curso com miniatura (17/11/2026)
+
+- A imagem do card (`.c-lp-course__media`) virou uma miniatura **16:9** de largura fixa: **240×135** no desktop (antes 334) e
+  **200×112,5** no tablet (antes 45%, até 334), recuada dentro do card (16px no desktop, 8px no tablet; raio 8 e 6). O card
+  continua com a largura toda da coluna, e o corpo ganhou o espaço.
+- **Altura do card = imagem + o mesmo respiro em cima e embaixo:** 167px + borda no desktop (antes 216) e 129px + borda no
+  tablet. O corpo usa o mesmo padding da imagem e distribui o conteúdo na altura dela: dados no topo, progresso e link na linha
+  de baixo (`justify-content: space-between`).
+- Para caber, a 1ª linha do corpo (`.c-lp-course__top`) junta os selos (Novo, Sugerido, Obrigatório) à esquerda e o tempo e os
+  módulos à direita. Os selos saíram de cima da imagem; nela só fica o selo de prazo. Espaços internos: 4px entre a linha de
+  cima, o título e as tags.
+- No desktop os selos mostram **só o ícone** (`pill({ iconOnly: true })`), com o nome no `title` (dica ao passar o mouse) e no
+  `aria-label` (`role="img"`). Com o rótulo, os três selos não cabiam na linha do tempo em 1180. No mobile e no tablet continuam
+  os selos pequenos com rótulo.
+- Se ainda faltar largura para a linha de cima, ela quebra e o card cresce; a imagem fica centralizada na altura, então o
+  respiro em cima e embaixo continua igual.
+- Título no desktop: `min-height` passou de 48 para 40px (duas linhas de 20). Com 48, o topo da 3ª linha aparecia abaixo das
+  reticências.
+- No mobile (360) o card continua em coluna, com a imagem 16:9 em cima; os selos foram para a linha do tempo.
+- "Ir para o curso" / "Revisar curso" passou a usar o componente **Link small** do design system (`c-text-link
+  c-text-link--small`: caption-bold 12/16, cor `--color-text-brand`, seta de 18) em todas as larguras. Antes era um link próprio
+  no tamanho large (14/20 extrabold) no desktop. No curso bloqueado ele fica na cor de desabilitado, e o clique continua
+  avisando por que está bloqueado.
+
+### Rota de aprendizagem: trilho dos cursos igual ao das atividades do Curso (17/11/2026)
+
+- O trilho ao lado dos cards (`.c-lp-route__rail`) segue a linha do tempo de atividades da tela Curso (`.c-cd-tl`):
+  - traço de 2px: verde (`--color-icon-success`) até o curso atual e `--color-border-default` depois dele;
+  - marcador de 20px (`.c-lp-route__node`): concluído com borda e check verdes sobre `--color-background-success`; atual
+    cheio na cor da marca (`--color-surface-system-default`) com halo de 3px (`--color-surface-system-light`); bloqueado com
+    borda cinza e cadeado. Antes eram os ícones de traço `check-circle`, `circle` e `x-circle`, num traço de 1px.
+- A coluna do trilho passou de 24 para 20px (o card ganhou 4px).
+- O marcador fica no meio exato do card: os 8px entre os cards são divididos em 4 + 4, e o trilho avança sobre eles (antes o
+  marcador ficava 4px acima do centro).
+
+### Rota de aprendizagem: o card do curso é o link (18/11/2026)
+
+- Saíram os links "Ir para o curso" e "Revisar curso". O **card inteiro** é o link para o Curso (`<a class="c-lp-course"
+  href="#curso">`, com o nome e a situação no `aria-label`), e um **chevron-right** de 20px em `--color-icon-default`
+  (`.c-lp-course__go`) no fim da linha do progresso indica a ação.
+- Estados (mesmo padrão do card de atividade do Curso, `.c-cd-act`):
+  - **hover e foco:** fundo `--color-background-subtle`, e o chevron avança 2px;
+  - **pressed:** o mesmo fundo, com borda e chevron em `--color-surface-system-default` e o título em
+    `--color-surface-system-emphasis`;
+  - **bloqueado:** não é link (`div` com `aria-disabled`); cursor de bloqueado, chevron em `--color-icon-tertiary`, e o clique
+    mostra o aviso "Conclua o curso anterior para liberar este.";
+  - com movimento reduzido, sem transição e sem o avanço do chevron.
+
+### Tabuleiro: Dock recolhido ganhou o botão de expandir (18/11/2026)
+
+- O FAB do Dock recolhido (anel com o %) tem agora, na borda de baixo do anel, o mesmo botão circular de 28px do Dock aberto,
+  com `chevron-down` (expandir). Fica centralizado embaixo do anel, entrando só 4px na borda do FAB, para não cobrir o donut
+  de progresso. Mesmos estados do botão de recolher
+  (hover, clique e animação de entrada).
+- O botão repete a ação do FAB (`toggleDock`), então fica fora do teclado e dos leitores de tela (`tabindex="-1"`,
+  `aria-hidden`); o FAB continua sendo o controle acessível, com `aria-expanded` e o nome do curso.
+
+### Tabuleiro: trilha Versão E, faixa colorida em zigue-zague (18/11/2026)
+
+- Nova opção no tweak "Desenho da trilha": **Versão E** (`#tabuleiro?trilha=e`), inspirada em trilhas de "frentes" com uma
+  faixa grossa e colorida. Usa a mesma faixa horizontal da Versão D (rolagem para o lado, roda do mouse, botão de ir à
+  atividade atual, fundo por módulo revelado com a rolagem); as funções que valiam só para a D agora valem para as duas
+  (`isHoriz()` em js/screens/board.js).
+- **Cartões integrados à trilha:** cada módulo tem um cartão (300px; 248px no mobile, sem contorno) com a imagem 16:9 recuada
+  8px do topo e das laterais (raio 8), como no card de curso mobile (`.c-course-compact`), sem nada por cima. Embaixo, a
+  etiqueta "Módulo N" na cor do módulo, o título (até 2 linhas), "N atividades · tempo" e, no pé, a barra de progresso com o
+  %, as mesmas do card de módulo da página de Curso (`.c-cd-module__meta` e `.c-cd-module__progress`; do tablet para cima no
+  tamanho desktop de lá, 12/16; o trilho estica na largura do cartão). O cartão tem 340px de altura no desktop (276 no mobile). Os cartões alternam em cima e embaixo. **A faixa entra no cartão por um lado e sai por outro**, com os lados
+  sorteados e fixos por módulo (`eEntry`, `eSides`): entra pela esquerda, por cima ou por baixo (cima/baixo só pelo lado da
+  pista livre) e sai pela direita, por cima ou por baixo, nunca pelo mesmo lado por onde entrou (entrou por cima ou por baixo,
+  sai pela direita). No exemplo: módulo 1 sai pela direita; o 2 entra pela esquerda e sai por cima; o 3 entra por baixo e sai
+  pela direita; o 4 entra por cima. A faixa começa e termina 24px por baixo do cartão; a do último módulo termina numa chegada
+  com bandeira (cinza até o curso terminar).
+- **Estrada (a da Versão C):** sombra de 13px e caminho branco de 9px, em ângulos retos com curvas de raio 32, e no meio a
+  **linha do progresso (6px, o dobro da C) na cor do módulo, só até o pin atual** (só entre as atividades já feitas; nada depois). Sem
+  setas nem cadeados na estrada. Entre dois
+  cartões a estrada sobe e desce entre as pistas quantas vezes precisar para as atividades do módulo caberem com o passo
+  mínimo (168px no desktop, 132 no mobile). Geometria em JS: `trailELayout`, `eLegPoints`, `roundedSegs`, `subPath`.
+- **Pins:** os da **Versão B com imagem** (`pinFaceB`; respeita o tweak "Imagens nos pins"): imagem da atividade no miolo,
+  ou o ícone LP `challenge` (avaliação e prova) ou `target` (missão), e o número embaixo. Na E o miolo e o aro da concluída
+  **O círculo do pin fica sempre branco** (sem miolo colorido nem aro na concluída); sem imagem (avaliação e missão), o ícone
+  fica na cor do módulo. **Bloqueada com imagem:** a imagem fica colorida com desfoque de 1px e um cadeado de 22px por cima,
+  claro na imagem escura e escuro (`--color-surface-dark`) na clara; a luminosidade de cada imagem é medida depois de carregar
+  (`toneLockedPins`, `data-tone`). Avaliação e missão bloqueadas continuam com o ícone no miolo cinza. A concluída tem as **3 estrelas em arco em
+  cima**, como na Versão C (douradas as ganhas). O atual ganha um halo pulsando. No mobile os pins ficam em 76%. Mesma dica no
+  hover (desktop), bottom sheet no toque e os mesmos cliques (`openNode`) das outras versões.
+- **Cores:** tokens novos `--color-module-1` a `--color-module-4` em css/tokens.css (azul, vermelho, verde e roxo fixos, com
+  contraste de 4.5:1 ou mais para o texto branco). Novo tweak "Cores dos módulos": "Uma por módulo" (padrão) ou "Cor da marca"
+  (todos na primária, `--color-surface-system-default`).
+- Medidas em `E_SIZES` (desktop/tablet e mobile). Conferido em 360, 768 e 1440 e no tema escuro.
+- Ainda não tem o "Começar/Continuar" em cima do pin atual (as outras versões têm), nem o pin da missão do fim do módulo.
+
+### Tabuleiro: Dock recolhido volta a ser a pílula com o nome do curso (18/11/2026)
+
+- O Dock recolhido voltou a ser a **pílula** de antes (até 296px): o anel de progresso e o nome do curso numa linha, com
+  reticências (`.c-board-dock__pill-title`). Continua no canto superior direito, abaixo da app bar.
+- O botão circular de expandir (28px, `chevron-down`) continua, agora no meio da borda de baixo da pílula, metade para fora.
+  Ele repete a ação da pílula e fica fora do teclado e dos leitores de tela; a pílula é o controle acessível.
+- A animação de recolher/abrir agora encolhe o cartão até o tamanho da pílula (296 × 56) e cresce a partir dela.

@@ -563,3 +563,26 @@ Todas as mecânicas usam a coluna de conteúdo do mesmo jeito (`.c-act__content`
 - **Objetos do jogo** com tamanho próprio (carta do this or that, teclado e forca, grades da memória e do mosaico, tabuleiro do
   misturadinho e do quebra-cabeça) ficam centralizados dentro da largura da coluna, sem mudar a largura da mecânica.
 - Mecânica nova segue o mesmo molde; o skeleton também ocupa a coluna inteira, alinhado à esquerda.
+
+## Tabuleiro: trilha Versão E (18/11/2026)
+
+Faixa colorida em zigue-zague, horizontal (`#tabuleiro?trilha=e`). Comportamento por largura:
+
+| Largura | Estrada (sombra/caminho/progresso) | Pin | Cartão do módulo | Altura da faixa | Detalhe do pin |
+|---|---|---|---|---|---|
+| 360 | 13 / 9 / 6 | Versão B em 76% (64) | 248 × 276 | 436 | bottom sheet no toque |
+| 768 | 13 / 9 / 6 | Versão B (84) | 300 × 320 | 496 | bottom sheet no toque |
+| 1180+ | 13 / 9 / 6 | Versão B (84) | 300 × 320 | 496 | dica no hover e no foco |
+
+- Rola para o lado (a roda do mouse também); a faixa ocupa a largura da página e fica centralizada na altura que sobra.
+- Cartões alternam em cima e embaixo. A estrada entra em cada cartão por um lado (esquerda, cima ou baixo) e sai por outro
+  (direita, cima ou baixo), nunca pelo mesmo, com lados sorteados e fixos por módulo; o progresso é a linha fina no meio da
+  estrada, só até a atividade atual, e há setas de sentido entre os pins; entre eles, sobe e desce entre as pistas até caberem as
+  atividades do módulo (passo mínimo de 168 entre pins; 132 no mobile). O último termina numa bandeira de chegada.
+- Pins concluídos com as 3 estrelas em arco em cima, como na Versão C. Círculo do pin sempre branco. Bloqueados com imagem: imagem colorida com
+  desfoque de 1px e cadeado por cima (claro ou escuro conforme a imagem). Sem setas nem cadeados na estrada.
+- Cartão do módulo sem contorno: imagem 16:9 recuada (como no card de curso mobile) sem nada por cima; etiqueta "Módulo N" na
+  cor do módulo, título, "N atividades · tempo" e a barra de progresso com o % do card de módulo do Curso (`.c-cd-module__meta`,
+  `.c-cd-module__progress`) no pé.
+- Cor de cada módulo: `--color-module-1..4` (fixas) ou a primária (tweak "Cores dos módulos" = Cor da marca).
+- Para confirmar com design: as 4 cores fixas dos módulos (não existem no Figma).
