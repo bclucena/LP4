@@ -4,7 +4,7 @@
 import { cx } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { spot as S } from '../../data/activity.js';
-import { upd, finish, later, fx, plural, toast, streakOn } from './flow.js';
+import { upd, finish, later, fx, plural, toast, streakOn, verdict, defaultFooter } from './flow.js';
 import { sfx, tones } from '../../core/sound.js';
 import { button } from '../../components/button.js';
 import { pill } from '../../components/badges.js';
@@ -44,19 +44,15 @@ function view(state) {
   const sp = state.spot;
   const done = sp.found.length === S.diffs.length;
   const dots = S.diffs.map((_, k) => `<span class="${cx('c-act-dot c-act-dot--sm', k < sp.found.length && 'is-ok')}"></span>`).join('');
-  const hintOff = done || state.coins < S.hintCost || sp.hint != null;
   return `<section class="c-act-card c-act-spot" aria-label="Jogo dos 7 erros">
-    ${head({ kicker: 'Toque nas diferenças em qualquer uma das imagens', title: 'Encontre os 7 erros entre as imagens', aside: `
+    ${head({ mech: 'Jogo dos 7 erros', task: 'Encontre as diferenças', how: 'Toque nas diferenças em qualquer uma das imagens', title: 'Encontre os 7 erros entre as imagens', aside: `
         ${pill({ color: 'grey', outline: true, html: `<span class="c-act-dots">${dots}</span><b class="c-act-tone--success">${sp.found.length}/${S.diffs.length}</b>`, attrs: { title: 'Erros encontrados' } })}
         ${pill({ color: sp.miss > 5 ? 'red' : 'grey', outline: true, label: plural(sp.miss, 'toque errado', 'toques errados') })}
       ` })}
-    <div class="c-act-msg" aria-live="polite">${sp.msg ? toast(sp.msg.t, sp.msg.ok ? 'ok' : 'bad', fx(state, 'spotMsg')) : toast('Os erros podem estar em cores, formas, objetos a mais ou a menos')}</div>
+    ${sp.msg?.tip ? `<div class="c-act-msg" aria-live="polite">${toast(sp.msg.t, 'ok', fx(state, 'spotMsg'))}</div>` : ''}
     <div class="${cx('c-act-spot__board', done && 'is-done', done && fx(state, 'spotMsg') && 'is-glow')}">
       ${picture(state, 'Original', false)}
       ${picture(state, 'Encontre as diferenças', true)}
-    </div>
-    <div class="c-act-card__center">
-      ${button({ variant: 'stroked', iconStart: 'help-circle', action: 'spotHint', disabled: hintOff, label: `Mostrar onde · ${S.hintCost} moedas` })}
     </div>
   </section>`;
 }
@@ -80,7 +76,7 @@ function tap(ctx, el, e) {
     }
   } else if (S.diffs.some((d, k) => sp.found.includes(k) && inside(d))) {
     sfx('tick');
-    upd(ctx, 'spot', { msg: { ok: true, t: 'Esse você já encontrou. Procure os outros!' } }, { fx: { spotMsg: true } });
+    upd(ctx, 'spot', { msg: { ok: true, tip: true, t: 'Esse você já encontrou. Procure os outros!' } }, { fx: { spotMsg: true } });
   } else {
     const miss = sp.miss + 1;
     sfx('wrong');
@@ -96,8 +92,16 @@ function tick(ctx) {
   if (t) t.textContent = `${String(Math.floor(sp.sec / 60)).padStart(2, '0')}:${String(sp.sec % 60).padStart(2, '0')}`;
 }
 
+/** Ajuda no rodapé: Mostrar onde (circula um erro). */
+function aux(state) {
+  const sp = state.spot;
+  const done = sp.found.length === S.diffs.length;
+  return [{ icon: 'help-circle', action: 'spotHint', disabled: done || state.coins < S.hintCost || sp.hint != null, label: `Mostrar onde · ${S.hintCost} moedas` }];
+}
+
 export default {
   id: 10,
+  aux,
   key: 'spot',
   init,
   view,
@@ -108,10 +112,15 @@ export default {
       if (sp.found.length === S.diffs.length || ctx.state.coins < S.hintCost || sp.hint != null) return;
       const left = S.diffs.map((_, k) => k).filter(k => !sp.found.includes(k));
       sfx('click');
-      upd(ctx, 'spot', { hint: left[Math.floor(Math.random() * left.length)], on: true, msg: { ok: true, t: 'Olhe dentro do círculo dourado.' } }, { coins: ctx.state.coins - S.hintCost, fx: { spotMsg: true } });
+      upd(ctx, 'spot', { hint: left[Math.floor(Math.random() * left.length)], on: true, msg: { ok: true, tip: true, t: 'Olhe dentro do círculo dourado.' } }, { coins: ctx.state.coins - S.hintCost, fx: { spotMsg: true } });
     },
   },
-  footer: () => null,
+  footer: s => {
+    const sp = s.spot;
+    if (!sp.msg || sp.msg.tip) return null;
+    const done = sp.found.length === S.diffs.length;
+    return { ...defaultFooter(s), ...verdict(sp.msg.ok, { title: done ? 'Concluído!' : undefined, why: sp.msg.t }) };
+  },
   tick,
   elapsed: s => s.spot.sec,
   pct: s => s.spot.found.length / S.diffs.length,

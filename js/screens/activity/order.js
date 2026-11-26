@@ -6,7 +6,7 @@
 import { cx, esc } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { order as O } from '../../data/activity.js';
-import { upd, finish, later, fx, shuffle, toast, streakOn } from './flow.js';
+import { upd, finish, later, fx, shuffle, toast, streakOn, verdict, defaultFooter } from './flow.js';
 import { pointerDrag, dragged } from './drag.js';
 import { sfx, tones } from '../../core/sound.js';
 import { button } from '../../components/button.js';
@@ -27,13 +27,11 @@ function view(state) {
   }).join('');
   const bank = o.bank.map(id => `<button type="button" class="c-act-chip-drag c-act-chip-drag--code" data-action="ordTap" data-id="${id}" data-drag-ord ${o.res ? 'data-fixed' : ''} aria-label="${esc(text(id))}, toque para adicionar">${icon('move', 16)}<span>${esc(text(id))}</span></button>`).join('');
   return `<section class="c-act-card c-act-ord" aria-label="Ordenadinho">
-    ${head({ kicker: 'Arraste as opções para a área de resposta na ordem certa · ou toque para adicionar', title: esc(O.question) })}
+    ${head({ mech: 'Ordenadinho', task: 'Coloque as opções na ordem certa', how: 'Arraste para a área de resposta ou toque para adicionar', title: esc(O.question) })}
     <div class="${cx('c-act-ord__layout', !img && 'c-act-ord__layout--solo')}">
       ${img ? `<div class="c-act-ord__support"><div class="c-act-placeholder" role="img" aria-label="Imagem de apoio">${icon('image', 32)}<span>Imagem de apoio (opcional)</span></div></div>` : ''}
       <div class="c-act-ord__panel">
-        <div class="c-act-ord__head"><b>Sua resposta</b>
-          ${button({ variant: 'stroked', size: 'mobile', iconStart: 'rotate-ccw', label: 'Limpar', action: 'ordClear', disabled: !o.ans.length || !!o.res })}
-        </div>
+        <div class="c-act-ord__head"><b>Sua resposta</b></div>
         <div class="${cx('c-act-ord__answer', allOk && 'is-ok', o.res && !allOk && fx(state, 'ordCheck') && 'is-shake')}" data-drop-ord="ans">
           ${ans || `<span class="c-act-zone__empty">${icon('download', 22)}Arraste as opções e solte aqui, na ordem</span>`}
         </div>
@@ -43,7 +41,6 @@ function view(state) {
         </div>
       </div>
     </div>
-    <div class="c-act-msg" aria-live="polite">${o.msg ? toast(esc(o.msg.t), o.msg.ok ? 'ok' : 'bad', fx(state, 'ordCheck')) : ''}</div>
   </section>`;
 }
 
@@ -88,6 +85,8 @@ function confirm(ctx) {
 
 export default {
   id: 8,
+  // Ajuda no rodapé: Limpar (devolve as opções ao banco).
+  aux: s => [{ icon: 'rotate-ccw', label: 'Limpar', action: 'ordClear', disabled: !s.ord.ans.length || !!s.ord.res }],
   key: 'ord',
   init,
   view,
@@ -100,7 +99,12 @@ export default {
     ordClear: ctx => { sfx('click'); upd(ctx, 'ord', o => ({ ans: [], bank: [...o.bank, ...o.ans], msg: null })); },
     ordConfirm: ctx => confirm(ctx),
   },
-  footer: s => (s.justDone === 8 ? null : { label: s.ord.res ? 'Conferindo…' : 'Confirmar', action: 'ordConfirm', disabled: !s.ord.ans.length || !!s.ord.res }),
+  footer: s => {
+    const o = s.ord;
+    const res = o.msg ? verdict(o.msg.ok, { why: o.msg.t }) : {};
+    if (s.justDone === 8) return o.msg?.ok ? { ...defaultFooter(s), ...res } : null;
+    return { label: o.res ? 'Conferindo…' : 'Confirmar', action: 'ordConfirm', disabled: !o.ans.length || !!o.res, ...res };
+  },
   mount: ctx => pointerDrag(ctx, {
     item: '[data-drag-ord]',
     zone: '[data-drop-ord]',

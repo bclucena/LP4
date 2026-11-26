@@ -20,6 +20,8 @@ export const course = {
   flags: { novo: true, sugerido: true, obrigatorio: true },
   started: 312,
   updated: '30 set 2026',
+  // Certificado do curso concluído (card "Certificado recebido"): nome, data em que foi recebido e carga horária.
+  certificate: { name: 'Certificado de conclusão: LGPD Descomplicada', received: '12 out 2026', hours: '4h' },
   points: '3.500',
   coins: '500',
   description: [

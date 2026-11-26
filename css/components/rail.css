@@ -1,0 +1,70 @@
+/* Trilho vertical (js/components/rail.js): coluna de 20 com o traço de cima, o marcador e o traço de baixo. O marcador fica no
+   meio da altura do item; os traços dos itens seguidos se emendam. Usado nos cursos da Rota e nas atividades do Curso. */
+.c-rail {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  width: 20px;
+}
+
+/* Traço de 2: cinza (border/default) no que falta, verde (icon/success) no caminho já feito. */
+.c-rail__line {
+  flex: 1;
+  width: 2px;
+  background-color: var(--color-border-default);
+}
+
+.c-rail__line.is-on { background-color: var(--color-icon-success); }
+.c-rail__line.is-hidden { visibility: hidden; }
+
+/* Marcador: círculo de 20 com anel de 2 cinza e fundo da página; ícone de 10 com traço 3 (cadeado em icon/tertiary).
+   O anel é uma sombra interna, não border (25/11/2026): o navegador arredonda a espessura de bordas para pixels inteiros da
+   tela (com escala de 125%, 2px de borda viravam 1,6px) e o anel ficava mais fino que o traço de 2 que desce. A sombra não é
+   arredondada e fica com a mesma espessura do traço. */
+.c-rail__node {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px var(--color-border-default);
+  background-color: var(--color-background-default);
+  color: var(--color-icon-tertiary);
+}
+
+.c-rail__node .c-icon { width: 10px; height: 10px; stroke-width: 3; }
+
+/* Concluído: anel verde, fundo background/success e o check em text/success. */
+.c-rail__node.is-done {
+  box-shadow: inset 0 0 0 2px var(--color-icon-success);
+  background-color: var(--color-background-success);
+  color: var(--color-text-success);
+}
+
+/* Atual: o círculo cinza com a bolinha roxa de 10 dentro, que pulsa (um anel na cor da marca sai dela e some, a cada 2 s). */
+.c-rail__node.is-current::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-surface-system-default);
+  animation: c-rail-pulse 2s ease-out infinite;
+}
+
+@keyframes c-rail-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-surface-system-default) 45%, transparent); }
+  70%, 100% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-surface-system-default) 0%, transparent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-rail__node.is-current::after { animation: none; }
+}
+
+/* Cores forçadas (alto contraste do sistema): a sombra some, então o anel volta a ser borda. */
+@media (forced-colors: active) {
+  .c-rail__node { border: 2px solid CanvasText; }
+}

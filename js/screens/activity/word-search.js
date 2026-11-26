@@ -1,10 +1,12 @@
 /* 3. Caça-palavras: grade 10 x 10 com 5 palavras (na horizontal, vertical e diagonais). Arrasta da primeira à última letra;
-   a seleção segue em linha reta. Achar todas conclui a atividade (+200 pts, +50 moedas). */
+   a seleção segue em linha reta. Achar todas conclui a atividade (+200 pts, +50 moedas). Tempo limite (WS_TIME, 3 min, no
+   relógio da barra de desempenho): acabou o tempo, a grade trava e a barra inferior mostra "Tempo esgotado!", as palavras
+   que faltaram na Explicação e "Tentar de novo"; achou todas, "Concluído!". */
 
 import { cx, esc } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
-import { words as WORDS, WS_SIZE as N } from '../../data/activity.js';
-import { upd, finish, later, streakOn } from './flow.js';
+import { words as WORDS, WS_SIZE as N, WS_TIME } from '../../data/activity.js';
+import { upd, finish, later, streakOn, verdict, defaultFooter } from './flow.js';
 import { sfx } from '../../core/sound.js';
 import { pill } from '../../components/badges.js';
 import { head } from './head.js';
@@ -32,7 +34,26 @@ function buildGrid() {
   return g.map(row => row.map(v => v || A[Math.floor(Math.random() * 26)]));
 }
 
-const init = () => ({ grid: buildGrid(), found: [], cells: {} });
+const init = () => ({ grid: buildGrid(), found: [], cells: {}, timer: WS_TIME, out: false });
+
+/** Relógio regressivo: atualiza o texto direto e só re-renderiza quando o tempo acaba. */
+function tick(ctx) {
+  const s = ctx.state;
+  const ws = s.ws;
+  if (ws.out || s.justDone === 3 || s.status[3] === 'done' || ws.found.length === WORDS.length) return;
+  ws.timer -= 1;
+  if (ws.timer > 0 && ws.timer <= 5) sfx('tick');
+  if (ws.timer <= 0) {
+    sfx('wrong');
+    ctx.set({ ws: { ...ws, timer: 0, out: true }, streak: 0 });
+    return;
+  }
+  const box = ctx.root.querySelector('[data-tick-box="quiz"]');
+  box?.classList.toggle('c-pill--red', ws.timer <= 5);
+  box?.classList.toggle('c-pill--grey', ws.timer > 5);
+  const t = ctx.root.querySelector('[data-tick="quiz"]');
+  if (t) t.textContent = `${String(Math.floor(ws.timer / 60)).padStart(2, '0')}:${String(ws.timer % 60).padStart(2, '0')}`;
+}
 
 function view(state) {
   const ws = state.ws;
@@ -43,8 +64,8 @@ function view(state) {
     return `<li class="${cx('c-act-ws__word', f && 'is-found')}">${esc(w)}${icon(f ? 'check-circle' : 'circle', 16)}</li>`;
   }).join('');
   return `<section class="c-act-card c-act-ws" aria-label="Caça-palavras">
-    ${head({ kicker: 'Clique e arraste da <b>primeira</b> até a <b>última letra</b> da palavra', title: `Encontre as ${WORDS.length} palavras ocultas`, aside: pill({ color: 'yellow', iconName: 'award', label: `Palavras ${ws.found.length}/${WORDS.length}` }) })}
-    <div class="c-act-ws__layout">
+    ${head({ mech: 'Caça-palavras', task: 'Encontre as palavras ocultas', how: 'Clique e arraste da primeira até a última letra da palavra', title: `Encontre as ${WORDS.length} palavras ocultas`, aside: pill({ color: 'yellow', iconName: 'award', label: `Palavras ${ws.found.length}/${WORDS.length}` }) })}
+    <div class="${cx('c-act-ws__layout', ws.out && 'is-out')}">
       <div class="c-act-ws__grid" data-ws-grid role="grid" aria-label="Grade de letras">${cells}</div>
       <div class="c-act-ws__words"><span class="c-act-ws__words-title">Palavras ocultas</span><ul>${list}</ul></div>
     </div>
@@ -62,7 +83,7 @@ function mount(ctx) {
   const paint = (cls, on) => path.forEach(p => ctx.root.querySelector(`[data-r="${p.r}"][data-c="${p.c}"]`)?.classList.toggle(cls, on));
 
   ctx.listen('pointerdown', e => {
-    if (ctx.state.view !== 3 || !e.target.closest('[data-ws-grid]')) return;
+    if (ctx.state.view !== 3 || ctx.state.ws.out || !e.target.closest('[data-ws-grid]')) return;
     const p = cellAt(e.clientX, e.clientY);
     if (!p) return;
     e.preventDefault();
@@ -114,8 +135,16 @@ export default {
   key: 'ws',
   init,
   view,
-  actions: {},
-  footer: () => null,
+  actions: { wsRetry: ctx => { sfx('click'); upd(ctx, 'ws', init()); } },
+  footer: s => {
+    const ws = s.ws;
+    if (s.justDone === 3) return { ...defaultFooter(s), ...verdict(true, { title: 'Concluído!', why: `Você achou as ${WORDS.length} palavras: ${WORDS.join(', ')}.` }) };
+    if (!ws.out) return null;
+    const missing = WORDS.filter(w => !ws.found.includes(w));
+    return { label: 'Tentar de novo', action: 'wsRetry', ...verdict(false, { title: 'Tempo esgotado!', icon: 'clock', why: `Você achou ${ws.found.length} de ${WORDS.length} palavras. Faltaram: ${missing.join(', ')}.` }) };
+  },
+  tick,
+  timer: s => (s.status[3] === 'done' ? null : s.ws.timer),
   mount,
   pct: s => s.ws.found.length / WORDS.length,
   reset: s => (s.ws.found.length === WORDS.length ? init() : null),

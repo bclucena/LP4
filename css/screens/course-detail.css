@@ -1282,56 +1282,6 @@ a.c-cd-material:active .c-cd-material__action { background-color: var(--color-su
   min-height: 60px;
 }
 
-/* Trilho: um traço por item, do topo à base, passando pelo meio do marcador (o 1º começa no marcador; o último termina nele). */
-.c-cd-tl__item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 9px; /* meio do marcador de 20 */
-  width: 2px;
-  background-color: var(--color-border-default);
-}
-
-.c-cd-tl__item:first-child::before { top: 50%; }
-.c-cd-tl__item:last-child::before { bottom: 50%; }
-.c-cd-tl__item:only-child::before { display: none; }
-.c-cd-tl__item--done::before { background-color: var(--color-icon-success); }
-/* Da concluída para a atual: o trecho de cima já foi feito. */
-.c-cd-tl__item--current::before { background: linear-gradient(var(--color-icon-success) 50%, var(--color-border-default) 50%); }
-
-.c-cd-tl__node {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--color-border-default);
-  border-radius: 50%;
-  background-color: var(--color-background-default);
-  color: var(--color-icon-tertiary);
-}
-
-.c-cd-tl__item--done .c-cd-tl__node {
-  border-color: var(--color-icon-success);
-  background-color: var(--color-background-success);
-  color: var(--color-text-success);
-}
-
-.c-cd-tl__item--current .c-cd-tl__node {
-  border-color: var(--color-surface-system-default);
-  background-color: var(--color-surface-system-default);
-  box-shadow: 0 0 0 3px var(--color-surface-system-light);
-  color: var(--color-on-action);
-}
-
-/* Liberada (estado "Todas liberadas"): círculo vazio no mesmo cinza do trilho (border/default, o padrão do marcador). */
-
-.c-cd-tl__node .c-icon { width: 10px; height: 10px; stroke-width: 3; }
-
 .c-cd-tl__row {
   display: flex;
   flex: 1;
@@ -1507,3 +1457,234 @@ a.c-cd-material:active .c-cd-material__action { background-color: var(--color-su
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
+
+/* Cabeçalho do módulo (24/11/2026): título sempre inteiro (quantas linhas precisar), o chevron no topo, na altura da 1ª linha
+   do título, e a barra de progresso na linha do meta ("12 atividades · 1h25min"), alinhada à direita do card (embaixo do
+   chevron). Grade de 3 colunas: o título vai até o chevron e a barra fica sob o chevron, encostada à direita. */
+.c-cd-module__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: 'title title chev' 'meta progress progress'; /* o título vai até o chevron; a barra ocupa o resto */
+  align-items: start;
+  column-gap: 16px;
+  row-gap: 4px;
+}
+
+.c-cd-module__text { display: contents; }
+
+.c-cd-module__head .c-cd-module__title {
+  grid-area: title;
+  display: block;
+  overflow: visible;
+  white-space: normal;
+  -webkit-line-clamp: unset;
+  padding-top: 5px; /* a 1ª linha (18) fica no meio do chevron (28), que fica no topo */
+}
+
+.c-cd-module__head .c-cd-module__meta { grid-area: meta; align-self: center; }
+.c-cd-module__head .c-cd-module__chev { grid-area: chev; justify-self: end; }
+.c-cd-module__head .c-cd-module__progress { grid-area: progress; justify-self: end; align-self: center; }
+
+@media (min-width: 1179px) {
+  .c-cd-module__head { column-gap: 24px; }
+  .c-cd-module__head .c-cd-module__title { padding-top: 8px; } /* 1ª linha (20) no meio do chevron (36) */
+}
+
+/* Lista de atividades do módulo no mobile e no tablet (abaixo de 1179) na escala mobile, a mesma do cabeçalho do módulo:
+   título 12/18 700 (como o título do módulo), "Atividade N · X min" e as estrelas 10/12 (como "12 atividades · 1h25min"),
+   pílula de pontos e moedas 10/12 com ícones de 12. Ícone do tipo de 12 e o resto alinhado ao título (12 + 4). */
+@media (max-width: 1178px) {
+  .c-cd-tl__title { font-size: 12px; line-height: 18px; }
+  .c-cd-tl__head > .c-icon,
+  .c-cd-tl__head > svg { width: 12px; height: 12px; margin-top: 3px; }
+  .c-cd-tl__kicker { margin-left: 16px; font-size: 10px; line-height: 12px; font-weight: 500; }
+  .c-cd-tl__kicker .c-icon,
+  .c-cd-tl__kicker svg { width: 12px; height: 12px; }
+  .c-cd-tl__kicker .c-cd-tl__star .c-icon { width: 10px; height: 10px; }
+  .c-cd-tl__end { margin-left: 16px; }
+  .c-cd-tl__rewards { gap: 8px; padding: 2px 8px; font-size: 10px; line-height: 12px; }
+  .c-cd-tl__rewards .c-icon,
+  .c-cd-tl__rewards svg { width: 12px; height: 12px; }
+}
+
+/* Mobile, tablet e telas de toque (sem hover): o chevron da atividade que abre fica sempre visível. */
+@media (max-width: 1178px), (hover: none) {
+  .c-cd-tl__go { width: 20px; margin-left: 0; opacity: 1; }
+}
+
+/* Mobile e tablet: o chevron vai para a borda direita do card (a pílula de pontos e moedas fica à esquerda, alinhada ao título). */
+@media (max-width: 1178px) {
+  /* Sempre na mesma posição: também no toque, no foco e no "hover" que o toque deixa preso (a regra do hover do desktop zerava
+     a margem e puxava o chevron para a esquerda). */
+  .c-cd-tl__go,
+  .c-cd-tl__row:is(:hover, :focus-visible, :active) .c-cd-tl__go { margin-left: auto; transform: none; }
+}
+
+/* Mobile, tablet e telas de toque: sem hover (não existe no toque). O que muda no hover volta ao estado normal; o toque
+   (:active) e o foco pelo teclado continuam com o retorno visual. */
+@media (max-width: 1178px), (hover: none) {
+  .c-cd-mback__link:hover { color: var(--color-surface-system-emphasis); }
+  .c-cd-back__link:hover { color: var(--color-text-brand); }
+  .c-cd-mtab:not(.is-active):hover { background-color: var(--color-background-default); }
+  .c-cd-module__head:hover:not(:active) { background-color: transparent; }
+  :is(a, button).c-cd-act:hover:not(:focus-visible, :active, .is-pressed) { background-color: var(--color-background-default); }
+  a.c-cd-material:hover:not(:focus-visible, :active) { background-color: var(--color-background-default); }
+  a.c-cd-material:hover:not(:focus-visible, :active) .c-cd-material__icon { background-color: var(--color-background-subtle); }
+  :is(a, button).c-cd-tl__row:hover:not(:focus-visible, :active) { background-color: transparent; }
+  .c-cd-tl__item--current :is(a, button).c-cd-tl__row:hover:not(:focus-visible, :active) { background-color: var(--color-surface-system-subtle); }
+}
+
+/* Trilho da linha do tempo à mesma distância da borda do card que o trilho da Rota (24/11/2026): do centro da linha à borda
+   esquerda do card, 27 no desktop e 19 no mobile (eram 19 e 15). A distância da linha aos cards de atividade (18) já era a
+   mesma da Rota. */
+.c-cd-tl { padding-left: 16px; }
+
+@media (max-width: 1178px) {
+  .c-cd-tl { padding-left: 8px; }
+}
+
+/* Card do curso no mobile (screenshot de 24/11/2026): "x de N atividades concluídas" embaixo da barra (10/12, text/secondary) e
+   os infocards de pontos e moedas lado a lado (borda border/default, radius 8, padding 8): ícone de 8 e recebido 12/16 bold
+   com "/possível" regular; o rótulo 10/12 embaixo, alinhado ao número (8 do ícone + 4). */
+.c-cd-mcard__progress { gap: 4px; }
+.c-cd-mcard__progress-sub { color: var(--color-text-secondary); font-size: 10px; line-height: 12px; font-weight: 500; }
+
+.c-cd-mcard__boxes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 8px;
+}
+
+.c-cd-mbox {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+}
+
+.c-cd-mbox__value {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.c-cd-mbox__value svg { flex: none; color: var(--color-icon-default); }
+.c-cd-mbox__value b { color: var(--color-text-default); font-weight: 700; }
+.c-cd-mbox__of { margin-left: -2px; }
+.c-cd-mbox__label { padding-left: 12px; color: var(--color-text-secondary); font-size: 10px; line-height: 12px; font-weight: 500; }
+
+/* "Sobre o curso" no mobile: os cards de números com a escala dos infocards de pontos e moedas do card do curso
+   (.c-cd-mbox): valor 12/16 bold e rótulo 10/12, gap de 2. */
+.c-cd-about-m .c-cd-box { gap: 2px; }
+.c-cd-about-m .c-cd-box__value { min-height: 0; font-size: 12px; line-height: 16px; }
+.c-cd-about-m .c-cd-box__label { font-size: 10px; line-height: 12px; }
+
+/* Card de informações (curso e rota) no tablet: duas colunas de mesma largura (24/11/2026). À esquerda, a imagem com os
+   selos e a duração, na mesma proporção (16:9), presa no topo; à direita, as informações (título, autor, linha, dados,
+   progresso, botão e pontos e moedas), que ficam numa coluna própria (.c-cd-mcard__info). No mobile, .c-cd-mcard__info some
+   do layout (display: contents) e o card segue numa coluna só, como antes. */
+.c-cd-mcard__info { display: contents; }
+
+@media (min-width: 768px) {
+  .c-cd-mcard {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 16px;
+    padding: 8px 8px 8px 8px;
+  }
+
+  .c-cd-mcard__media { padding: 0; }
+  .c-cd-mcard__cover { border-radius: 4px; }
+
+  .c-cd-mcard__info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    padding: 4px 8px 8px 0;
+  }
+
+  .c-cd-mcard__info > * { padding-inline: 0; }
+  .c-cd-mcard__info > .c-cd-mcard__rule { margin: 0; }
+  .c-cd-mcard__info .c-cd-mcard__name { gap: 12px; }
+}
+
+/* Card de informações no tablet: pontos e moedas embaixo da imagem (25/11/2026). A coluna da imagem tinha um vão grande
+   embaixo (a imagem 16:9 é bem mais baixa que a coluna de informações); os infocards de pontos e moedas saíram da coluna da
+   direita (.c-cd-mcard__boxes agora fica fora de .c-cd-mcard__info) e ocupam esse espaço, presos no topo, logo abaixo da imagem.
+   A imagem não muda de proporção. No mobile, a ordem continua a mesma (os infocards já eram os últimos). Só no card do Curso:
+   no da Rota (sem progresso e sem botão) a coluna da direita já é mais baixa que a imagem, então lá eles ficam à direita. */
+@media (min-width: 768px) {
+  .c-cd-mcard { grid-template-rows: auto 1fr; }
+  .c-cd-mcard__media { grid-column: 1; grid-row: 1; }
+  .c-cd-mcard__info { grid-column: 2; grid-row: 1 / span 2; }
+  .c-cd-mcard > .c-cd-mcard__boxes { grid-column: 1; grid-row: 2; align-self: start; padding: 0; }
+}
+
+/* Módulo aberto: o chevron (sempre o chevron-down) fica girado meia volta. O giro de abrir e fechar e a altura da lista são
+   animados em toggleModules (js/screens/course-detail.js); a lista corta o conteúdo só enquanto cresce ou encolhe. */
+.c-cd-module__chev .c-icon { transition: none; }
+.c-cd-module.is-open .c-cd-module__chev .c-icon { transform: rotate(180deg); }
+
+/* ==================== Certificado recebido (25/11/2026) ====================
+   Card da coluna lateral (desktop) e card de seção na Visão geral (mobile), só com o curso concluído. No modelo do "Sobre o
+   curso": título, o certificado (selo na superfície da marca, nome, "Recebido em" e carga horária) e o botão "Ver certificado"
+   (stroked; o primário do card do curso é "Revisar"). */
+.c-cd-cert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 12px;
+}
+
+.c-cd-cert__seal {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--color-surface-system-subtle);
+  color: var(--color-text-brand);
+}
+
+.c-cd-cert__text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+.c-cd-cert__name {
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.c-cd-cert__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.c-cd-cert__meta b { color: var(--color-text-primary); font-weight: 700; }
+
+/* Mobile: escala do card de seção (10/12 e 12/16), selo de 32 e o botão "mobile" de 30. */
+.c-cd-cert-m { display: flex; flex-direction: column; gap: 12px; }
+.c-cd-cert-m .c-cd-cert { gap: 8px; padding: 8px; border-radius: 8px; }
+.c-cd-cert-m .c-cd-cert__seal { width: 32px; height: 32px; }
+.c-cd-cert-m .c-cd-cert__name { font-size: 12px; line-height: 16px; }
+.c-cd-cert-m .c-cd-cert__meta { font-size: 10px; line-height: 12px; }
+.c-cd-cert-m .c-button { gap: 4px; height: 30px; padding: 6px; border-radius: 8px; }

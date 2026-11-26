@@ -3,14 +3,14 @@
    de ação do tema; certo/errado/aviso usam success/error/warning). Cortes: 600 (grades dos jogos), 768 (cabeçalho da casca),
    760/900 (colunas dos jogos) e 1024 (menu de atividades fixo ao lado).
    Seções: layout · cabeçalho mobile · menu de atividades · barra de desempenho · rodapé e botões · diálogos · peças comuns ·
-   quiz · leitura e slideshow · caça-palavras · emparedado · memória · misturadinho · no lugar · ordenadinho · quebra-cabeça ·
+   quiz · slideshow · caça-palavras · emparedado · memória · misturadinho · no lugar · ordenadinho · quebra-cabeça ·
    7 erros · this or that · enquetes · mosaico · avaliação final · tweaks · skeleton · animações · movimento reduzido. */
 
 /* ==================== Layout ==================== */
 .c-act {
   --act-pad-x: 8px;
-  /* Largura da coluna de conteúdo (e da barra de desempenho e do rodapé, que acompanham): 1040px − 24% ≈ 792px. */
-  --act-col: 792px;
+  /* Coluna central padrão de todas as mecânicas (25/11/2026; era 792): a barra de desempenho e o rodapé acompanham. */
+  --act-col: 720px;
   --act-hud-top: 52px;
   display: flex;
   flex-direction: column;
@@ -733,8 +733,6 @@
   text-align: center;
 }
 
-.c-act-placeholder--square { flex: none; aspect-ratio: 1; max-width: 360px; justify-self: center; border-radius: var(--radius-xl); }
-
 /* Fichas arrastáveis (no lugar, ordenadinho) e o "fantasma" que segue o ponteiro. */
 .c-act-chip-drag {
   display: flex;
@@ -866,7 +864,7 @@
 .c-act-option.is-dim { opacity: 0.45; cursor: default; }
 .c-act-option.is-pulse { animation: act-ring-pulse 0.7s cubic-bezier(0.3, 0.7, 0.4, 1) 2; }
 
-/* ==================== Leitura e slideshow ==================== */
+/* ==================== Slideshow (e as figuras e o código usados também pelo Quiz com apoio) ==================== */
 .c-act-read {
   display: flex;
   flex-direction: column;
@@ -878,25 +876,12 @@
   .c-act-read { padding: 32px 0 48px; }
 }
 
-.c-act-read__intro, .c-act-read__block { display: flex; flex-direction: column; gap: 16px; }
-.c-act-read__block { gap: 24px; }
-.c-act-read__block--narrow { width: 100%; max-width: 720px; margin: 0 auto; }
-
-
-.c-act-read__h {
-  color: var(--color-text-primary);
-  font-size: 20px;
-  line-height: 32px;
-  font-weight: 700;
-  text-wrap: balance;
-}
+.c-act-read__intro { display: flex; flex-direction: column; gap: 16px; }
 
 .c-act-read__p { color: var(--color-text-default); font-size: 16px; line-height: 28px; text-wrap: pretty; }
 
 .c-act-read__kicker { color: var(--color-text-primary); font-size: 16px; line-height: 24px; font-weight: 800; }
 .c-act-read__kicker--system { color: var(--color-text-brand); font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-
-.c-act-read__gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
 
 .c-act-read__quote {
   display: flex;
@@ -919,16 +904,6 @@
 
 .c-act-read__quote--end p { text-align: center; text-wrap: balance; }
 .c-act-read__accent { width: 64px; height: 4px; border-radius: 999px; background-color: var(--color-action); }
-.c-act-read__center { display: flex; justify-content: center; }
-
-.c-act-read__split, .c-act-read__reflect { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px 48px; align-items: start; }
-.c-act-read__reflect { align-items: center; }
-.c-act-read__side { display: flex; flex-direction: column; gap: 16px; }
-
-@media (min-width: 600px) {
-  .c-act-read__split { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
-  .c-act-read__reflect { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px 56px; }
-}
 
 .c-act-figure { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 
@@ -940,11 +915,7 @@
   object-fit: cover;
 }
 
-.c-act-figure--square .c-act-figure__img { aspect-ratio: 1; }
-.c-act-figure--square .c-act-figure__caption { color: var(--color-text-primary); font-size: 16px; line-height: 24px; font-weight: 600; }
 .c-act-figure__caption { color: var(--color-text-secondary); font-size: 14px; line-height: 20px; text-wrap: pretty; }
-.c-act-figure--ruled { gap: 16px; }
-.c-act-figure--ruled .c-act-figure__caption { padding-bottom: 16px; border-bottom: 1px solid var(--color-border-default); }
 
 .c-act-code {
   padding: 2px 6px;
@@ -953,100 +924,6 @@
   color: var(--color-text-brand-strong);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.88em;
-}
-
-/* Cartão que vira */
-.c-act-flip { width: 100%; max-width: 400px; aspect-ratio: 1; perspective: 1200px; }
-
-.c-act-flip__inner {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.c-act-flip.is-flipped .c-act-flip__inner { transform: rotateY(180deg); }
-
-.c-act-flip__face {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px;
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-md);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
-
-.c-act-flip__face--front { border: 1px solid var(--color-border-default); border-top: 4px solid var(--color-action); background-color: var(--color-surface-elevated); }
-.c-act-flip__face--back { background-color: var(--color-surface-system-emphasis); transform: rotateY(180deg); }
-.c-act-flip__text { color: var(--color-text-primary); font-size: 20px; line-height: 32px; font-weight: 500; text-align: center; text-wrap: balance; }
-.c-act-flip__text--small { color: var(--color-text-on-color); font-size: 16px; line-height: 24px; text-wrap: pretty; }
-
-.c-act-flip__hint {
-  position: absolute;
-  right: 16px;
-  bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--color-text-secondary);
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 600;
-}
-
-.c-act-flip__face--back .c-act-flip__hint { color: var(--color-surface-system-soft); }
-
-/* Resumo narrado (player simulado) */
-.c-act-pod {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border: 1px solid var(--color-surface-system-soft);
-  border-radius: var(--radius-xl);
-  background-color: var(--color-surface-system-subtle);
-}
-
-.c-act-pod__play {
-  display: flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  background-color: var(--color-action);
-  color: var(--color-on-action);
-}
-
-.c-act-pod__play:hover { background-color: var(--color-action-hover); }
-.c-act-pod__info { display: flex; flex: 1; flex-direction: column; gap: 6px; min-width: 0; }
-.c-act-pod__row { display: flex; justify-content: space-between; gap: 8px; color: var(--color-text-secondary); font-size: 12px; line-height: 16px; font-weight: 600; }
-.c-act-pod__row span:first-child { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.c-act-pod__row span:last-child { flex: none; font-variant-numeric: tabular-nums; }
-.c-act-pod__track { height: 6px; border-radius: 999px; background-color: var(--color-background-default); }
-.c-act-pod__track span { display: block; height: 100%; border-radius: 999px; background-color: var(--color-action); }
-
-.c-act-video {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: var(--radius-xl);
-  background-color: var(--color-background-tooltip);
-  color: var(--color-text-on-color);
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 600;
 }
 
 .c-act-slide { display: flex; flex-direction: column; gap: 24px; }
@@ -2121,145 +1998,6 @@
 .c-act-review__n { color: var(--color-text-secondary); font-size: 12px; line-height: 16px; font-weight: 600; }
 
 /* ==================== Tweaks ==================== */
-/* Menu de atividades no estilo "Cards" (trilha=cards; estiloTrilha "Cards" no protótipo). */
-.c-act-tcards__head {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-}
-
-.c-act-tcards__badge {
-  display: flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-lg);
-  background-color: var(--color-action);
-  color: var(--color-on-action);
-}
-
-.c-act-tcards__names { display: flex; flex: 1; flex-direction: column; min-width: 0; }
-.c-act-tcards__title { color: var(--color-text-primary); font-size: 16px; line-height: 24px; font-weight: 700; }
-
-.c-act-tcards__sub {
-  overflow: hidden;
-  color: var(--color-text-secondary);
-  font-size: 12px;
-  line-height: 16px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-/* Abrir/fechar = buttonIcon large com contorno do design system. */
-.c-act-tcards__toggle { flex: none; }
-
-.c-act-tcards__progress {
-  display: flex;
-  flex: none;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px 16px 16px;
-  border-top: 1px solid var(--color-border-default);
-}
-
-.c-act-tcards__row {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  color: var(--color-text-primary);
-  font-size: 12px;
-  line-height: 16px;
-  font-weight: 700;
-}
-
-.c-act-tcards__row b { color: var(--color-text-brand-strong); }
-
-/* Barra = progressBar do design system. */
-.c-act-tcards__bar .c-progress__fill { transition: width 0.4s ease-out; }
-
-.c-act-tcards__list {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 8px;
-  min-height: 0;
-  padding: 12px;
-  overflow-y: auto;
-  border-top: 1px solid var(--color-border-default);
-}
-
-.c-act-tcard {
-  --tc-bg: var(--color-surface-system-light);
-  --tc-fg: var(--color-text-brand);
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 12px;
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-lg);
-  background-color: var(--color-background-default);
-  text-align: left;
-  transition: background-color 0.2s, border-color 0.2s;
-}
-
-.c-act-tcard:hover { background-color: var(--color-surface-system-subtle); }
-.c-act-tcard.is-current { border-color: var(--color-action); box-shadow: inset 0 0 0 1px var(--color-action); background-color: var(--color-surface-system-subtle); }
-.c-act-tcard--done { --tc-bg: var(--color-background-success); --tc-fg: var(--color-text-success); }
-.c-act-tcard--current { --tc-bg: var(--color-action); --tc-fg: var(--color-on-action); }
-.c-act-tcard--locked { --tc-bg: var(--color-background-subtle); --tc-fg: var(--color-text-secondary); cursor: not-allowed; opacity: 0.6; }
-.c-act-tcard--locked:hover { background-color: var(--color-background-default); }
-
-.c-act-tcard__icon {
-  display: flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  background-color: var(--tc-bg);
-  color: var(--tc-fg);
-}
-
-.c-act-tcard__text { display: flex; flex: 1; flex-direction: column; min-width: 0; }
-.c-act-tcard__status { color: var(--color-text-brand); font-size: 12px; line-height: 16px; font-weight: 600; }
-.c-act-tcard--current .c-act-tcard__status { color: var(--color-text-brand-strong); }
-.c-act-tcard--done .c-act-tcard__status { color: var(--color-text-success); }
-.c-act-tcard--locked .c-act-tcard__status { color: var(--color-text-secondary); }
-
-.c-act-tcard__title {
-  overflow: hidden;
-  color: var(--color-text-primary);
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 600;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.c-act-tcard__xp {
-  display: flex;
-  flex: none;
-  align-items: center;
-  height: 24px;
-  padding: 0 8px;
-  border-radius: 999px;
-  background-color: var(--color-background-subtle);
-  color: var(--color-text-secondary);
-  font-size: 12px;
-  line-height: 16px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.c-act-tcard.is-current .c-act-tcard__xp { background-color: var(--color-surface-system-light); color: var(--color-text-brand-strong); }
-
 /* Conteúdo sem card (card=0): a mecânica fica direto no fundo da página, sem borda, fundo nem recuo lateral. */
 .c-act--flat .c-act-card {
   padding-right: 0;
@@ -2281,9 +2019,7 @@
 .c-act--type-b .c-act-cover__title,
 .c-act--type-b .c-act-dialog__title,
 .c-act--type-b .c-act-card__title,
-.c-act--type-b .c-act-read__h,
 .c-act--type-b .c-act-read__quote p,
-.c-act--type-b .c-act-flip__text,
 .c-act--type-b .c-act-slide__title,
 .c-act--type-b .c-act-zone__banner,
 .c-act--type-b .c-act-result__stats b,
@@ -2354,7 +2090,6 @@
     transition: none !important;
   }
 }
-
 
 /* ---------- Divisores de módulo no menu de atividades ----------
    Antes dos grupos de cada módulo: uma linha fina (border/default) dos dois lados de uma etiqueta "MÓDULO 1 · Conceitos
@@ -2461,7 +2196,6 @@
   -webkit-line-clamp: 2;
 }
 
-
 /* Nome do grupo (título da atividade do curso, pode ter 100 caracteres): até 2 linhas, com reticências. */
 .c-act-group__names { min-width: 0; }
 .c-act-group__name {
@@ -2539,28 +2273,20 @@
 
 .c-act-cover:not(.c-act-cover--search) .c-act-cover__tools { top: 12px; }
 
-
 /* ---------- Atividades: barra de rolagem igual à do dock do Tabuleiro (css/screens/board.css, navdrawers do Figma) ----------
    Trilho fino e arredondado (background/muted) com o polegar mais escuro (background/skeleton), sem setas, recuado 16 do topo
    e da base. Vale no menu lateral (lista de atividades e trilha em cards) e no corpo da atividade, que rola na própria página
    (html com a tela .c-act montada). scrollbar-width fica em auto: no Chrome, thin/none desligam os pseudo-elementos. */
 .c-act-trail__list,
-.c-act-tcards__list,
 html:has(.c-act) {
   scrollbar-width: auto;
   scrollbar-color: auto;
 }
-
 .c-act-trail__list::-webkit-scrollbar,
-.c-act-tcards__list::-webkit-scrollbar,
 html:has(.c-act)::-webkit-scrollbar { width: 14px; }
-
 .c-act-trail__list::-webkit-scrollbar-button,
-.c-act-tcards__list::-webkit-scrollbar-button,
 html:has(.c-act)::-webkit-scrollbar-button { display: none; height: 0; }
-
 .c-act-trail__list::-webkit-scrollbar-track,
-.c-act-tcards__list::-webkit-scrollbar-track,
 html:has(.c-act)::-webkit-scrollbar-track {
   margin: 16px 0;
   border: 5px solid transparent;
@@ -2568,30 +2294,24 @@ html:has(.c-act)::-webkit-scrollbar-track {
   background-color: var(--color-background-muted);
   background-clip: padding-box;
 }
-
 .c-act-trail__list::-webkit-scrollbar-thumb,
-.c-act-tcards__list::-webkit-scrollbar-thumb,
 html:has(.c-act)::-webkit-scrollbar-thumb {
   border: 5px solid transparent;
   border-radius: 999px;
   background-color: var(--color-background-skeleton);
   background-clip: padding-box;
 }
-
 .c-act-trail__list::-webkit-scrollbar-thumb:hover,
-.c-act-tcards__list::-webkit-scrollbar-thumb:hover,
 html:has(.c-act)::-webkit-scrollbar-thumb:hover { background-color: var(--color-icon-tertiary); }
 
 /* Firefox (sem os pseudo-elementos do WebKit): barra fina nas mesmas cores. */
 @supports not selector(::-webkit-scrollbar) {
   .c-act-trail__list,
-  .c-act-tcards__list,
   html:has(.c-act) {
     scrollbar-width: thin;
     scrollbar-color: var(--color-background-skeleton) var(--color-background-muted);
   }
 }
-
 
 /* Pílula "+ pts": a entrada e a saída são animadas por js/screens/activity/gain.js (abre e fecha o espaço na fila). */
 .c-act-hud__gain.is-in { animation: none; }
@@ -2615,7 +2335,6 @@ html:has(.c-act)::-webkit-scrollbar-thumb:hover { background-color: var(--color-
 
 .c-act-cover .c-act-cover__pct { font-size: 12px; line-height: 16px; letter-spacing: 0; }
 
-
 /* Área das mecânicas em branco (--color-surface-stage: #ffffff no claro, o fundo da página no escuro). O menu lateral segue
    em background-default. Pintam o palco: a coluna principal, a faixa que esconde o conteúdo atrás da barra de desempenho
    e o rodapé (fora dos estados de acerto e erro). */
@@ -2630,7 +2349,6 @@ html:has(.c-act)::-webkit-scrollbar-thumb:hover { background-color: var(--color-
 @media (min-width: 768px) {
   .c-act-foot__inner { min-height: 90px; }
 }
-
 
 /* Quiz com apoio (17): imagem 16:9 e texto de apoio (como os tópicos do Slideshow) antes da pergunta, separados por uma linha. */
 .c-act-quiz__support {
@@ -2684,3 +2402,606 @@ html:has(.c-act)::-webkit-scrollbar-thumb:hover { background-color: var(--color-
   .c-act.is-enter .c-act-hudrow,
   .c-act.is-enter .c-act-sidetoggle { animation: none; }
 }
+
+/* ==================== Tipografia LP 4.0 (tweak tipografia=c) ====================
+   Teste: a Versão B (.c-act--type-b, que já vem junto) mais o que ainda ficava fora dos estilos de texto e da escala de
+   espaçamento do LP-DesignSystem 4.0 no Figma (estilos type/*: caption 12/16, body 14/20, subtitle-extrabold 16/24,
+   price 18/28, heading 20/32, display-sm 30/40; espaçamentos de 4 em 4, Spacing/*). Toda fonte cai num desses pares. */
+.c-act--type-c .c-act-cover__title { line-height: 32px; } /* 20/28 → heading 20/32 (o card do curso segue 14/20 abaixo) */
+.c-act--type-c .c-act-cover .c-act-cover__title { line-height: 20px; }
+.c-act--type-c .c-act-mix__blank,
+.c-act--type-c .c-act-hang__slot { line-height: 32px; } /* 20/28 → heading 20/32 */
+.c-act--type-c .c-act-mix__blanks { gap: 4px; } /* 3 → Spacing/1 */
+.c-act--type-c .c-act-read__p,
+.c-act--type-c .c-act-intro__p { font-size: 16px; line-height: 24px; } /* 16/28 → 16/24 */
+.c-act--type-c .c-act-key,
+.c-act--type-c .c-act-input { line-height: 24px; } /* 16/20 e 16/normal → 16/24 */
+.c-act--type-c .c-act-exam__info small { line-height: 20px; } /* body 14/20 */
+.c-act--type-c .c-act-intro__title { font-size: 20px; line-height: 32px; font-weight: 700; letter-spacing: normal; } /* 24/32 800 → heading */
+@media (min-width: 768px) {
+  .c-act--type-c .c-act-intro__title { font-size: 30px; line-height: 40px; } /* display-sm */
+}
+/* Tamanhos fluidos (clamp) viram estilos do DS por faixa de largura. */
+.c-act--type-c .c-act-code { font-size: 14px; line-height: 20px; } /* body, dentro do parágrafo 16/24 */
+.c-act--type-c .c-act-ws__cell { font-size: 12px; line-height: 16px; } /* caption; de 768: subtitle 16/24 */
+.c-act--type-c :is(.c-act-mem__art, .c-act-mos__face) { font-size: 10px; line-height: 12px; } /* mobile caption; de 768: caption 12/16 */
+.c-act--type-c .c-act-mix__letter { font-size: 20px; line-height: 32px; } /* heading; de 1180: display-sm 30/40 */
+@media (min-width: 768px) {
+  .c-act--type-c .c-act-ws__cell { font-size: 16px; line-height: 24px; }
+  .c-act--type-c :is(.c-act-mem__art, .c-act-mos__face) { font-size: 12px; line-height: 16px; }
+}
+@media (min-width: 1180px) {
+  .c-act--type-c .c-act-mix__letter { font-size: 30px; line-height: 40px; }
+}
+
+/* ==================== Barra inferior: resultado e "Explicação" (parts.js, footer e explainDialog) ====================
+   Depois da resposta a barra pinta o fundo do tom (sucesso ou erro). À esquerda, o resultado: área do ícone (40, radius xl,
+   fundo da página, ícone de 24 na cor do tom, como o componente feedback) e o título no tom, 16/24 bold. O texto
+   complementar abre no modal "Explicação" pelo botão outlined (sem ícone). "Continuar" é o cheio, na cor do tom:
+   --color-text-success/error de fundo e a cor do fundo da página no texto (contraste AA nos dois temas). */
+.c-act-foot__fb { flex: 0 1 auto; align-items: center; }
+
+.c-act-foot__status {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-text-success);
+  animation: act-foot-status-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.c-act-foot__status--error { color: var(--color-text-error); }
+
+.c-act-foot__status-icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-xl);
+  background-color: var(--color-background-default);
+  color: var(--color-icon-success);
+}
+
+.c-act-foot__status--error .c-act-foot__status-icon { color: var(--color-icon-error); }
+.c-act-foot__status-title { font-size: 16px; line-height: 24px; font-weight: 700; }
+
+@keyframes act-foot-status-in { from { opacity: 0; transform: scale(0.85); } }
+
+.c-act-foot .c-button.c-act-foot__btn--success,
+.c-act-foot .c-button.c-act-foot__btn--error {
+  border-color: transparent;
+  background-color: var(--color-text-success);
+  color: var(--color-background-default);
+}
+.c-act-foot .c-button.c-act-foot__btn--error { background-color: var(--color-text-error); }
+.c-act-foot .c-button.c-act-foot__btn--success:hover,
+.c-act-foot .c-button.c-act-foot__btn--error:hover { filter: brightness(1.08); }
+
+/* Explicação: outlined, com o fundo da página para destacar da faixa colorida. */
+.c-act-foot .c-act-foot__explain { background-color: var(--color-background-default); }
+
+/* Modal da explicação: o diálogo das atividades (.c-act-dialog) com o selo no tom e a etiqueta "Explicação". */
+.c-act-dialog__badge--success { background-color: var(--color-background-success); color: var(--color-text-success); }
+.c-act-explain__kicker {
+  color: var(--color-text-brand);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.c-act-explain__actions { justify-content: flex-end; }
+
+/* Mobile: resultado numa linha própria (ícone 36, título 14/20), botões dividindo a linha de baixo. */
+@media (max-width: 599px) {
+  .c-act-foot__fb { width: 100%; }
+  .c-act-foot__status { gap: 8px; }
+  .c-act-foot__status-icon { width: 36px; height: 36px; }
+  .c-act-foot__status-icon .c-icon { width: 20px; height: 20px; }
+  .c-act-foot__status-title { font-size: 14px; line-height: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-act-foot__status { animation: none; }
+}
+
+/* Caça-palavras com o tempo esgotado: a grade fica travada e apagada (o resultado está na barra inferior). */
+.c-act-ws__layout.is-out .c-act-ws__grid { opacity: 0.5; pointer-events: none; }
+
+/* ==================== Apresentação: informações da atividade e montagem (25/11/2026) ==================== */
+/* 1ª linha: o ícone do tipo (16, na cor do texto da marca) ao lado de "Módulo M · Atividade N". */
+.c-act-intro__kicker { display: inline-flex; align-items: center; gap: 6px; }
+.c-act-intro__kicker .c-icon { flex: none; width: 16px; height: 16px; }
+
+/* Dados em pílulas: mecânica, duração, etapas e pontos. */
+.c-act-intro__facts { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.c-act-intro__facts li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px 4px 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 999px;
+  background-color: var(--color-background-default);
+  color: var(--color-text-default);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+}
+
+.c-act-intro__facts .c-icon { width: 16px; height: 16px; color: var(--color-icon-default); }
+
+/* Montagem: a tela entra com fade in; depois cada peça (na ordem de --i) sobe 16 px e aparece, a cada 90 ms; o X e o rodapé
+   com "Iniciar" entram por último. Só na primeira pintura da apresentação (o HTML refeito repete a entrada, mas a apresentação
+   quase não se redesenha). */
+.c-act--intro { animation: c-act-intro-fade 0.4s ease-out both; }
+
+.c-act-intro > * {
+  animation: c-act-intro-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(0.15s + var(--i, 0) * 0.09s);
+}
+
+.c-act--intro .c-act-intro__close { animation: c-act-intro-fade 0.4s ease-out 0.5s both; }
+.c-act--intro .c-act-foot { animation: c-act-intro-up 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.6s both; }
+
+@keyframes c-act-intro-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes c-act-intro-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes c-act-intro-up { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .c-act--intro,
+  .c-act-intro > *,
+  .c-act--intro .c-act-intro__close,
+  .c-act--intro .c-act-foot { animation: none; }
+}
+
+/* Kicker da apresentação com o ícone "para fora" (25/11/2026): o texto "Módulo M · Atividade N" alinha à esquerda das pílulas
+   e do título; o ícone (16 + 6 de vão) fica pendurado à esquerda da coluna. No mobile a margem lateral (16) não comporta os
+   22 do ícone, então lá ele segue em linha. */
+@media (min-width: 768px) {
+  .c-act-intro__kicker { margin-left: -22px; }
+}
+
+/* ==================== Apresentação → mecânica (startAct, 25/11/2026) ==================== */
+/* 1. Saída: junto com a app bar que sobe (600ms), as informações somem subindo (cada linha com um pequeno atraso, de cima para
+   baixo), o X some e o rodapé com "Iniciar" desce. */
+.c-act--intro.is-leaving .c-act-intro > * {
+  animation: act-intro-out 0.42s cubic-bezier(0.4, 0, 1, 1) both;
+  animation-delay: calc(var(--i, 0) * 0.04s);
+}
+
+.c-act--intro.is-leaving .c-act-intro__close { animation: act-intro-fadeout 0.3s ease-in both; }
+.c-act--intro.is-leaving .c-act-foot { animation: act-intro-down 0.42s cubic-bezier(0.4, 0, 1, 1) both; }
+.c-act--intro.is-leaving { pointer-events: none; }
+
+@keyframes act-intro-out { to { opacity: 0; transform: translateY(-24px); } }
+@keyframes act-intro-fadeout { to { opacity: 0; } }
+@keyframes act-intro-down { to { opacity: 0; transform: translateY(100%); } }
+
+/* 2. Entrada: o menu entra da esquerda e a barra desce (regras de is-enter acima); a mecânica é montada peça por peça — cada
+   filho da seção da mecânica aparece subindo 16px, a cada 70ms a partir de 200ms — e o rodapé sobe por último. */
+.c-act.is-enter .c-act__content > * > * {
+  animation: act-build-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(0.2s + var(--n, 0) * 0.07s);
+}
+
+.c-act.is-enter .c-act__content > * > :nth-child(2) { --n: 1; }
+.c-act.is-enter .c-act__content > * > :nth-child(3) { --n: 2; }
+.c-act.is-enter .c-act__content > * > :nth-child(4) { --n: 3; }
+.c-act.is-enter .c-act__content > * > :nth-child(5) { --n: 4; }
+.c-act.is-enter .c-act__content > * > :nth-child(n + 6) { --n: 5; }
+
+.c-act.is-enter .c-act-foot { animation: act-build-up 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) 0.45s both; }
+
+@keyframes act-build-in { from { opacity: 0; transform: translateY(16px); } }
+@keyframes act-build-up { from { opacity: 0; transform: translateY(100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .c-act--intro.is-leaving .c-act-intro > *,
+  .c-act--intro.is-leaving .c-act-intro__close,
+  .c-act--intro.is-leaving .c-act-foot,
+  .c-act.is-enter .c-act__content > * > *,
+  .c-act.is-enter .c-act-foot { animation: none; }
+}
+
+/* Ordem da entrada (25/11/2026): primeiro o card lateral (menu com as informações da atividade, 600ms) e só depois a mecânica
+   é montada — a montagem começa quando o card lateral termina de entrar, e o rodapé sobe por último. Sem o card lateral
+   (mobile, tablet ou menu guardado), a montagem segue os tempos de antes. */
+.c-act.is-enter.c-act--side:not(.is-collapsed) .c-act__content > * > * { animation-delay: calc(0.6s + var(--n, 0) * 0.07s); }
+.c-act.is-enter.c-act--side:not(.is-collapsed) .c-act-foot { animation-delay: 0.85s; }
+
+/* A barra de desempenho (progresso, tempo, sequência, vidas, pontos, o « e o X) entra junto com a mecânica (25/11/2026): com o
+   card lateral, depois dele (a partir de 600ms); sem ele, a partir de 200ms, como a primeira peça da montagem. */
+.c-act.is-enter .c-act-hudrow,
+.c-act.is-enter .c-act-sidetoggle { animation: act-hud-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both; }
+
+.c-act.is-enter.c-act--side:not(.is-collapsed) .c-act-hudrow,
+.c-act.is-enter.c-act--side:not(.is-collapsed) .c-act-sidetoggle { animation-delay: 0.6s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .c-act.is-enter .c-act-hudrow,
+  .c-act.is-enter .c-act-sidetoggle { animation: none; }
+}
+
+/* ==================== Linha de informação das mecânicas (head.js; Figma 5299:92699 "info top", 25/11/2026) ====================
+   Ícone da mecânica (16, icon/default) + "Quiz · Escolha uma alternativa · Toque numa alternativa ou use as teclas A a F": 12/16,
+   o nome em negrito (text/primary) e o resto em text/secondary, separados por pontos de 2px com 4 de cada lado. À direita, as
+   pills ("1 de 5", "0 acertos"). A linha quebra no mobile quando não cabe. */
+.c-act-head__info {
+  display: flex;
+  flex: 1 1 280px;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.c-act-head__icon { display: flex; flex: none; color: var(--color-icon-default); }
+.c-act-head__icon .c-icon { width: 16px; height: 16px; }
+
+.c-act-head__line { display: flex; flex-wrap: wrap; align-items: center; column-gap: 4px; min-width: 0; }
+.c-act-head__line b { color: var(--color-text-primary); font-weight: 700; }
+
+.c-act-head__dot {
+  flex: none;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+/* Conteúdo entre a linha de cima e o título (imagem e texto de apoio do Quiz com apoio). */
+.c-act-head > :not(.c-act-head__top, .c-act-card__title) { margin-block: 12px; }
+
+/* Ajudas da mecânica no rodapé (f.aux: Dica, Recomeçar, Limpar, Encaixar uma, Mostrar onde…; 25/11/2026): stroked, à esquerda do
+   Continuar. No mobile (abaixo de 600) só o ícone, num botão quadrado, e o Continuar ocupa o resto da linha. */
+@media (max-width: 599px) {
+  .c-act-foot__actions .c-act-foot__aux { flex: none; padding-inline: 10px; }
+  .c-act-foot__aux > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+/* Capa do curso no menu lateral sem a busca (25/11/2026): sem botões no topo, a capa deixa de ser 16:9 (sobrava uma faixa vazia
+   em cima) e fica com a altura do conteúdo ("Curso", o título e o progresso) e respiro de 20 em cima e embaixo. A imagem ocupa a
+   altura toda, à direita, em 16:9, sob o mesmo véu. No mobile a capa segue 16:9, com o botão de mostrar/ocultar a lista. */
+/* Capa do menu lateral em 16:9 (25/11/2026): a imagem ocupa a área toda e o texto fica embaixo. */
+.c-act--side .c-act-cover--side:not(.c-act-cover--search) {
+  aspect-ratio: 16 / 9;
+  min-height: 0;
+  justify-content: flex-end;
+  padding-block: 16px;
+}
+
+.c-act--side .c-act-cover--side .c-act-cover__img { inset: 0; width: 100%; height: 100%; background-size: cover; }
+
+/* ==================== Mobile e tablet: lista de atividades no bottom sheet (25/11/2026) ====================
+   Abaixo de 1024 não há mais a capa do curso nem a lista no topo da página. A barra de desempenho fica entre dois botões
+   (buttonIcon large com contorno, como o « e o X do desktop): à esquerda o menu (abre o bottom sheet com as atividades), à
+   direita o fechar. */
+.c-act-hudrow--row { align-items: center; gap: 8px; }
+.c-act-hudrow--row .c-act-hud { flex: 1 1 auto; min-width: 0; }
+.c-act-hud__menu,
+.c-act-hud__close--row { flex: none; box-shadow: var(--shadow-sm); }
+
+@media (max-width: 599px) {
+  .c-act-hudrow--row .c-act-hud__track { grid-column: 1 / -1; }
+}
+
+/* Bottom sheet: título, os grupos de atividades e a avaliação final, rolando dentro do sheet. */
+.c-act-sheet { display: flex; flex: 1; flex-direction: column; min-height: 0; overflow: hidden; background: none; border: 0; }
+.c-act-sheet__title { padding: 0 20px 12px; color: var(--color-text-primary); font-size: 16px; line-height: 24px; font-weight: 700; }
+/* O título fica parado e só a lista rola. */
+.c-act-sheet .c-act-trail__list{ flex: 1; min-height: 0; max-height: none; overflow-y: auto; overscroll-behavior: contain; }
+
+/* Mobile e tablet (25/11/2026): o menu e o fechar na primeira linha, um em cada ponta; a barra de desempenho (progresso, tempo,
+   sequência, vidas e pontos) na linha de baixo, com a largura toda. */
+.c-act-hudrow--row { flex-wrap: wrap; justify-content: space-between; row-gap: 8px; }
+.c-act-hudrow--row .c-act-hud__menu { order: 0; }
+.c-act-hudrow--row .c-act-hud__close--row { order: 1; }
+.c-act-hudrow--row .c-act-hud { order: 2; flex: 1 1 100%; }
+
+/* Vidas no mobile e tablet: pílula com o coração cheio (icon/error) e o número. Com 1 vida ou menos, o número fica em vermelho. */
+.c-act-hud__lives-count .c-icon { color: var(--color-icon-error); }
+.c-act-hud__lives-count .c-icon * { fill: currentColor; }
+.c-act-hud__lives-count.is-low { color: var(--color-text-error); }
+
+/* A lista vai direto no bottom sheet (25/11/2026): sem o card do menu por cima (borda, raio, sombra e fundo próprios) e sem o
+   recuo do corpo do sheet — o título e as atividades ocupam a largura do sheet. */
+.c-panel .c-act-sheet,
+.c-panel .c-act-sheet .c-act-trail {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.c-act-sheet__box .c-panel__body { padding: 0; gap: 0; }
+.c-act-sheet__box .c-act-sheet__title { padding: 8px 20px 12px; }
+
+/* Contagem da atividade junto do rótulo (25/11/2026; desktop e mobile): "ATIVIDADE 1 • 0/12", sem a pílula — o mesmo ponto
+   do "MÓDULO 1 • 1h 25min" acima. */
+.c-act-group__label { display: inline-flex; align-items: center; gap: 6px; }
+.c-act-group__bullet { flex: none; width: 3px; height: 3px; background-color: var(--color-text-secondary); }
+.c-act-group__count { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+
+/* Cabeçalho da atividade no menu (25/11/2026; desktop e mobile): as informações à esquerda e o chevron à direita. Fechada, o
+   chevron aponta para baixo; aberta, gira meia volta (para cima). O giro e a altura da lista são animados em toggleGroup
+   (js/screens/activity.js). */
+.c-act-group__caret { order: 2; margin-left: auto; transition: none; }
+.c-act-group__caret.is-closed { transform: none; }
+.c-act-group__caret.is-open { transform: rotate(180deg); }
+
+/* ==================== Botão "mais" e as opções da atividade (25/11/2026) ====================
+   O X da barra virou o botão "mais" (more-vertical). Desktop: menu suspenso de 280 embaixo do botão, alinhado à direita dele
+   (no modelo do menu do perfil: fundo background/default, borda, radius 2xl, sombra lg). Mobile e tablet: as mesmas opções
+   num bottom sheet; o botão de menu (hambúrguer) saiu e o "mais" fica sozinho à direita, na primeira linha. */
+.c-act-hudrow--row { justify-content: flex-end; }
+
+/* Pílulas da barra à direita no mobile e tablet. */
+.c-act-hudrow--row .c-act-hud__chips { justify-content: flex-end; }
+
+.c-act-more {
+  position: absolute;
+  top: calc(50% + 30px);
+  right: -52px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  width: 280px;
+  padding: 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-background-default);
+  box-shadow: var(--shadow-lg);
+  animation: act-more-in 0.16s ease-out;
+}
+
+@keyframes act-more-in { from { opacity: 0; transform: translateY(-4px); } }
+
+.c-act-more__kicker {
+  padding: 8px 12px 4px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.c-act-more__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: var(--radius-lg);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.c-act-more__item > .c-icon:first-child { flex: none; color: var(--color-icon-default); }
+.c-act-more__label { flex: 1; min-width: 0; }
+.c-act-more__go { flex: none; color: var(--color-icon-default); }
+.c-act-more__item:is(:hover, :focus-visible) { background-color: var(--color-background-subtle); }
+.c-act-more__item--exit { color: var(--color-text-error); }
+.c-act-more__item--exit > .c-icon:first-child { color: var(--color-icon-error); }
+
+.c-act-more__rule { margin: 8px 4px; border: 0; border-top: 1px solid var(--color-border-default); }
+
+/* No bottom sheet: sem a moldura do menu suspenso; as opções ocupam a largura do sheet. */
+.c-act-more--sheet {
+  position: static;
+  width: 100%;
+  padding: 0 8px 8px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  animation: none;
+}
+
+.c-act-more__box .c-panel__body { padding: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .c-act-more { animation: none; }
+}
+
+/* Linha de informação no mobile (abaixo de 768; 25/11/2026): sem o nome da mecânica ("Quiz") e o ponto depois dele — fica o
+   ícone, o que fazer · como fazer. O nome continua no ícone para leitor de tela (title no aria) pelo texto oculto. */
+@media (max-width: 767px) {
+  .c-act-head__mech,
+  .c-act-head__dot--mech { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+/* Mobile e tablet (abaixo de 1024; 25/11/2026): a linha de informação só divide espaço com as pills quando cabe inteira numa
+   linha. A base da informação é a largura do texto todo (max-content): se não couber ao lado das pills, as pills descem para
+   a linha de baixo, alinhadas à esquerda, e o texto fica sozinho em cima (quebrando só se nem assim couber). */
+@media (max-width: 1023px) {
+  .c-act-head__top { justify-content: flex-start; }
+  .c-act-head__top > .c-act-head__info { flex: 1 1 max-content; max-width: 100%; }
+  .c-act-head__top > .c-act-card__pills { flex: none; justify-content: flex-start; }
+}
+
+/* ==================== Módulos em card no menu de atividades (rascunho de 25/11/2026; desktop e mobile) ====================
+   Cada módulo vira um card recolhível (borda, radius 2xl, fundo surface/elevated), com 12 entre um e outro. Cabeçalho = botão:
+   "MÓDULO 1 • 1h 25min", o título (até 2 linhas) e o chevron à direita. Aberto: os grupos "ATIVIDADE N • d/N" e as mecânicas,
+   cada uma num card (ícone, título e pontos, andamento à direita), e a missão do módulo. Fechado: só o cabeçalho. */
+.c-act-trail__list { display: flex; flex-direction: column; gap: 12px; padding: 12px 16px 16px; }
+.c-act-trail__list > .c-act-group { padding: 0 4px; }
+
+.c-act-module {
+  flex: none;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-surface-elevated);
+}
+
+.c-act-module.is-open { box-shadow: var(--shadow-xs); }
+
+.c-act-module__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 12px 12px 16px;
+  border-radius: var(--radius-2xl);
+  text-align: left;
+}
+
+.c-act-module__head:hover { background-color: var(--color-background-subtle); }
+.c-act-module.is-open .c-act-module__head { border-radius: var(--radius-2xl) var(--radius-2xl) 0 0; }
+.c-act-module__names { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
+
+/* O antigo divisor saiu: o título do módulo fica no cabeçalho do card. */
+.c-act-module__body { display: flex; flex-direction: column; padding: 0 12px 12px; }
+
+/* Grupo dentro do card: sem recuo lateral (o card já tem o seu). */
+.c-act-module .c-act-group__head { margin: 8px 4px 0; }
+.c-act-module .c-act-group:first-child .c-act-group__head { margin-top: 0; }
+
+/* Mecânicas em card: borda fina, radius xl, 8 entre uma e outra; a atual com a borda da ação e o fundo da marca suave. */
+.c-act-group__items { gap: 8px; padding-top: 8px; }
+
+.c-act-group__items > .c-act-item {
+  min-height: 56px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-background-default);
+}
+
+.c-act-group__items > .c-act-item::before { display: none; }
+.c-act-group__items > .c-act-item:hover { border-color: var(--color-surface-system-soft); background-color: var(--color-background-default); }
+.c-act-group__items > .c-act-item.is-current { border-color: var(--color-action); background-color: var(--color-surface-system-subtle); }
+.c-act-group__items > .c-act-item.is-locked:hover { border-color: var(--color-border-default); }
+
+.c-act-module__mission { padding: 12px 0 0; }
+.c-act-trail__exam { padding: 0; }
+
+/* Capa 16:9 do menu lateral: véu de baixo para cima (escuro atrás do texto, a imagem aparece em cima), sem o desfoque. */
+.c-act--side .c-act-cover--side .c-act-cover__shade {
+  background: linear-gradient(0deg, var(--color-surface-dark) 0%, color-mix(in srgb, var(--color-surface-dark) 85%, transparent) 45%, color-mix(in srgb, var(--color-surface-dark) 10%, transparent) 100%);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* Card de atividade por estado da trilha (25/11/2026; desktop e mobile; groupAccess em js/screens/activity/parts.js).
+   Bloqueada: textos em text/secondary, cadeado no lugar do chevron, sem hover e sem abrir. Só clicável ("Todas liberadas"):
+   seta para a direita no lugar do chevron; o clique abre a 1ª mecânica da atividade, sem mostrar a lista. */
+.c-act-group__lock,
+.c-act-group__go { display: inline-flex; flex: none; margin-left: auto; color: var(--color-icon-default); }
+
+.c-act-group__head.is-locked { cursor: not-allowed; }
+.c-act-group__head.is-locked .c-act-group__name { color: var(--color-text-secondary); }
+.c-act-group__head.is-locked .c-act-group__lock { color: var(--color-text-tertiary); }
+
+.c-act-group__head.is-link { cursor: pointer; }
+.c-act-group__head.is-link:hover .c-act-group__name { color: var(--color-text-brand); }
+.c-act-group__head.is-link:hover .c-act-group__go { color: var(--color-text-brand); }
+
+/* Mecânicas em lista simples (25/11/2026; desktop e mobile): sem contorno, sem fundo e sem o andamento à direita; a atual com o
+   fundo da marca suave e o texto em negrito. Sem anel de andamento também na atividade (saiu em 25/11/2026). */
+.c-act-group__items { gap: 2px; padding-top: 4px; }
+
+.c-act-group__items > .c-act-item {
+  min-height: 52px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background-color: transparent;
+}
+
+.c-act-group__items > .c-act-item:hover { background-color: var(--color-background-subtle); }
+.c-act-group__items > .c-act-item.is-current { background-color: var(--color-surface-system-subtle); }
+.c-act-group__items > .c-act-item.is-locked:hover { background-color: transparent; }
+
+.c-act-group__go { order: 2; }
+
+/* Rolagem do menu de atividades (25/11/2026; desktop e mobile): o espaço da barra fica sempre reservado (scrollbar-gutter) e
+   sai do respiro da direita, então o card de módulo tem sempre a mesma largura, com ou sem rolagem, e a barra (14 no WebKit)
+   aparece no espaço entre o card e a borda do menu: 16 à esquerda = 2 de respiro + 14 da barra à direita. */
+.c-act-trail__list {
+  padding-right: 2px;
+  scrollbar-gutter: stable;
+}
+
+/* Firefox: a barra fina tem cerca de 8. */
+@supports not selector(::-webkit-scrollbar) {
+  .c-act-trail__list { padding-right: 8px; }
+}
+
+/* ==================== Atividades em card (25/11/2026; desktop e mobile) ====================
+   Dentro do card do módulo, cada atividade é um card de cantos arredondados (radius xl, borda border/default, fundo
+   background/default), com 8 entre um e outro; aberta, as mecânicas ficam dentro do card, embaixo do cabeçalho. Os textos não
+   mudam (rótulo 10/16 800, título 14/20 600). Hover (liberada ou só clicável): borda na cor da marca suave, fundo
+   background/subtle e o chevron (ou a seta) na cor da marca. Bloqueada: sem hover. */
+.c-act-module__body { gap: 8px; }
+
+.c-act-module .c-act-group {
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-background-default);
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.c-act-module .c-act-group__head,
+.c-act-module .c-act-group:first-child .c-act-group__head {
+  margin: 0;
+  padding: 10px 12px;
+  border-bottom: 0;
+  border-radius: var(--radius-xl);
+}
+
+.c-act-module .c-act-group__items { padding: 0 4px 4px; }
+.c-act-module .c-act-module__mission { padding-top: 0; }
+
+.c-act-module .c-act-group:not(.c-act-group--locked):has(> .c-act-group__head:hover) {
+  border-color: var(--color-surface-system-soft);
+  background-color: var(--color-background-subtle);
+}
+
+.c-act-module .c-act-group__head:not(.is-locked):hover :is(.c-act-group__caret, .c-act-group__go) { color: var(--color-text-brand); }
+.c-act-module .c-act-group__head:focus-visible { outline-offset: -2px; }
+
+/* ==================== Coluna padrão e escala do conteúdo (25/11/2026; todas as mecânicas) ====================
+   Revisão do aproveitamento da tela: com 1440 × 900 sobram ~600px de altura para o conteúdo (app bar, barra de desempenho e
+   rodapé), e várias peças ocupavam a coluna toda e passavam da dobra (imagem 16:9 de 445, cartas de 169, alternativas de 58).
+   - Coluna central padrão: 720px (--act-col) em todas as mecânicas; a barra de desempenho e o rodapé acompanham.
+   - Título (pergunta ou desafio): 18/28 700 (era 20/32).
+   - Imagens 16:9 (texto de apoio, slideshow): no máximo min(320px, 36vh) de altura, recortadas (object-fit: cover).
+   - Tabuleiros (memória, mosaico, quebra-cabeça): no máximo 520–560px de largura, centralizados na coluna.
+   - Alternativas (quiz e avaliação): 12/16 de respiro e texto 14/20 (body), como os demais textos do design system. */
+.c-act-card__title { font-size: 18px; line-height: 28px; }
+
+.c-act-figure__img { max-height: min(320px, 36vh); }
+
+@media (min-width: 600px) {
+  .c-act-mem__grid,
+  .c-act-mos__grid { gap: 12px; max-width: 520px; }
+}
+
+.c-act-puz__board { max-width: 560px; margin-inline: auto; }
+
+.c-act-option { gap: 12px; padding: 12px 16px; }
+.c-act-option__text { font-size: 14px; line-height: 20px; }
+
+/* Texto de apoio e slideshow mais contidos (25/11/2026), na escala da coluna de 720:
+   - título do tópico do Slideshow: 18/28 800 (era 20–28, fluido), o mesmo tamanho do título das mecânicas;
+   - título do texto de apoio do Quiz: 16/24 800, abaixo da pergunta (18/28) na hierarquia;
+   - parágrafos de leitura: 14/22 (eram 16/28);
+   - respiros: 16 entre imagem e texto (era 24) e 8 entre kicker, título e parágrafos (era 16). */
+.c-act-slide { gap: 16px; }
+.c-act-slide__text { gap: 8px; }
+.c-act-slide__title { font-size: 18px; line-height: 28px; letter-spacing: 0; }
+.c-act-quiz__support .c-act-slide__title { font-size: 16px; line-height: 24px; }
+.c-act-read__p { font-size: 14px; line-height: 22px; }

@@ -8,7 +8,7 @@ import { upd, finish, fx } from './flow.js';
 import { sfx } from '../../core/sound.js';
 import { pill } from '../../components/badges.js';
 import { feedback } from '../../components/feedback.js';
-import { head } from './head.js';
+import { head, stepPill, hitsPill } from './head.js';
 
 const init = () => ({ i: 0, pick: null, rev: false, res: [] });
 
@@ -33,11 +33,10 @@ function view(state) {
   const t = state.tt;
   const q = TT[t.i];
   const ok = t.rev && t.pick === q.c;
-  const fb = t.rev
-    ? feedback({ tone: ok ? 'success' : 'error', title: ok ? 'Isso!' : 'Não foi dessa vez.', text: q.e, className: cx('c-act-tt__feedback', fx(state, 'ttReveal') && 'is-in') })
-    : '<span class="c-act-card__lead c-act-card__lead--muted">Toque num card ou use as teclas A e B · Enter confirma</span>';
+  // Depois de responder, o acerto ou erro e a explicação ficam na barra inferior (selo + botão "Explicação").
+  const fb = '';
   return `<section class="c-act-card c-act-tt" aria-label="This or that">
-    ${head({ kicker: `Pergunta ${t.i + 1} de ${TT.length} · Escolha uma das alternativas`, title: esc(q.q), aside: pill({ color: 'green', iconName: 'check', label: `${t.res.filter(Boolean).length} acertos` }) })}
+    ${head({ mech: 'This or that', task: 'Escolha uma das alternativas', how: 'Toque num card ou use as teclas A e B', title: esc(q.q), aside: `${stepPill(t.i + 1, TT.length)}${hitsPill(t.res.filter(Boolean).length)}` })}
     <div class="c-act-tt__cards">${card(state, 'a')}<span class="c-act-tt__or" aria-hidden="true">ou</span>${card(state, 'b')}</div>
     <div class="c-act-tt__fb" aria-live="polite">${fb}</div>
   </section>`;
@@ -75,7 +74,12 @@ export default {
   footer: s => {
     if (s.justDone === 11) return null;
     const t = s.tt;
-    return { label: !t.rev ? 'Confirmar' : t.i + 1 >= TT.length ? 'Ver resultado' : 'Próxima', action: 'ttAct', disabled: !t.rev && !t.pick };
+    const q = TT[t.i];
+    const ok = t.rev && t.pick === q.c;
+    return {
+      label: !t.rev ? 'Confirmar' : t.i + 1 >= TT.length ? 'Ver resultado' : 'Próxima', action: 'ttAct', disabled: !t.rev && !t.pick,
+      ...(t.rev ? { tone: ok ? 'success' : 'error', feedback: { tone: ok ? 'success' : 'error', title: ok ? 'Correto!' : 'Incorreto!', text: q.e } } : {}),
+    };
   },
   keys: (ctx, e) => {
     const k = e.key.toLowerCase();

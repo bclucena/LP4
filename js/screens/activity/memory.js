@@ -5,7 +5,7 @@ import { cx, esc } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { memoryCards as MEM } from '../../data/activity.js';
 import { logo } from '../../shell/shell.js';
-import { finish, later, fx, shuffle, plural, toast, streakOn } from './flow.js';
+import { finish, later, fx, shuffle, plural, toast, streakOn, verdict, defaultFooter } from './flow.js';
 import { sfx } from '../../core/sound.js';
 import { button } from '../../components/button.js';
 import { pill } from '../../components/badges.js';
@@ -29,14 +29,12 @@ function view(state) {
       </span>
     </button>`;
   }).join('');
-  const msg = m.msg ? toast(esc(m.msg.t), m.msg.ok ? 'ok' : 'bad', fx(state, 'memMsg')) : toast('Memorize as posições: cada par errado conta uma jogada');
+  // O retorno de cada jogada (par certo ou errado) fica na barra inferior; aqui só a orientação.
   return `<section class="c-act-card c-act-mem" aria-label="Jogo da memória">
-    ${head({ kicker: 'Jogo da memória · vire duas cartas por vez', title: 'Encontre os pares de cartas iguais', aside: `
+    ${head({ mech: 'Memória', task: 'Encontre os pares', how: 'Toque em duas cartas por vez', title: 'Encontre os pares de cartas iguais', aside: `
         ${pill({ color: 'green', iconName: 'check', label: `Pares ${m.matched.length}/${MEM.length}` })}
         ${pill({ color: 'grey', outline: true, label: plural(m.moves, 'jogada', 'jogadas') })}
-        ${button({ variant: 'stroked', size: 'mobile', iconStart: 'rotate-ccw', label: 'Recomeçar', action: 'memReset', title: 'Embaralhar e recomeçar' })}
       ` })}
-    <div class="c-act-msg" aria-live="polite">${msg}</div>
     <div class="c-act-mem__grid">${cards}</div>
   </section>`;
 }
@@ -85,6 +83,8 @@ function tick(ctx) {
 
 export default {
   id: 5,
+  // Ajuda no rodapé: Recomeçar (embaralha de novo).
+  aux: () => [{ icon: 'rotate-ccw', label: 'Recomeçar', action: 'memReset', title: 'Embaralhar e recomeçar' }],
   key: 'mem',
   init,
   view,
@@ -92,7 +92,12 @@ export default {
     memFlip: (ctx, el) => flip(ctx, Number(el.dataset.uid)),
     memReset: ctx => { sfx('click'); ctx.set({ mem: init() }); },
   },
-  footer: () => null,
+  footer: s => {
+    const m = s.mem;
+    if (!m.msg) return null;
+    const done = m.matched.length === MEM.length;
+    return { ...defaultFooter(s), ...verdict(m.msg.ok, { title: done ? 'Concluído!' : undefined, why: m.msg.t }) };
+  },
   tick,
   elapsed: s => s.mem.sec,
   pct: s => s.mem.matched.length / MEM.length,

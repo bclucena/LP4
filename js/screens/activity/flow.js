@@ -11,6 +11,18 @@ export const actIndex = id => ORDER.indexOf(id);
 /** Status inicial: só a primeira atividade disponível ("current"), as demais bloqueadas. */
 export const initialStatus = () => Object.fromEntries(ORDER.map((id, i) => [id, i === 0 ? 'current' : 'locked']));
 
+/** Status de cada estado da trilha (tweak "Estado da trilha"): não iniciado e todas liberadas = só a 1ª disponível (liberadas
+    abre as demais por state.tw.unlock); em andamento = as 5 primeiras concluídas e a 6ª atual; concluído = todas concluídas. */
+export const IN_PROGRESS_DONE = 5;
+export function statusForState(estado) {
+  if (estado === 'concluido') return Object.fromEntries(ORDER.map(id => [id, 'done']));
+  if (estado === 'andamento') return Object.fromEntries(ORDER.map((id, i) => [id, i < IN_PROGRESS_DONE ? 'done' : i === IN_PROGRESS_DONE ? 'current' : 'locked']));
+  return initialStatus();
+}
+
+/** Atividade aberta ao entrar sem ?item: a atual (a primeira não concluída) ou, com tudo concluído, a primeira. */
+export const firstOpen = status => ORDER.find(id => status[id] !== 'done') ?? ORDER[0];
+
 /** Status mostrado e usado para abrir: com o tweak "desbloquear" (state.tw.unlock) as bloqueadas viram disponíveis. */
 export const statusOf = (state, id) => (state.status[id] === 'locked' && state.tw?.unlock ? 'available' : state.status[id]);
 
@@ -58,6 +70,13 @@ export function finish(ctx, id, { xp = 0, coins = 0, addXp = xp, addCoins = coin
 }
 
 /** Rodapé padrão: "Continuar" para a próxima atividade, liberado quando a atual está concluída. */
+/** Resultado da resposta na barra inferior: selo "Correto!"/"Incorreto!" e, com `why`, o botão "Explicação" (parts.js,
+    footer). `note` = texto curto ao lado do selo, sem explicação. */
+export const verdict = (ok, { why, note, title, icon } = {}) => ({
+  tone: ok ? 'success' : 'error',
+  feedback: { tone: ok ? 'success' : 'error', title: title ?? (ok ? 'Correto!' : 'Incorreto!'), text: why, note, icon },
+});
+
 export function defaultFooter(state) {
   const done = state.status[state.view] === 'done';
   const after = nextOpen(state);

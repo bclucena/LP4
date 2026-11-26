@@ -10,7 +10,7 @@ import { quiz as QUIZ, quizSupport as QUIZ_SUPPORT, QUIZ_TIME } from '../../data
 import { upd, finish, fx } from './flow.js';
 import { figure, code } from './reading.js';
 import { sfx } from '../../core/sound.js';
-import { head } from './head.js';
+import { head, stepPill, hitsPill } from './head.js';
 
 const LETTERS = 'ABCDEF';
 /** Tecla → índice da alternativa: 1–6 ou A–F. */
@@ -45,8 +45,7 @@ function makeQuiz({ id, key, items, label }) {
       </button>`;
     }).join('');
     return `<section class="${cx('c-act-card c-act-quiz', item.img && 'c-act-quiz--support')}" aria-label="${label}">
-      ${support(item, q)}
-      ${head({ kicker: `Pergunta ${q.qi + 1} de ${items.length} · Escolha uma alternativa`, title: esc(item.q) })}
+      ${head({ mech: 'Quiz', task: 'Escolha uma alternativa', how: `Toque numa alternativa ou use as teclas A a ${'ABCDEF'[item.o.length - 1]}`, title: esc(item.q), before: support(item, q), aside: `${stepPill(q.qi + 1, items.length)}${hitsPill(q.correct)}` })}
       <div class="c-act-quiz__options" role="radiogroup" aria-label="Alternativas">${options}</div>
     </section>`;
   }
@@ -100,7 +99,7 @@ function makeQuiz({ id, key, items, label }) {
       label: last ? 'Finalizar quiz' : 'Continuar',
       action: A.go,
       tone: ok ? 'success' : 'error',
-      feedback: { tone: ok ? 'success' : 'error', icon: ok ? undefined : q.picked === -1 ? 'clock' : undefined, title: ok ? 'Excelente!' : q.picked === -1 ? 'Tempo esgotado!' : 'Incorreto.', text: item.e },
+      feedback: { tone: ok ? 'success' : 'error', icon: ok ? undefined : q.picked === -1 ? 'clock' : undefined, title: ok ? 'Correto!' : q.picked === -1 ? 'Tempo esgotado!' : 'Incorreto!', text: item.e },
     };
   }
 

@@ -11,9 +11,10 @@ import {
   kinds, modules, activities, moduleStarts, starsPattern, doneCount, course, materials, boardBackground, pinImages,
 } from '../data/board.js';
 import { activityHref, exam } from '../data/activity.js';
+import { leaveTo } from '../core/transition.js';
 import { getModuleImage } from '../data/module-images.js';
 import { fmtMinutes } from '../data/course-detail.js';
-import { courseInfoData, summary, courseProgress, sideAbout, sideAboutCourse, sideCategories, description, materialsSection, mobileTabs, mobileSummary, mobileCategories } from './course-detail.js';
+import { courseInfoData, summary, courseProgress, sideAbout, sideAboutCourse, sideCategories, description, materialsSection, mobileTabs, mobileSummary, mobileCategories, mobileAbout, rewardBoxes } from './course-detail.js';
 
 /* Tabuleiro (Figma LP-DesignSystem 4.0, páginas "Curso Ludica - Versao A" e "Versao B").
 
@@ -59,11 +60,14 @@ const BG_COLORS = {
 const SHADE_DARK = 45;
 
 /** Tweaks visuais lidos do hash (#tabuleiro?trilha=b&fundo=imagem&cor=escuro&escurecer=40). Sem parâmetro = padrão.
-    Padrão (desde 13/11/2026): trilha C, pins B com imagens, fundo com uma imagem por módulo e a barra integrada no lugar da
+    Padrão: trilha E (desde 18/11/2026; antes C), pins B com imagens, fundo com uma imagem por módulo e a barra integrada no lugar da
     coluna lateral; o "clássico" anterior (trilha A, pins A, fundo cor, coluna fixa) segue disponível nos tweaks. */
 function looksFromHash() {
   const q = hashParams();
-  const trilha = ['a', 'b', 'c', 'd', 'e'].includes(q.get('trilha')) ? q.get('trilha') : 'c'; // c: a estrada da B com nomes, sentido e módulos recolhíveis
+  // e (padrão desde 18/11/2026): faixa colorida com um cartão por módulo; c: a estrada da B com nomes e sentido. No mobile e
+  // no tablet (abaixo do desktop, DESK) a trilha é sempre vertical, com os pins um embaixo do outro numa linha reta: a Versão C,
+  // seja qual for o tweak.
+  const trilha = !minWidth(DESK) ? 'c' : ['a', 'b', 'c', 'd', 'e'].includes(q.get('trilha')) ? q.get('trilha') : 'e';
   // Pins: a = disco com o número (Figma); b = disco branco com o miolo colorido, o ícone do tipo e o número embaixo.
   const pins = q.get('pins') === 'a' ? 'a' : 'b';
   const pinImg = pins === 'b' && q.get('imagens') !== '0'; // imagem no miolo dos pins B (ligada por padrão)
@@ -71,7 +75,8 @@ function looksFromHash() {
   const fundo = ['cor', 'imagem', 'modulos'].includes(q.get('fundo')) ? q.get('fundo') : 'modulos';
   const image = fundo !== 'cor';
   const cor = BG_COLORS[q.get('cor')] ? q.get('cor') : 'subtle';
-  const shade = Math.max(0, Math.min(80, Math.round((Number(q.get('escurecer')) || 0) / 5) * 5));
+  // Escurecer o fundo: 32% por padrão (desde 18/11/2026); escurecer=0 tira a camada.
+  const shade = Math.max(0, Math.min(80, Math.round(q.get('escurecer') !== null && !Number.isNaN(Number(q.get('escurecer'))) ? Number(q.get('escurecer')) : 32)));
   // A imagem do protótipo é escura; a cor "escuro" também. Sobre elas o que fica direto no fundo usa texto claro.
   const dark = image || cor === 'escuro' || shade >= SHADE_DARK;
   // Sem nenhum tweak de fundo a camada nem é desenhada: a tela fica idêntica à de antes (fundo da casca).
@@ -171,16 +176,27 @@ function trailItems(p, desk) {
   return { items, height: y - 64 };
 }
 
+/** Estrela de progresso do LP-DesignSystem 4.0 (Figma 5247:21402 preenchida, 5261:11062 vazia): corpo amarelo com brilho na
+    metade direita, ou corpo claro sem brilho; contorno claro de 1px. As cores ficam inline (tokens --color-star-*) para valer
+    por cima das regras de .c-icon de cada versão da trilha (que pintam o ícone Feather). */
+const STAR_BODY = 'M11.175 2.78425C11.5722 2.20471 12.4272 2.20476 12.8244 2.78425L15.7385 7.03523C15.8034 7.1298 15.8989 7.19901 16.009 7.23152L20.9523 8.68855C21.6262 8.88725 21.8905 9.70104 21.4621 10.2579L18.3195 14.3419C18.2494 14.433 18.2128 14.5462 18.216 14.6612L18.3576 19.8116C18.3769 20.5139 17.6847 21.0167 17.0226 20.7813L12.1672 19.0548C12.0589 19.0164 11.9404 19.0163 11.8322 19.0548L6.97674 20.7813C6.31478 21.0166 5.62344 20.5139 5.64276 19.8116L5.78436 14.6612C5.78752 14.5462 5.75097 14.433 5.68084 14.3419L2.53826 10.2579C2.1098 9.70102 2.37408 8.88722 3.04803 8.68855L7.99041 7.23152C8.10062 7.19903 8.19688 7.12996 8.2619 7.03523L11.175 2.78425Z';
+const STAR_SHINE = 'M11.9999 12.4649L19.9999 9.74538L15.413 8.08113L15.0693 7.97468L14.872 7.67292L11.9999 3.96492V12.4649Z';
+function progressStar(size, on) {
+  return `<svg class="c-icon c-board-star" width="${size}" height="${size}" viewBox="0 0 24 24" overflow="visible" aria-hidden="true" focusable="false">
+    <path d="${STAR_BODY}" style="fill:var(${on ? '--color-star-fill' : '--color-star-empty'});stroke:var(--color-star-border);stroke-width:1;paint-order:normal"/>
+    ${on ? `<path d="${STAR_SHINE}" style="fill:var(--color-star-shine);stroke:none"/>` : ''}</svg>`;
+}
+
 /** Estrelas ao lado do pin concluído: uma coluna de 3 em arco, contornando o pin (a do meio mais afastada), do lado oposto ao
     do cartão de detalhe (que abre para o lado com mais espaço). Ganhas de cima para baixo. */
 function sideStars(count, label, side) {
   return `<span class="${cx('c-board-stars c-board-stars--side', `c-board-stars--${side}`)}" role="img" aria-label="${esc(label)}">${[1, 2, 3].map(k =>
-    `<span class="${cx('c-board-stars__star', k === 2 && 'c-board-stars__star--mid', count >= k && 'is-on')}">${icon('star', 22)}</span>`).join('')}</span>`;
+    `<span class="${cx('c-board-stars__star', k === 2 && 'c-board-stars__star--mid', count >= k && 'is-on')}">${progressStar(22, count >= k)}</span>`).join('')}</span>`;
 }
 
 function stars(count, label) {
   return `<span class="c-board-stars" role="img" aria-label="${esc(label)}">${[1, 2, 3].map(k =>
-    `<span class="${cx('c-board-stars__star', k === 2 && 'c-board-stars__star--mid', count >= k && 'is-on')}">${icon('star', k === 2 ? 24 : 20)}</span>`).join('')}</span>`;
+    `<span class="${cx('c-board-stars__star', k === 2 && 'c-board-stars__star--mid', count >= k && 'is-on')}">${progressStar(k === 2 ? 24 : 20, count >= k)}</span>`).join('')}</span>`;
 }
 
 /** Separador ("board module divider"): no desktop, cartão no centro entre duas linhas; no mobile, cartão à esquerda. */
@@ -341,15 +357,21 @@ function pinKindIcon(it, px) {
 /** Títulos longos (mais de 2 linhas na largura padrão de 224) abrem o cartão mais largo. */
 const TIP_WIDE_AT = 44;
 
+/** Conteúdo do cartão do pin (o mesmo no hover e no bottom sheet do toque): título com o ícone do tipo, "Atividade N · X min",
+    pontos e moedas e a situação. */
+function pinCardBody(it, n) {
+  return `<span class="c-cd-tl__head c-board-tip__head">${pinKindIcon(it, 14)}<span class="c-cd-tl__title c-board-tip__title">${esc(n.title)}</span></span>
+      <span class="c-cd-tl__kicker c-board-tip__kicker"><span>${esc(n.kicker)}</span></span>
+      ${n.rewards}
+      ${n.statusHtml}`;
+}
+
 function pinTip(it, id) {
   const side = it.off > 0 ? 'left' : 'right';
   const n = pinInfo(it);
   const wide = [...n.title].length > TIP_WIDE_AT;
   return `<span class="${cx('c-board-tip', `c-board-tip--${side}`, wide && 'c-board-tip--wide', n.tone === 'locked' && 'c-board-tip--locked')}" role="tooltip" id="${id}">
-      <span class="c-cd-tl__head c-board-tip__head">${pinKindIcon(it, 14)}<span class="c-cd-tl__title c-board-tip__title">${esc(n.title)}</span></span>
-      <span class="c-cd-tl__kicker c-board-tip__kicker"><span>${esc(n.kicker)}</span></span>
-      ${n.rewards}
-      ${n.statusHtml}
+      ${pinCardBody(it, n)}
     </span>`;
 }
 
@@ -383,16 +405,12 @@ function pinSheet(state, p) {
   const locked = n.tone === 'locked';
   const noun = sheetNoun(it);
   const verb = it.status === 'done' ? 'Refazer' : 'Iniciar';
-  const ic = noun === 'missão' ? icon('target', 20) : noun === 'avaliação' ? lpIcon('challenge', 20) : icon('edit', 20);
+  // O mesmo cartão do hover (pinCardBody), sem a caixa flutuante, e o botão embaixo: só "Iniciar" (play-circle, como no Curso)
+  // ou "Refazer" (rotate-ccw); bloqueada, "Iniciar" com o cadeado. O nome inteiro ("Iniciar atividade") fica no aria-label.
   const body = `<div class="c-board-sheet">
-      <div class="c-board-sheet__head">
-        <span class="c-board-sheet__icon" aria-hidden="true">${ic}</span>
-        <span class="c-board-sheet__text"><span class="c-board-tip__kicker">${esc(n.kicker)}</span><span class="c-board-sheet__title">${esc(n.title)}</span></span>
-      </div>
-      ${n.rewards}
-      ${n.statusHtml}
-      <button type="button" class="c-button c-button--primary c-board-sheet__cta" data-action="sheetStart" ${locked ? 'disabled aria-disabled="true"' : ''}>
-        <span>${verb} ${noun}</span>${icon(locked ? 'lock' : 'arrow-right', 16)}
+      <div class="${cx('c-board-tip c-board-tip--sheet', locked && 'c-board-tip--locked')}">${pinCardBody(it, n)}</div>
+      <button type="button" class="c-button c-button--primary c-board-sheet__cta" data-action="sheetStart" aria-label="${verb} ${noun}" ${locked ? 'disabled aria-disabled="true"' : ''}>
+        <span>${verb}</span>${icon(locked ? 'lock' : it.status === 'done' ? 'rotate-ccw' : 'play-circle', 16)}
       </button>
     </div>`;
   return panel({ mode: 'sheet', label: n.title, body, closeAction: 'closeSheet', enter: state.fresh, className: 'c-board-sheet-panel' });
@@ -443,7 +461,6 @@ function band(state, p, desk) {
    Medidas do Figma (1440, trilha de 832): estrada a 84 da borda, curvas de 44, 1º pin a 72 da estrada, fileiras a 116,
    1ª fileira 114 abaixo do cartão e o cartão seguinte 92 abaixo da última fileira. Fileira com menos de 5 pins: eles se
    espalham entre o 1º e o último lugar. */
-const DOCK_PUSH = 348; // dock aberto (desktop): cartão de 300 a 24 da borda + 24 de respiro (css .is-dock-open)
 const B_MAX = 832; // largura máxima da trilha B (a do cartão do módulo)
 const B_R = 44; // raio das curvas
 const B_STEP = 116; // distância entre fileiras (linha de 110 + 6)
@@ -501,6 +518,81 @@ function trailCVertical(p, bw, cardHs) {
   const end = p.finished ? lastCenter : progEnd;
   const prog = end ? `M${cx} ${cardMid} L${cx} ${end}` : '';
   return { items, road, prog, height };
+}
+
+/* Trilha vertical do mobile e do tablet (abaixo do desktop) no visual da Versão E: os pins da E (disco branco, imagem ou
+   ícone na cor do módulo, halo pulsando no atual, estrelas em arco) numa coluna no meio; a estrada reta por trás, com a linha
+   do progresso na cor de cada módulo (tokens --color-module-N; tweak "Cores dos módulos"), sem setas nem cadeados no trilho;
+   e o cartão do módulo com as informações do cartão da E (etiqueta "Módulo N", título inteiro, "N atividades · tempo" e a
+   barra de progresso com o %), com a imagem do módulo no topo, como na E. Cada trecho vai do meio de um cartão ao meio do seguinte (no último, até o
+   último pin). */
+function trailVLayout(p, bw, cardHs) {
+  const s = minWidth(TABLET) ? 1 : 1.14; // escala do pin: 84 no tablet; no mobile 96 (0,76 × 1,5 = 1,14; era 64, aumentado em 50% em 24/11/2026)
+  const ch = mi => cardHs?.[mi] ?? 120;
+  const cx = Math.round(bw / 2);
+  const above = Math.round(71 * s); // do centro do pin ao topo das estrelas
+  const below = Math.round(58 * s); // do centro do pin à base do selo do número
+  // Do selo de um pin às estrelas do seguinte: 28 no tablet; no mobile 68 (o vão entre os pins, 79, cresceu 50% para 119 em 24/11/2026).
+  const step = above + below + (minWidth(TABLET) ? 28 : 68);
+  const items = [];
+  const legs = [];
+  let ty = 0;
+  let lastCenter = 0;
+  let curY = null;
+  let curLeg = -1;
+  modules.forEach((mo, mi) => {
+    items.push({ type: 'card', mi, top: ty });
+    const y0 = ty + ch(mi) / 2;
+    let y = ty + ch(mi) + 32 + above;
+    mo.activities.forEach((_, j) => {
+      const i = moduleStarts[mi] + j;
+      let status = statusOf(i, p);
+      const current = status === 'current' && !p.finished;
+      if (status === 'locked' && !p.finished && activities[p.cur].mi === mi) status = 'open';
+      if (current) { curY = y; curLeg = mi; }
+      items.push({ type: 'node', mi, i, status, current, x: cx, y, off: -1 });
+      lastCenter = y;
+      y += step;
+    });
+    ty = lastCenter + below + 40;
+    legs.push({ mi, y0, y1: mi < modules.length - 1 ? ty + ch(mi + 1) / 2 : lastCenter });
+  });
+  legs.forEach(l => { l.reached = p.free || p.finished || l.mi < curLeg ? l.y1 : l.mi === curLeg ? curY : l.y0; });
+  // Rolando até o fim, o último pin fica no meio da área visível (abaixo das abas).
+  const height = lastCenter + Math.max(below + 24, Math.round((window.innerHeight - (44 + 40 + 55)) / 2) - 150);
+  return { items, legs, height, s, cx };
+}
+
+function cardV(it, p) {
+  const m = modules[it.mi];
+  const len = m.activities.length;
+  const d = p.modDone(it.mi);
+  const pct = Math.round((d / len) * 100);
+  const mins = m.activities.reduce((sum, a) => sum + a[2], 0);
+  return `<li class="${cx('c-board-bcard c-board-vcard', d === len && 'is-done')}" id="board-mod-${it.mi}" data-module="${it.mi}" style="top:${it.top}px;--mod:${modColor(it.mi)}">
+    <div class="c-board-ecard__top"><img class="c-board-ecard__img" src="${esc(moduleBg(it.mi))}" alt="" loading="lazy" /></div>
+    <div class="c-board-vcard__body">
+    <span class="c-board-ecard__tag">Módulo ${it.mi + 1}</span>
+    <h3 class="c-board-vcard__title">${esc(m.title)}</h3>
+    <span class="c-cd-module__meta">${[`${len} atividades`, fmtMinutes(mins)].map(t => `<span>${esc(t)}</span>`).join('<span class="c-cd-bullet" aria-hidden="true"></span>')}</span>
+    <span class="c-cd-module__progress c-board-vcard__progress" role="img" aria-label="${d} de ${len} atividades concluídas"><span class="c-cd-module__track"><span class="${cx(d === len && 'is-done')}" style="width:${pct}%"></span></span><span class="c-cd-module__pct">${pct}%</span></span>
+    </div>
+  </li>`;
+}
+
+function trailV(state, p) {
+  const bw = trailBWidth(state);
+  const { items, legs, height, s, cx: x } = trailVLayout(p, bw, state.cardHs);
+  const roads = legs.map(l => `<g style="--mod:${modColor(l.mi)}">
+      <path class="c-board-road__shadow" d="M${x} ${l.y0} L${x} ${l.y1}" transform="translate(0 2)"/>
+      <path class="c-board-road__way" d="M${x} ${l.y0} L${x} ${l.y1}"/>
+      ${l.reached > l.y0 ? `<path class="c-board-road__progress" d="M${x} ${l.y0} L${x} ${l.reached}"/>` : ''}
+    </g>`).join('');
+  return `<div class="c-board-btrail c-board-etrail c-board-vtrail" style="width:${bw}px;height:${height}px;--e-pin:${s}">
+      <svg class="c-board-road c-board-eroad" width="${bw}" height="${height}" viewBox="0 0 ${bw} ${height}" aria-hidden="true">${roads}</svg>
+      <ol class="c-board-trail__list" aria-label="Atividades do curso">${items.map(it => (it.type === 'card' ? cardV(it, p) : nodeE(it, p))).join('')}</ol>
+    </div>
+    ${jumpAndFinish(state, p)}`;
 }
 
 function trailBLayout(p, bw, compact, cardHs) {
@@ -694,8 +786,11 @@ function trailBWidth(state) {
 }
 
 function trailB(state, p, desk) {
+  // Abaixo do desktop: a trilha vertical no visual da Versão E (trailV).
+  if (!minWidth(DESK) && looksFromHash().trilha === 'c') return trailV(state, p);
   const bw = trailBWidth(state);
-  const { items, road, prog, height } = trailBLayout(p, bw, !minWidth(TABLET), state.cardHs);
+  // Abaixo do desktop (mobile e tablet) a trilha é uma coluna reta, com os pins um embaixo do outro.
+  const { items, road, prog, height } = trailBLayout(p, bw, !minWidth(DESK), state.cardHs);
   const look = looksFromHash();
   // Barra integrada + Versão C: um trecho da estrada liga a barra do curso ao 1º cartão de módulo pela lateral direita (sai do
   // meio da lateral da barra, desce ao lado dela e entra no meio da lateral do cartão, com as curvas da estrada; com o curso iniciado, o
@@ -842,8 +937,8 @@ function scrollToCurrentD(ctx) {
    atual ganha um halo pulsando. O trecho percorrido fica na cor cheia; o
    resto, esmaecido. */
 const E_SIZES = {
-  desk: { C: 300, cardH: 340, pin: 1, step: 168, E: 72, hs: 216, R: 32, H: 496, yT: 72, yB: 428, hi: 32, lo: 144, pad: 64 },
-  mobile: { C: 248, cardH: 276, pin: 0.76, step: 132, E: 56, hs: 168, R: 28, H: 436, yT: 64, yB: 380, hi: 24, lo: 136, pad: 24 },
+  desk: { minLeg: 1308, C: 300, cardH: 316, pin: 1, step: 168, E: 72, hs: 216, R: 32, H: 496, yT: 72, yB: 428, hi: 32, lo: 144, pad: 64 },
+  mobile: { minLeg: 1032, C: 248, cardH: 265, pin: 0.76, step: 132, E: 56, hs: 168, R: 28, H: 436, yT: 64, yB: 380, hi: 24, lo: 136, pad: 24 },
 };
 const E_IN = 24; // a faixa começa e termina 24px por baixo do cartão (parece sair de dentro dele)
 
@@ -917,19 +1012,22 @@ function eSides(mi) {
   const high = mi % 2 === 0;
   const inSide = eEntry(mi);
   const exit = inSide && inSide !== 'left' ? 'right' : eRand(mi, 1) < 0.5 ? 'right' : high ? 'bottom' : 'top';
-  return { exit, entry: eEntry(mi + 1), fx: 0.45 + eRand(mi, 3) * 0.35, fn: 0.2 + eRand(mi, 4) * 0.35 };
+  // Pelo topo ou pela base, a faixa entra e sai sempre no centro da borda do cartão (fx/fn = meio da largura); pelas laterais,
+  // no meio da altura (eLegPoints).
+  return { exit, entry: eEntry(mi + 1), fx: 0.5, fn: 0.5 };
 }
 
 /** Pontos do trecho de um módulo: sai do cartão (rect `a`) pelo lado sorteado, dá `teeth` voltas entre as pistas de cima e de
     baixo e entra no cartão seguinte (só a altura `b`; o x sai daqui) pelo lado sorteado. Devolve os pontos e o x do
     cartão seguinte. No último módulo a faixa só termina, depois das voltas. */
-function eLegPoints(z, a, by, sides, teeth, last) {
+function eLegPoints(z, a, by, sides, teeth, last, bh = z.cardH) {
+  const ah = a.h ?? z.cardH; // alturas do cartão de saída (a) e do de entrada (bh): o cartão abraça o título, que varia
   const other = y => (y === z.yT ? z.yB : y === z.yT ? z.yB : y === z.yB ? z.yT : y < z.H / 2 ? z.yB : z.yT);
   const pts = [];
   let x;
   let y;
   if (sides.exit === 'right') {
-    y = a.y + z.cardH / 2;
+    y = a.y + ah / 2;
     x = a.x + z.C + z.E;
     pts.push([a.x + z.C - E_IN, y], [x, y]);
   } else {
@@ -937,7 +1035,7 @@ function eLegPoints(z, a, by, sides, teeth, last) {
     const top = sides.exit === 'top';
     y = top ? z.yT : z.yB;
     x = a.x + z.C + z.E;
-    pts.push([ex, top ? a.y + E_IN : a.y + z.cardH - E_IN], [ex, y], [x, y]);
+    pts.push([ex, top ? a.y + E_IN : a.y + ah - E_IN], [ex, y], [x, y]);
   }
   for (let j = 0; j < teeth; j++) {
     y = other(y);
@@ -956,17 +1054,19 @@ function eLegPoints(z, a, by, sides, teeth, last) {
     const top = sides.entry === 'top';
     const lane = top ? z.yT : z.yB;
     const en = Math.round(next + z.C * sides.fn);
-    pts.push([x, lane], [en, lane], [en, top ? by - z.cardH / 2 + E_IN : by + z.cardH / 2 - E_IN]);
+    pts.push([x, lane], [en, lane], [en, top ? by - bh / 2 + E_IN : by + bh / 2 - E_IN]);
   }
   return { pts, next };
 }
 
-const manhattan = pts => pts.reduce((sum, q, k) => (k ? sum + Math.abs(q[0] - pts[k - 1][0]) + Math.abs(q[1] - pts[k - 1][1]) : 0), 0);
+const manhattan = pts =>pts.reduce((sum, q, k) => (k ? sum + Math.abs(q[0] - pts[k - 1][0]) + Math.abs(q[1] - pts[k - 1][1]) : 0), 0);
 
-function trailELayout(p) {
+function trailELayout(p, cardHs, dw = document.documentElement.clientWidth) {
   const z = minWidth(TABLET) ? E_SIZES.desk : E_SIZES.mobile;
+  // Altura de cada cartão: a medida (measureCardsE; o título aparece inteiro, então varia) ou a de E_SIZES até medir.
+  const ch = mi => cardHs?.[mi] ?? z.cardH;
   const cardY = mi => (mi % 2 === 0 ? z.hi : z.lo);
-  const cy = mi => cardY(mi) + z.cardH / 2;
+  const cy = mi => cardY(mi) + ch(mi) / 2;
   const items = [];
   const legs = [];
   let curS = null;
@@ -974,7 +1074,7 @@ function trailELayout(p) {
   let x = z.pad;
   let end = x;
   modules.forEach((mo, mi) => {
-    const rect = { x, y: cardY(mi) };
+    const rect = { x, y: cardY(mi), h: ch(mi) };
     items.push({ type: 'card', mi, x, y: rect.y, w: z.C });
     const last = mi === modules.length - 1;
     const sides = eSides(mi);
@@ -983,8 +1083,12 @@ function trailELayout(p) {
     // Voltas suficientes para os pins caberem no passo mínimo (com folga para o pin não encostar no cartão em cada ponta).
     const need = n * z.step + 2 * (E_IN + 56);
     let teeth = 0;
-    let leg = eLegPoints(z, rect, by, sides, teeth, last);
-    while (manhattan(leg.pts) < need && teeth < 30) leg = eLegPoints(z, rect, by, sides, ++teeth, last);
+    const bh = last ? z.cardH : ch(mi + 1);
+    let leg = eLegPoints(z, rect, by, sides, teeth, last, bh);
+    // Do cartão de um módulo ao do seguinte (no último, até a chegada) há no mínimo z.minLeg (a distância do Módulo 1, o mais
+    // longo): a trilha de cada módulo ocupa pelo menos uma tela, e o fundo dele aparece inteiro antes do seguinte começar a
+    // entrar (revealBackgrounds).
+    while ((manhattan(leg.pts) < need || leg.next - x < z.minLeg) && teeth < 30) leg = eLegPoints(z, rect, by, sides, ++teeth, last, bh);
     const path = roundedSegs(leg.pts, z.R);
     const a = E_IN + 56;
     const b = path.total - (last ? 32 : E_IN + 56);
@@ -1003,11 +1107,14 @@ function trailELayout(p) {
     if (last) { const e = leg.pts[leg.pts.length - 1]; items.push({ type: 'end', mi, x: e[0], y: e[1] }); end = e[0]; }
     x = leg.next;
   });
-  const width = end + z.pad + 40;
+  // Depois da chegada sobra meia faixa: no fim da rolagem a bandeira fica no meio da tela.
+  const width = Math.max(end + z.pad + 40, Math.round(end + dw / 2));
   // Percorrido: os trechos antes do módulo atual inteiros, o atual até o pin atual e os seguintes nada.
   legs.forEach(l => { l.reached = p.free || p.finished || l.mi < curLeg ? l.path.total : l.mi === curLeg ? curS : 0; });
   items.forEach(it => { if (it.type === 'node') it.off = it.x > width - 320 ? 1 : -1; });
-  return { z, items, legs, width, height: z.H };
+  // Altura da faixa: a de E_SIZES ou mais, se um cartão de baixo crescer além dela (título longo).
+  const height = Math.max(z.H, ...modules.map((_, mi) => cardY(mi) + ch(mi) + 32));
+  return { z, items, legs, width, height };
 }
 
 function nodeE(it, p) {
@@ -1021,12 +1128,14 @@ function nodeE(it, p) {
   // Bloqueada com imagem: a imagem fica colorida com desfoque e um cadeado por cima (claro ou escuro conforme a imagem:
   // toneLockedPins mede depois de carregar).
   const hasImg = looksFromHash().pinImg && !['avaliacao', 'prova', 'missao'].includes(a.kind);
-  // Pin da Versão B (disco branco com o miolo: imagem, ou o ícone challenge/target, e o número embaixo).
+  // Pin da Versão B (disco branco com o miolo: imagem, ou o ícone challenge/target, e o número embaixo). No pin atual, o balão
+  // flutuante "Continuar"/"Começar" em cima (c-board-start, o mesmo das outras versões; 25/11/2026), que abre a atividade direto.
   return `<li class="${cx('c-board-enode', `is-${locked ? 'locked' : state}`)}" ${it.current ? 'data-current' : ''} style="left:${it.x}px;top:${it.y}px;--mod:${modColor(it.mi)}">
     <button type="button" class="${cx('c-board-pin c-board-pin--b c-board-epin', `c-board-pin--${state}`)}" aria-label="${esc(aria)}" ${tipHtml ? `aria-describedby="tip-${key}" ` : ''}${locked ? 'aria-disabled="true"' : ''}
       data-action="openNode" data-index="${it.i}" data-key="${key}">${pinFaceB(it, looksFromHash().pinImg)}</button>
     ${locked && hasImg ? `<span class="c-board-enode__lock" aria-hidden="true">${icon('lock', 22)}</span>` : ''}
     ${done ? `<span class="c-board-enode__stars">${stars(starsPattern[it.i % starsPattern.length], `${starsPattern[it.i % starsPattern.length]} de 3 estrelas`)}</span>` : ''}
+    ${it.current ? `<button type="button" class="c-board-start c-board-enode__start" data-action="openNode" data-direct="1" data-index="${it.i}" data-key="start-${it.i}" tabindex="-1" aria-hidden="true">${p.started ? 'Continuar' : 'Começar'}</button>` : ''}
     ${tipHtml}
   </li>`;
 }
@@ -1053,7 +1162,7 @@ function cardE(it, p) {
 }
 
 function trailE(state, p, desk) {
-  const { z, items, legs, width, height } = trailELayout(p);
+  const { z, items, legs, width, height } = trailELayout(p, state.eCardHs, state.dw || document.documentElement.clientWidth);
   // Cada trecho: a estrada da Versão C (sombra de 13 e caminho branco de 9) e, no meio dela, a linha fina do progresso na cor
   // do módulo, só até o pin atual (entre as atividades já feitas). Os cartões ficam por cima da faixa, então as pontas que
   // entram neles somem por baixo.
@@ -1164,7 +1273,7 @@ const info = p => courseInfoData(p.done, { ctaHref: activityHref(p.cur) }); // "
 const panelTabs = [
   { id: 'visao', label: 'Visão geral' },
   { id: 'descricao', label: 'Descrição' },
-  { id: 'materiais', label: 'Materiais', count: materials.length },
+  { id: 'materiais', label: 'Materiais de apoio', count: materials.length },
 ];
 
 const SIDE_W = 364; // coluna do curso (Figma "Curso Ludica - Versao 12/11": fixa à direita, altura toda)
@@ -1212,7 +1321,7 @@ function hudBar(state, p) {
     </div>
     <div class="c-board-hud__actions">
       <button type="button" class="c-board-hud__btn" data-action="openHud" data-id="sobre" aria-haspopup="dialog">${icon('info', 16)}<span>Sobre o curso</span></button>
-      <button type="button" class="c-board-hud__btn" data-action="openHud" data-id="materiais" aria-haspopup="dialog">${icon('file-text', 16)}<span>Materiais</span><span class="c-button-badge__count">${materials.length}</span></button>
+      <button type="button" class="c-board-hud__btn" data-action="openHud" data-id="materiais" aria-haspopup="dialog">${icon('file-text', 16)}<span>Materiais de apoio</span><span class="c-button-badge__count">${materials.length}</span></button>
     </div>
   </header></div>`;
 }
@@ -1242,15 +1351,36 @@ function hudDrawer(state, p) {
    - Não disputa espaço com a trilha: fica no canto, fora da faixa central, e recolhe numa pílula (anel + nome) com um clique;
      a trilha usa a largura toda.
    - Acessível: região com nome, botão de recolher com aria-expanded, foco visível e alvos de 36 ou mais. */
+/** Dock, ao carregar a tela: o cartão de informação começa recolhido (pílula), abre sozinho depois de DOCK_AUTO_OPEN ms (com a
+    animação de abrir), fica aberto DOCK_AUTO_CLOSE ms e recolhe (com a animação de recolher). Um scroll/swipe da pessoa na
+    trilha recolhe na hora e, antes da abertura, cancela a sequência. Pelo tempo, o fechamento espera o foco e o ponteiro
+    saírem do cartão; a rolagem automática da tela (centralizar a atividade atual) não conta. */
+const DOCK_AUTO_OPEN = 1200;
+const DOCK_AUTO_CLOSE = 3000;
+
+function autoCloseDock(ctx, fromTimer = false) {
+  clearTimeout(ctx.dockTimer);
+  if (ctx.destroyed || ctx.state.dockClosed || !looksFromHash().dock) return;
+  const dock = ctx.root.querySelector('.c-board-dock--tabs');
+  if (!dock) return;
+  // Pelo tempo, não recolhe com o foco ou o ponteiro no cartão: tenta de novo quando a pessoa sair dele. O scroll/swipe na
+  // trilha recolhe sempre.
+  if (fromTimer && (dock.contains(document.activeElement) || dock.matches(':hover'))) {
+    ctx.dockTimer = setTimeout(() => autoCloseDock(ctx, true), 1000);
+    return;
+  }
+  ctx.actions.toggleDock(ctx, { auto: true });
+}
+
 function dockPanel(state, p) {
   const d = info(p);
-  const pts = d.rewards;
   const open = !state.dockClosed;
   const r = 18;
   const circ = 2 * Math.PI * r;
-  const ring = `<span class="c-board-dock__ring" role="img" aria-label="${d.pct}% do curso concluído">
+  // Curso concluído: o anel fica verde e, no lugar de "100%", um check.
+  const ring = `<span class="c-board-dock__ring" role="img" aria-label="${d.finished ? 'Curso concluído' : `${d.pct}% do curso concluído`}">
       <svg viewBox="0 0 44 44" aria-hidden="true"><circle class="c-board-dock__ring-track" cx="22" cy="22" r="${r}"/><circle class="${cx('c-board-dock__ring-fill', d.finished && 'is-done')}" cx="22" cy="22" r="${r}" stroke-dasharray="${((circ * d.pct) / 100).toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90 22 22)"/></svg>
-      <b>${d.pct}%</b>
+      ${d.finished ? icon('check', 18, 'c-board-dock__ring-check') : `<b>${d.pct}%</b>`}
     </span>`;
   if (!open) {
     // Recolhido: a pílula com o anel de progresso e o nome do curso (numa linha, com reticências) e, na borda de baixo dela, o
@@ -1269,7 +1399,7 @@ function dockPanel(state, p) {
   // do curso perde a capa, o progresso, o botão e a moldura (as informações usam a largura toda). O botão de recolher fica fora
   // do cartão, à direita do topo.
   const tab = state.dockTab === 'materiais' ? 'materiais' : 'sobre';
-  const tabs = [['sobre', 'Sobre', 0], ['materiais', 'Materiais', materials.length]];
+  const tabs = [['sobre', 'Sobre', 0], ['materiais', 'Materiais de apoio', materials.length]];
   const body = tab === 'sobre'
     ? `${summary(d, { cover: false, progress: false, cta: false, rewards: false })}${sideAboutCourse(d, { title: false })}${description(d, false)}${sideCategories()}`
     : materialsSection(d);
@@ -1281,10 +1411,7 @@ function dockPanel(state, p) {
         <span class="c-board-dock__title" style="--i:1">${esc(course.title)}</span>
         <span class="c-board-dock__meta" style="--i:2">${d.modules.length} módulos<span class="c-cd-bullet" aria-hidden="true"></span>${esc(fmtMinutes(d.totalMin))}</span>
         ${courseProgress(d, 'c-board-dock__progress').replace('<div ', '<div style="--i:3" ')}
-        <div class="c-board-dock__rewards" style="--i:4">
-          <span title="Pontos">${icon('star', 16)}<b>${fmtInt(pts.got.pts)}</b>/${fmtInt(pts.max.pts)}<span class="u-sr-only"> pontos</span></span>
-          <span title="Moedas">${lpIcon('coin', 16)}<b>${fmtInt(pts.got.coins)}</b>/${fmtInt(pts.max.coins)}<span class="u-sr-only"> moedas</span></span>
-        </div>
+        <div class="c-cd-side__rewards c-board-dock__boxes" style="--i:4">${rewardBoxes(d)}</div>
       </div>
       <nav class="c-cd-tabs c-board-dock__tabs" style="--i:5" aria-label="Informações do curso"><div class="c-cd-tabs__row" role="tablist">${tabs.map(([id, label, count]) =>
         `<button type="button" role="tab" id="dock-tab-${id}" class="${cx('c-button-badge c-board-dock__tab', tab === id && 'is-active')}" data-action="setDockTab" data-id="${id}" aria-selected="${tab === id}" aria-controls="dock-panel" tabindex="${tab === id ? 0 : -1}"><span>${label}</span>${count ? `<span class="c-button-badge__count">${count}</span>` : ''}</button>`).join('')}</div></nav>
@@ -1314,7 +1441,7 @@ function deskPanel(state, p) {
 function mobileBody(state, p) {
   const d = info(p);
   if (state.tab === 'materiais') return `<div class="c-cd-mbody" id="cd-panel" role="tabpanel" aria-labelledby="cd-tab-materiais">${materialsSection(d)}</div>`;
-  return `<div class="c-cd-mbody" id="cd-panel" role="tabpanel" aria-labelledby="cd-tab-sobre">${mobileSummary(d, { trailCta: false })}${description(d, false)}${mobileCategories()}</div>`;
+  return `<div class="c-cd-mbody" id="cd-panel" role="tabpanel" aria-labelledby="cd-tab-sobre">${mobileSummary(d)}${description(d, false)}${mobileAbout(d)}${mobileCategories()}</div>`;
 }
 
 /* ---------- Esqueleto ---------- */
@@ -1352,28 +1479,47 @@ function view(state) {
 /** Fundo por módulo: a imagem de cada módulo (a partir do 2º) se revela enquanto o separador (ou cartão) dele sobe de 90% a
     30% da altura da tela: a opacidade vai de 0 a 1 e a imagem assenta de 108% a 100%. A faixa acima do cartão fixo usa a
     imagem que já domina a tela. Atualiza direto no DOM (sem refazer o HTML) para acompanhar a rolagem. */
+/** Fundo por módulo: troca por limiar, não pela rolagem (24/11/2026). O fundo do módulo N entra quando o cartão dele chega
+    à beira da área da trilha — na horizontal, a borda esquerda do cartão a BG_EDGE_X ou menos da borda esquerda da faixa (o
+    último pin do módulo anterior já saiu da tela); na vertical, o topo do cartão a BG_EDGE_Y ou menos do topo da tela — e
+    sai quando o cartão volta para depois desse ponto. A troca é um fade automático (CSS: transição de opacidade e de escala
+    das camadas), com duração própria: não acompanha a velocidade do scroll/swipe. No fim da trilha, o último módulo com o
+    cartão na tela também entra. */
+const BG_EDGE_X = 24;
+const BG_EDGE_Y = 160;
+
 function revealBackgrounds(ctx) {
   const layers = ctx.root.querySelectorAll('[data-bg-layer]');
   if (!layers.length) return;
-  // Versão D (horizontal): a mesma conta com a borda esquerda da faixa do módulo e a largura da tela.
   const sc = isHoriz() ? ctx.root.querySelector('[data-dscroll]') : null;
-  const vh = sc ? window.innerWidth : window.innerHeight;
-  const atEnd = sc ? sc.scrollLeft + sc.clientWidth >= sc.scrollWidth - 2 : window.scrollY + vh >= document.documentElement.scrollHeight - 2;
+  const size = sc ? window.innerWidth : window.innerHeight;
+  const atEnd = sc ? sc.scrollLeft + sc.clientWidth >= sc.scrollWidth - 2 : window.scrollY + size >= document.documentElement.scrollHeight - 2;
+  const edge = sc ? sc.getBoundingClientRect().left + BG_EDGE_X : BG_EDGE_Y;
   let top = 0;
+  layers.forEach((_, i) => {
+    if (i === 0) return;
+    const mark = ctx.root.querySelector('#board-mod-' + i);
+    if (!mark) return;
+    const r = mark.getBoundingClientRect();
+    const pos = sc ? r.left : r.top;
+    if (pos <= edge || (atEnd && pos < size)) top = i;
+  });
+  // HTML refeito (ctx.bgTop nulo): as camadas nascem apagadas; vão direto ao estado certo, sem animar (senão o fundo piscaria
+  // a cada redesenho da tela).
+  const fresh = ctx.bgTop == null;
+  if (!fresh && top === ctx.bgTop) return;
   layers.forEach((layer, i) => {
     if (i === 0) return;
-    const mark = ctx.root.querySelector(`#board-mod-${i}`);
-    const y = mark ? (sc ? mark.getBoundingClientRect().left : mark.getBoundingClientRect().top) : Infinity;
-    // No fim da página o último módulo pode não subir até 30%: com o separador já na tela, a imagem fica inteira.
-    const t = atEnd && y < vh ? 1 : Math.max(0, Math.min(1, (vh * 0.9 - y) / (vh * 0.6)));
-    layer.style.opacity = t.toFixed(3);
-    layer.style.transform = `scale(${(1.08 - 0.08 * t).toFixed(4)})`;
-    if (t >= 0.5) top = i;
+    if (fresh) layer.style.transition = 'none';
+    layer.style.opacity = i <= top ? '1' : '0';
+    layer.style.transform = i <= top ? 'scale(1)' : 'scale(1.08)';
   });
-  if (top !== ctx.bgTop) {
-    ctx.bgTop = top;
-    ctx.root.querySelector('.c-board')?.style.setProperty('--board-cover', imageUrl(moduleBg(top)));
+  if (fresh) {
+    void layers[0].offsetWidth; // aplica sem transição antes de devolvê-la
+    layers.forEach(layer => { layer.style.transition = ''; });
   }
+  ctx.bgTop = top;
+  ctx.root.querySelector('.c-board')?.style.setProperty('--board-cover', imageUrl(moduleBg(top)));
 }
 
 /* ---------- Rolagem: módulo do cartão fixo e botão "ir para a atividade atual" ---------- */
@@ -1435,6 +1581,99 @@ function toast(ctx, text, warn = false) {
   toastTimer = setTimeout(() => !ctx.destroyed && ctx.set({ toastOn: false }), 2400);
 }
 
+/* ---------- Dock: abrir e fechar como uma peça só ----------
+   A pílula vira o cartão crescendo para baixo, e o cartão vira a pílula encolhendo para cima, num movimento contínuo:
+   - Abrir: o conteúdo da pílula some (120ms); a tela troca para o cartão, que começa recortado no tamanho da pílula (44 de
+     altura, cantos de 22) e cresce até a altura toda (cantos de 16) em 420ms, desacelerando. A barriguinha com o chevron desce
+     junto com a borda de baixo. O conteúdo do cartão aparece no fim (220ms, a partir de 240ms).
+   - Fechar: o conteúdo do cartão some (120ms); o cartão encolhe até a pílula (380ms), com a barriguinha subindo junto; então a
+     tela troca para a pílula, cujo conteúdo aparece (160ms).
+   O recorte é o clip-path do cartão; o contorno e a sombra (filter: drop-shadow no Dock) seguem a silhueta. Sem movimento com
+   prefers-reduced-motion (troca direto). */
+const DOCK_PILL_H = 44;
+
+/** Anima a altura visível do cartão (recorte) e a barriguinha juntas, quadro a quadro, no mesmo relógio: assim a barriguinha
+    nunca se solta da borda (animações separadas de clip-path e de transform podem andar em ritmos diferentes, e o contorno
+    por drop-shadow atrasaria em relação a elas). from/to = quanto do cartão fica escondido embaixo (px). Um timer garante o
+    estado final mesmo com a aba em segundo plano (sem quadros). */
+const easeOut = t => 1 - (1 - t) ** 3;
+const easeInOut = t => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+
+function tweenDock(card, bump, from, to, ms, ease) {
+  const radius = h => 22 - 6 * (1 - h / Math.max(1, Math.max(from, to))); // 22 na pílula, 16 no cartão inteiro
+  const apply = hidden => {
+    card.style.clipPath = 'inset(0 0 ' + hidden.toFixed(2) + 'px 0 round ' + radius(hidden).toFixed(2) + 'px)';
+    if (bump) bump.style.transform = 'translateY(' + (-hidden).toFixed(2) + 'px)';
+  };
+  // Sem as transições do CSS (a barriguinha tem transition em transform): cada quadro vai direto ao valor, senão ela atrasa.
+  card.style.transition = 'none';
+  if (bump) bump.style.transition = 'none';
+  apply(from);
+  const t0 = performance.now();
+  let done = false;
+  const frame = now => {
+    if (done) return;
+    const t = Math.min(1, (now - t0) / ms);
+    apply(from + (to - from) * ease(t));
+    if (t < 1) requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+  setTimeout(() => {
+    if (!done) apply(to);
+    done = true;
+    card.style.transition = '';
+    if (bump) bump.style.transition = '';
+  }, ms + 20);
+}
+
+function morphDock(ctx, dock, closing, swap) {
+  ctx.dockMorphing = true;
+  // A sequência anda por timers (e não pelo fim das animações): com a aba em segundo plano as animações param, mas a troca
+  // acontece do mesmo jeito e o Dock nunca fica preso no meio.
+  const step = (ms, fn) => setTimeout(() => { if (ctx.destroyed) { ctx.dockMorphing = false; return; } fn(); }, ms);
+  const fadeOut = nodes => nodes.forEach(n => n.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: 'ease-in', fill: 'forwards' }));
+  if (!closing) {
+    fadeOut([...dock.querySelectorAll('.c-board-dock__pill > *')]);
+    step(120, () => {
+      swap();
+      const d = ctx.root.querySelector('.c-board-dock--tabs');
+      const card = d?.querySelector('.c-board-dock__card');
+      const bump = d?.querySelector('.c-board-dock__toggle');
+      if (card) {
+        const dy = Math.max(0, card.offsetHeight - DOCK_PILL_H);
+        tweenDock(card, bump, dy, 0, 420, easeOut);
+        bump?.querySelector('.c-icon')?.animate([{ transform: 'rotate(-180deg)' }, { transform: 'rotate(0deg)' }], { duration: 420, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' });
+        [...card.children].forEach(n =>
+          n.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 220, delay: 240, easing: 'ease-out', fill: 'backwards' }));
+      }
+      step(450, () => {
+        // Fim: tira os estilos da animação (o cartão aberto fica como o CSS manda).
+        if (card) card.style.clipPath = '';
+        if (bump) bump.style.transform = '';
+        ctx.dockMorphing = false;
+      });
+    });
+    return;
+  }
+  const card = dock.querySelector('.c-board-dock__card');
+  const bump = dock.querySelector('.c-board-dock__toggle');
+  if (!card) { swap(); ctx.dockMorphing = false; return; }
+  const dy = Math.max(0, card.offsetHeight - DOCK_PILL_H);
+  fadeOut([...card.children]);
+  step(120, () => {
+    tweenDock(card, bump, 0, dy, 380, easeInOut);
+    bump?.querySelector('.c-icon')?.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(180deg)' }], { duration: 380, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' });
+    step(400, () => {
+      swap();
+      ctx.root.querySelector('.c-board-dock--closed')?.querySelectorAll('.c-board-dock__pill > *').forEach(n =>
+        n.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, easing: 'ease-out' }));
+      ctx.dockMorphing = false;
+    });
+  });
+}
+
+/* Ida para a atividade: leaveTo (js/core/transition.js) faz o fade out da trilha; a apresentação entra com fade in e se monta. */
+
 const actions = {
   ...examDialogActions,
   openNode: (ctx, el) => {
@@ -1454,7 +1693,7 @@ const actions = {
     if (statusOf(i, p) === 'locked') return toast(ctx, 'Conclua as atividades anteriores para desbloquear.', true);
     // Avaliação (e prova): diálogo da avaliação (apresentação → confirmação) no lugar do detalhe da atividade.
     if (['avaliacao', 'prova'].includes(activities[i].kind)) return openExamDialog(ctx, el.dataset.key);
-    location.hash = activityHref(i); // abre direto a atividade (sem o detalhe em drawer/sheet)
+    leaveTo(ctx, activityHref(i)); // a apresentação da atividade (sem o detalhe em drawer/sheet), com fade out da trilha
   },
   closeSheet: ctx => closeSheet(ctx),
   // Botão do bottom sheet: avaliação abre o diálogo da avaliação; missão do módulo vai para Missões; as demais, a atividade.
@@ -1465,7 +1704,7 @@ const actions = {
     ctx.set({ sheet: null });
     if (sh.trophy !== undefined) { location.hash = '#missoes'; return; }
     if (['avaliacao', 'prova'].includes(activities[sh.i].kind)) { openExamDialog(ctx, key); return; }
-    location.hash = activityHref(sh.i);
+    leaveTo(ctx, activityHref(sh.i));
   },
   jumpCurrent: ctx => scrollToCurrent(ctx),
 
@@ -1493,27 +1732,22 @@ const actions = {
   // Dock: recolhe na pílula ou abre o cartão; o foco fica no botão equivalente do novo estado.
   // Animação: ao recolher, os elementos do cartão saem um a um (de baixo para cima) e o cartão some; então entra a pílula. Ao
   // abrir, a pílula some e o cartão aparece montando os elementos um a um (ver .c-board-dock.is-entering/.is-leaving no CSS).
-  toggleDock: ctx => {
+  toggleDock: (ctx, el) => {
     const closing = !ctx.state.dockClosed;
     const dock = ctx.root.querySelector('.c-board-dock');
-    if (dock?.classList.contains('is-leaving')) return;
+    if (ctx.dockMorphing) return;
     const swap = () => {
       if (ctx.destroyed) return;
-      // A trilha desliza para o novo lugar (o cartão aberto a empurra para a esquerda; recolhido, ela volta ao centro): FLIP —
-      // mede a posição antes e depois do render e anima a diferença em 600ms ease-in-out.
-      const before = ctx.root.querySelector('.c-board-btrail')?.getBoundingClientRect().left;
-      ctx.set({ dockClosed: closing, fresh: true });
-      ctx.state.fresh = false;
-      const main = ctx.root.querySelector('.c-board__main');
-      const after = ctx.root.querySelector('.c-board-btrail')?.getBoundingClientRect().left;
-      if (main && before != null && after != null && Math.abs(before - after) > 1 && !reducedMotion()) {
-        main.animate([{ transform: `translateX(${Math.round(before - after)}px)` }, { transform: 'none' }], { duration: 600, easing: 'cubic-bezier(0.42, 0, 0.58, 1)' });
-      }
-      ctx.root.querySelector('[data-action="toggleDock"]:not([tabindex="-1"])')?.focus({ preventScroll: true });
+      // O cartão abre e fecha por cima da trilha: ela não se move (nas trilhas horizontais, a faixa guarda a rolagem).
+      const sx = ctx.root.querySelector('[data-dscroll]')?.scrollLeft;
+      ctx.set({ dockClosed: closing });
+      const sc = ctx.root.querySelector('[data-dscroll]');
+      if (sc && sx != null) sc.scrollLeft = sx;
+      // Aberto ou fechado sozinho (autoCloseDock e a abertura ao carregar): o foco fica onde está.
+      if (!el?.auto) ctx.root.querySelector('[data-action="toggleDock"]:not([tabindex="-1"])')?.focus({ preventScroll: true });
     };
-    if (!dock || reducedMotion()) return swap();
-    dock.classList.add('is-leaving');
-    setTimeout(swap, closing ? 320 : 140);
+    if (!dock || reducedMotion() || !dock.animate) return swap();
+    morphDock(ctx, dock, closing, swap);
   },
   // Menu float: o ícone abre o cartão com aquele conteúdo; clicar de novo no ativo (o "x") fecha.
   floatTab: (ctx, el) => {
@@ -1595,12 +1829,24 @@ function linkHud(ctx) {
   svg.querySelectorAll('path').forEach(path => path.setAttribute('d', d));
 }
 
-function measureCards(ctx) {
-  if (ctx.state.loading || !isCD()) return;
-  const cards = [...ctx.root.querySelectorAll('.c-board-ccard')];
+/** Versão E: mede a altura de cada cartão de módulo (abraça o título inteiro) e refaz a faixa se alguma mudou. */
+function measureCardsE(ctx) {
+  if (ctx.state.loading || looksFromHash().trilha !== 'e') return;
+  const cards = [...ctx.root.querySelectorAll('.c-board-ecard')];
   if (!cards.length) return;
   const hs = {};
-  cards.forEach(li => { hs[li.dataset.module] = Math.round(li.querySelector('.c-board-band__card').offsetHeight); });
+  cards.forEach(li => { hs[li.dataset.module] = Math.round(li.offsetHeight); });
+  const prev = ctx.state.eCardHs ?? {};
+  if (Object.keys(hs).some(k => hs[k] !== prev[k])) ctx.set({ eCardHs: hs });
+}
+
+function measureCards(ctx) {
+  if (ctx.state.loading || !isCD()) return;
+  const cards = [...ctx.root.querySelectorAll('.c-board-ccard, .c-board-vcard')];
+  if (!cards.length) return;
+  const hs = {};
+  // Trilha vertical (trailV): o próprio cartão; Versão C: o cartão dentro do item.
+  cards.forEach(li => { hs[li.dataset.module] = Math.round((li.querySelector('.c-board-band__card') ?? li).offsetHeight); });
   const prev = ctx.state.cardHs ?? {};
   if (Object.keys(hs).some(k => hs[k] !== prev[k])) ctx.set({ cardHs: hs });
 }
@@ -1617,9 +1863,8 @@ function measureTrailB(ctx) {
   // o mesmo espaçamento e o cartão do módulo o mesmo tamanho da barra integrada.
   const c = minWidth(DESK) && looksFromHash().trilha === 'c';
   const hud = c ? ctx.root.querySelector('.c-board-hud') : null;
-  // Com o dock aberto a área perde DOCK_PUSH (o cartão empurra a trilha); a conta usa a largura sem ele.
-  const dockOpen = looksFromHash().dock && !ctx.state.dockClosed;
-  const hudW = hud ? hud.offsetWidth : c && looksFromHash().dock ? Math.min(main.clientWidth + (dockOpen ? DOCK_PUSH : 0) - 144, 1120) : 0;
+  // Dock: o cartão abre por cima da trilha, sem mudar a área dela.
+  const hudW = hud ? hud.offsetWidth : c && looksFromHash().dock ? Math.min(main.clientWidth - 144, 1120) : 0;
   const max = hudW > 0 ? trailWidthForCard(Math.round(hudW * 0.68)) : B_MAX;
   const bw = Math.min(max, Math.floor(main.clientWidth));
   if (bw > 0 && bw !== ctx.state.bw) ctx.set({ bw });
@@ -1635,7 +1880,7 @@ function trailWidthForCard(card) {
 export function mountBoard(root, { loading = true } = {}) {
   return createView(root, {
     state: {
-      loading, viewMod: null, curVis: true, curUp: false, tab: 'conteudo', panelTab: 'visao', panelHidden: false,
+      loading, dockClosed: true, viewMod: null, curVis: true, curUp: false, tab: 'conteudo', panelTab: 'visao', panelHidden: false,
       toast: '', toastOn: false, toastWarn: false, bw: null, examDialog: null, sheet: null, fresh: false, hud: null,
     },
     view,
@@ -1644,6 +1889,7 @@ export function mountBoard(root, { loading = true } = {}) {
     onRender: ctx => {
       measureTrailB(ctx);
       measureCards(ctx);
+      measureCardsE(ctx);
       toneLockedPins(ctx);
       linkHud(ctx);
       // A ligação depende da posição da barra e do cartão: refaz sempre que um dos dois (ou a trilha) muda de tamanho — fontes
@@ -1659,6 +1905,16 @@ export function mountBoard(root, { loading = true } = {}) {
       if (dsc) dsc.onscroll = () => onScroll(ctx);
       ctx.bgTop = null; // o HTML foi refeito: o fundo por módulo volta ao estado da rolagem atual
       revealBackgrounds(ctx);
+      // Dock: carrega recolhido, abre sozinho depois de 1,2 s e recolhe 3 s depois de aberto (autoCloseDock). O scroll da pessoa
+      // antes de abrir cancela (autoCloseDock limpa o timer).
+      if (!ctx.state.loading && !ctx.dockTimerSet && ctx.root.querySelector('.c-board-dock--closed')) {
+        ctx.dockTimerSet = true;
+        ctx.dockTimer = setTimeout(() => {
+          if (ctx.destroyed || !ctx.state.dockClosed) return;
+          ctx.actions.toggleDock(ctx, { auto: true });
+          ctx.dockTimer = setTimeout(() => autoCloseDock(ctx, true), DOCK_AUTO_CLOSE + 540); // + a pílula virando cartão (120 + 420)
+        }, DOCK_AUTO_OPEN);
+      }
       // Ao terminar de carregar (ou ao voltar para a trilha), centraliza a atividade atual (como no protótipo).
       if (!ctx.state.loading && !ctx.centered && ctx.root.querySelector('.c-board__main')) {
         ctx.centered = true;
@@ -1690,6 +1946,15 @@ export function mountBoard(root, { loading = true } = {}) {
         e.preventDefault();
         sc.scrollLeft += e.deltaY;
       }, ctx.root);
+      // Dock: o primeiro scroll/swipe da pessoa (roda do mouse, toque arrastando ou teclas de rolagem) recolhe o cartão. Gestos
+      // dentro do próprio cartão não contam.
+      const userScroll = e => { if (!e.target.closest?.('.c-board-dock')) autoCloseDock(ctx); };
+      ctx.listen('wheel', userScroll, window);
+      ctx.listen('touchmove', userScroll, window);
+      ctx.listen('keydown', e => {
+        if (['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)
+          && !e.target.closest?.('input, textarea, select, [role="tab"], .c-board-dock')) userScroll(e);
+      }, window);
       // Imagem de módulo enviada ou removida pelo painel Tweaks: refaz o fundo.
       ctx.listen('module-images-change', () => ctx.render(), window);
       // A estrada da trilha B é desenhada em px: acompanha a largura da janela.

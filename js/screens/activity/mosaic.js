@@ -4,7 +4,7 @@
 import { cx, esc } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { mosaic as M } from '../../data/activity.js';
-import { upd, finish, later, fx, toast, streakOn } from './flow.js';
+import { upd, finish, later, fx, toast, streakOn, verdict, defaultFooter } from './flow.js';
 import { pill } from '../../components/badges.js';
 import { head } from './head.js';
 
@@ -27,19 +27,15 @@ function view(state) {
       ${b ? `<span class="c-act-badge c-act-badge--${b[0]}${fx(state, 'mosRev') || fx(state, `mosSel${i}`) ? ' is-in' : ''}">${icon(b[1], 12)}</span>` : ''}
     </button>`;
   }).join('');
-  const msg = !m.rev ? toast(n ? 'Você pode selecionar quantos cards quiser' : 'Toque nos cards para selecioná-los')
-    : toast(perfect ? 'Perfeito! Você encontrou os 4 princípios: perceptível, operável, compreensível e robusto.'
-      : `Você acertou ${okN} de ${TOTAL}. Os 4 princípios são perceptível, operável, compreensível e robusto${missN ? ' (os que faltaram estão em amarelo)' : ''}.`,
-    perfect ? 'ok' : badN ? 'bad' : 'warn', fx(state, 'mosRev'));
+  // Depois de confirmar, o resultado e a explicação ficam na barra inferior (footer); aqui só a orientação antes.
   return `<section class="c-act-card c-act-mos" aria-label="Mosaico">
-    ${head({ kicker: 'Selecione todos os cards que respondem à questão', title: esc(M.question), aside: pill({ color: n ? 'system' : 'grey', label: `${n} ${n === 1 ? 'selecionado' : 'selecionados'}` }) })}
+    ${head({ mech: 'Mosaico', task: 'Selecione todos os cards que respondem à questão', how: 'Toque nos cards para marcar', title: esc(M.question), aside: pill({ color: n ? 'system' : 'grey', label: `${n} ${n === 1 ? 'selecionado' : 'selecionados'}` }) })}
     <div class="c-act-mos__grid">${cards}</div>
     ${m.rev ? `<div class="c-act-card__center c-act-card__center--wrap">
       ${pill({ color: 'green', html: `<span class="c-act-dot c-act-dot--xs is-ok"></span>${okN} ${okN === 1 ? 'correto' : 'corretos'}` })}
       ${pill({ color: 'red', html: `<span class="c-act-dot c-act-dot--xs is-bad"></span>${badN} ${badN === 1 ? 'incorreto' : 'incorretos'}` })}
       ${pill({ color: 'yellow', html: `<span class="c-act-dot c-act-dot--xs is-warn"></span>${missN} faltando` })}
     </div>` : ''}
-    <div class="c-act-msg" aria-live="polite">${msg}</div>
   </section>`;
 }
 
@@ -67,7 +63,18 @@ export default {
     },
     mosConfirm: ctx => confirm(ctx),
   },
-  footer: s => (s.justDone === 14 || s.mos.rev ? null : { label: 'Confirmar', action: 'mosConfirm', disabled: !s.mos.sel.length }),
+  footer: s => {
+    const m = s.mos;
+    if (!m.rev) return s.justDone === 14 ? null : { label: 'Confirmar', action: 'mosConfirm', disabled: !m.sel.length };
+    const okN = m.sel.filter(i => M.cards[i].ok).length;
+    const badN = m.sel.length - okN;
+    const missN = TOTAL - okN;
+    const perfect = !badN && !missN;
+    const why = perfect ? 'Você encontrou os 4 princípios da acessibilidade: perceptível, operável, compreensível e robusto.'
+      : `Você acertou ${okN} de ${TOTAL}. Os 4 princípios são perceptível, operável, compreensível e robusto${missN ? ' (os que faltaram estão em amarelo)' : ''}.`;
+    const res = verdict(perfect, { why, title: perfect ? 'Correto!' : okN ? 'Quase!' : 'Incorreto!' });
+    return s.justDone === 14 ? { ...defaultFooter(s), ...res } : { label: 'Conferindo…', action: '', disabled: true, ...res };
+  },
   pct: s => Math.min(1, s.mos.sel.length / TOTAL) * 0.8,
   reset: s => (s.status[14] === 'done' ? { sel: [], rev: false } : null),
 };

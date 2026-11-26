@@ -747,3 +747,12 @@
 @media (min-width: 768px) and (prefers-reduced-motion: reduce) {
   .c-shell { transition: background-color 0.2s; }
 }
+
+/* Saída animada para outra tela (leaveTo, js/core/transition.js; 25/11/2026): Curso e Tabuleiro, ao abrir uma atividade, somem
+   em 320 ms antes de o endereço mudar. Mais forte que o [data-reveal] da montagem, que deixaria a opacidade em 1. */
+[data-on] [data-reveal].is-route-leaving,
+.is-route-leaving {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.32s ease-in;
+}

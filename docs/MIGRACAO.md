@@ -536,3 +536,744 @@ Catálogo (páginas de documentação, em `index.html`):
 - O botão circular de expandir (28px, `chevron-down`) continua, agora no meio da borda de baixo da pílula, metade para fora.
   Ele repete a ação da pílula e fica fora do teclado e dos leitores de tela; a pílula é o controle acessível.
 - A animação de recolher/abrir agora encolhe o cartão até o tamanho da pílula (296 × 56) e cresce a partir dela.
+
+### Tabuleiro: Versão E como trilha padrão e Dock na largura do navdrawer (18/11/2026)
+
+- `#tabuleiro` sem parâmetro abre a trilha **Versão E** (antes, a C). As outras continuam em `?trilha=a|b|c|d`. Mudança em
+  `looksFromHash` (js/screens/board.js) e no `default` do tweak "Desenho da trilha" (js/data/tweaks.js).
+- O **Dock** tem a largura do navdrawer (**400px**, `css/components/panel.css`) aberto e recolhido: o cartão passou de 300 para
+  400 e a pílula (anel, nome do curso e botão de expandir) deixou de encolher com o título (antes até 296) e tem 400 fixos.
+  Abaixo de 448 de tela, os dois ficam com a largura da tela menos 48.
+- Aberto, o cartão **fica por cima da trilha** e não muda a apresentação dela: a área da trilha não perde largura, nada se
+  desloca e a trilha continua visível em volta e atrás do cartão (antes ele empurrava a trilha para a esquerda e a faixa
+  horizontal terminava antes dele, cortando o que vinha depois). Saiu o `DOCK_PUSH` e a animação da trilha ao abrir e recolher;
+  nas trilhas horizontais (D e E), abrir ou recolher o cartão mantém a rolagem da faixa.
+- A animação de recolher/abrir (clip-path) usa a nova largura da pílula (400).
+- Versão E: o título do cartão do módulo (`.c-board-ecard__title`) passou de heading 20/32 (16/24 no mobile) para **body 14/20
+  700**, o mesmo do título do curso no cartão de informações do Dock (`.c-board-dock__title`), em todas as larguras.
+- Versão E: o cartão do módulo passou a **abraçar o conteúdo** (hug), sem sobra entre as tags e o progresso (antes 340px fixos
+  no desktop e 276 no mobile). O **título aparece inteiro**, em quantas linhas precisar (sem reticências nem altura mínima), então
+  cada cartão tem a sua altura. Ela é medida depois do render (`measureCardsE`, guardada em `state.eCardHs`) e a faixa entra e
+  sai de cada cartão pela medida dele (`trailELayout` / `eLegPoints`); a área cresce se um cartão de baixo passar da altura
+  dela. A `cardH` de `E_SIZES` (316 / 265) só vale até a primeira medida.
+- **Escurecer o fundo** começa em **32%** no Tabuleiro (antes 0). O controle do tweak passou a andar de 1 em 1 (antes 5);
+  `?escurecer=0` tira a camada escura.
+- Versão E: a faixa entra e sai de cada cartão de módulo **sempre no centro da borda**: pelo topo ou pela base, no meio da
+  largura (antes um ponto sorteado entre 20% e 80%); pelas laterais, no meio da altura de cada cartão (`eSides`, `eLegPoints`).
+  O lado por onde ela entra e sai continua sorteado.
+- Dock recolhido (pílula) mais baixo: **44px** de altura (antes 56), com o anel de progresso de **36px** (antes 44) e o
+  percentual em 10/12; 4px de respiro em volta do anel e 8 até o título. A animação de recolher encolhe o cartão até essa altura.
+- Curso concluído: no anel de progresso do Dock, o "100%" deu lugar a um **check** verde (`--color-icon-success`, 16px na pílula,
+  traço 2), dentro do anel verde. O leitor de tela ouve "Curso concluído".
+
+### Tabuleiro, Versão E: espaço mínimo entre módulos e fade do fundo pela posição do cartão (18/11/2026)
+
+- **Espaço mínimo entre módulos:** do cartão de um módulo ao do seguinte há no mínimo a distância do Módulo 1 (o mais longo):
+  **1308px** no desktop e **1032** no mobile (`minLeg` em `E_SIZES`). Os módulos com menos atividades ganham voltas na faixa até
+  chegar a esse mínimo, e os pins se distribuem nela. Assim a trilha de cada módulo ocupa pelo menos uma tela e o fundo dele
+  aparece inteiro antes do seguinte começar a entrar.
+- **Fade do fundo nas trilhas horizontais (D e E)** pela posição do cartão do módulo, medida da borda esquerda da faixa: começa
+  quando o cartão chega a **373px** e o fundo fica **100%** quando ele chega a **74px** (quase onde o cartão do Módulo 1 fica no
+  início). No mobile, de 60% da largura da tela até 24px. Antes, a transição ia de 90% a 30% da tela. Função `hFade` em
+  js/screens/board.js; as trilhas verticais continuam como antes.
+
+- **Último módulo (18/11/2026):** o trecho do último módulo também tem no mínimo `minLeg` (do cartão até a bandeira de
+  chegada), para o fundo dele aparecer inteiro. Depois da bandeira sobra meia faixa (`trailELayout` recebe a largura medida
+  `state.dw`): no fim da rolagem a chegada fica no meio da tela.
+
+### Tabuleiro: estrela de progresso do design system (18/11/2026)
+
+- As estrelas dos pins concluídos (`stars` e `sideStars` em `js/screens/board.js`) trocaram o ícone Feather `star` pela
+  estrela de progresso do LP-DesignSystem 4.0 (`progressStar`): preenchida = Figma `5247:21402` (corpo amarelo com brilho na
+  metade direita), vazia = `5261:11062` (corpo claro, sem brilho), contorno claro de 1px. Tamanho, posição e o arco em volta
+  do pin continuam os mesmos.
+- Tokens novos em `css/tokens.css`: `--color-star-fill`, `--color-star-shine`, `--color-star-empty` e `--color-star-border`
+  (iguais nos dois temas, porque a estrela fica sobre imagem). As cores vão inline nos `<path>` para valer por cima das regras
+  de `.c-icon` de cada versão da trilha.
+
+### Tabuleiro: trilha sempre vertical no mobile (18/11/2026)
+
+- Abaixo de 768px a trilha é sempre a Versão C (vertical, com os pins um embaixo do outro numa linha reta), seja qual for o
+  tweak "Desenho da trilha" (`looksFromHash` em `js/screens/board.js`; a dica do tweak avisa). A partir de 768 vale o tweak
+  (padrão E, horizontal). Os tamanhos `E_SIZES.mobile` e o fade horizontal do mobile deixam de ser usados.
+
+### Tabuleiro: bottom sheet do pin igual ao cartão de hover (18/11/2026)
+
+- O bottom sheet que abre ao tocar no pin (mobile, tablet e telas de toque) agora mostra o mesmo conteúdo do cartão de hover
+  do desktop: título com o ícone do tipo à esquerda, "Atividade N · X min" embaixo, a pílula de pontos e moedas e a situação.
+  Os dois usam `pinCardBody` (`js/screens/board.js`); no sheet o cartão fica parado, sem caixa nem sombra
+  (`.c-board-tip--sheet`), com o botão "Iniciar/Refazer …" embaixo. Saíram o ícone grande e o título de 16px do sheet
+  antigo (`.c-board-sheet__head`, `__icon`, `__text`, `__title`).
+- **Tablet também (18/11/2026):** a regra vale para tudo abaixo do desktop (`DESK`, 1179): mobile e tablet (768 a 1178) têm
+  a trilha vertical da Versão C numa coluna reta (`trailBLayout` em modo compacto abaixo de `DESK`, não mais só abaixo de
+  768). A partir de 1179 vale o tweak (padrão E, horizontal).
+
+### Rota de aprendizagem: selos dos cursos com texto (19/11/2026)
+
+- Nos cards dos cursos da rota (`courseCard` em `js/screens/learning-path.js`), os selos Novo, Sugerido e Obrigatório
+  agora mostram ícone e nome também no desktop (antes só o ícone, com o nome no `title`). Quando não cabem na linha com o
+  tempo e os módulos, o tempo desce para a linha de baixo (`.c-lp-course__top` já quebra). No mobile e no tablet eles já
+  tinham texto (`mpill`).
+- **Espaço entre os selos:** 4px no desktop (`.c-lp-course__pills`; antes 8), como no Figma: `cardCourse-route` e
+  `cardCourse` usam `itemSpacing` 4 no grupo "pillsRight" (o card da tela Cursos já usava 4).
+
+### Tabuleiro: Dock recolhe sozinho (19/11/2026)
+
+- Ao entrar na tela, o cartão de informação do curso (Dock) aparece aberto e, **3000 ms** depois de a trilha carregar,
+  recolhe na pílula com a mesma animação do botão (`autoCloseDock`, `DOCK_AUTO_CLOSE` em `js/screens/board.js`). Se o foco
+  ou o ponteiro estiver no cartão, espera a pessoa sair dele.
+- A cada scroll/swipe da pessoa na trilha (roda do mouse, toque arrastando, teclas de rolagem), o cartão recolhe, também
+  depois de reaberto pela pílula. Gestos dentro do próprio cartão e a rolagem automática da tela (centralizar a atividade
+  atual) não contam. O fechamento automático não move o foco.
+
+### Tabuleiro: cartão do módulo no mobile e no tablet (19/11/2026)
+
+- Na trilha vertical (Versão C, abaixo do desktop), o cartão do módulo mostra o título inteiro, em quantas linhas precisar
+  (antes cortava em 2 com "…"), e a barra de progresso fica embaixo do título e das informações, alinhada ao texto (antes
+  começava embaixo da imagem). Regras no fim de `css/screens/board.css` (`.c-board:not(.c-board--desk) .c-board-ccard`).
+  No desktop nada mudou.
+
+### Tabuleiro: trilha vertical (mobile e tablet) no visual da Versão E (19/11/2026)
+
+- Abaixo do desktop a trilha vertical (`trailV` / `trailVLayout` em `js/screens/board.js`) usa o visual da Versão E: pins
+  da E (`nodeE`: disco branco, imagem ou ícone na cor do módulo, halo no atual, estrelas em arco; 84px no tablet, 64 no
+  mobile), estrada reta da E com a linha de progresso na cor de cada módulo (`--color-module-N`, tweak "Cores dos módulos")
+  e **sem as setas e cadeados no trilho**. Cada trecho vai do meio de um cartão ao meio do seguinte.
+- O cartão do módulo (`cardV`, `.c-board-vcard`) traz as informações do cartão da E: etiqueta "Módulo N" na cor do
+  módulo, título inteiro, "N atividades · tempo" e a barra de progresso com o % na largura toda, com a imagem 16:9 do módulo no
+  topo (recuada 8, como na E). O cartão tem no máximo 400px, centralizado na coluna (no tablet). A altura é medida (`measureCards`) para a trilha seguir certa.
+- A trilha vertical antiga da Versão C (`trailCVertical`) fica no código, mas não é mais usada.
+
+### Atividades: teste da tipografia LP 4.0 (19/11/2026)
+
+- Nova opção no tweak "Tipografia" das atividades: **LP 4.0** (`#atividade?...&tipografia=c`). Liga a Versão B
+  (`.c-act--type-b`) e, por cima, `.c-act--type-c` (fim de `css/screens/activity.css`), que encaixa o que ainda ficava fora
+  dos estilos de texto do LP-DesignSystem 4.0 no Figma (`type/*`: caption 12/16, body 14/20, subtitle-extrabold 16/24,
+  price 18/28, heading 20/32, display-sm 30/40; `type-mobile/caption` 10/12) e da escala de espaçamento (`Spacing/*`, de 4
+  em 4): parágrafos 16/28 → 16/24, títulos 20/28 → 20/32, título da apresentação 24/32 800 → 20/32 700 (30/40 de 768),
+  teclas e campo 16/20 → 16/24, código 14/20, vão das lacunas do Misturadinho 3 → 4, e os tamanhos fluidos (`clamp`) por
+  faixa: letras do Misturadinho 20/32 (30/40 de 1180), caça-palavras 12/16 (16/24 de 768), Memória e Mosaico 10/12
+  (12/16 de 768).
+- Conferido nas 17 atividades em 1440 e 360: todo texto visível cai num par tamanho/altura de linha do Figma.
+- No Figma, `type/subtitle` agora é 14/20 Bold, `type/display-lg` 48/44 e os estilos `type-mobile/*` mudaram (body 12/18,
+  heading-area 14/18); o resumo de tipografia do CLAUDE.md está desatualizado nesses pontos.
+- O padrão continua a Versão A; a LP 4.0 é só para comparar.
+
+### Atividades: barra inferior com selo da resposta e "Explicação" (19/11/2026)
+
+- Depois da resposta, a barra inferior (`footer` em `js/screens/activity/parts.js`) pinta o fundo do tom e mostra à
+  esquerda o selo **"Correto!" / "Incorreto!"** (ou "Tempo esgotado!"): pílula com contorno de 2 e ícone na cor do tom,
+  16/24 bold (14/20 no mobile). O texto do porquê saiu da barra.
+- O porquê vai para o botão **"Explicação"**, que só aparece depois da resposta. Ele abre um painel que sobe da barra por
+  cima da atividade (`.c-act-explain`: etiqueta "Explicação", título e o texto; até 70% da altura, com rolagem), com a
+  tela escurecida atrás (clicar fora ou Esc fecha). Aberto, o botão vira "Fechar explicação" ("Fechar" no mobile). A
+  explicação fecha sozinha na próxima pergunta (`state.explain` guarda a atividade + o texto da vez).
+- Destaques: no acerto, "Continuar" é o botão cheio na cor de sucesso e "Explicação" é discreto; no erro, "Explicação" é o
+  cheio (vermelho) e "Continuar" o discreto, até a explicação ser aberta. Botões no tom usam `--color-text-success/error`
+  de fundo e a cor do fundo da página no texto (contraste AA nos dois temas).
+- Usam a barra nova: Quiz (1 e 17) e This or that (11, cuja explicação saiu do card). Leitura e Slideshow mostram só o selo
+  "Leitura concluída!", sem texto de pontos e sem botão de explicação.
+- **Levado às outras mecânicas com resposta a conferir** (helper `verdict` em `js/screens/activity/flow.js`):
+  - **No lugar (7)** e **Ordenadinho (8)**: o resultado saiu da mensagem dentro do card. Errou: selo "Incorreto!" e o que
+    deu errado ("4 de 8 corretas…") no botão "Explicação"; acertou: selo "Correto!" com o resumo ao lado, que continua na
+    barra (com "Continuar") depois de a atividade ser concluída.
+  - **Mosaico (14)**: selo "Correto!", "Quase!" (acertou parte) ou "Incorreto!", e a explicação dos 4 princípios no botão.
+  - **Emparedado (4)**: sem tentativas, selo "Emparedado!" e "A resposta era …" na Explicação (saiu o alerta do card), com
+    "Tentar de novo"; acertou, selo "Correto!".
+  - Ficam dentro do jogo as dicas a cada jogada (Caça-palavras, Memória, Misturadinho, Quebra-cabeça, Jogo dos 7 erros e
+    as letras do Emparedado), porque não são a resposta final. Enquetes não têm certo ou errado, e a Avaliação tem a tela de
+    resultado dela.
+  - **Caça-palavras (3)**: ganhou tempo limite (`WS_TIME` = 180 s em `js/data/activity.js`, no relógio da barra de
+    desempenho; os 5 últimos segundos ficam em vermelho, com o tique). Achou todas: selo "Concluído!" e "Continuar".
+    Acabou o tempo: a grade trava e fica apagada, selo "Tempo esgotado!" (ícone de relógio), as palavras que faltaram no
+    botão "Explicação" e "Tentar de novo" (nova grade, tempo cheio). O helper `verdict` aceita `icon`.
+
+### Atividades: barra inferior, versão 2 (19/11/2026) — substitui o selo em pílula e o painel acima
+
+- **Resultado**: em vez da pílula com contorno, uma **área de ícone** (40, radius xl, fundo da página, ícone de 24 no tom;
+  36/20 no mobile) e o título no tom, 16/24 bold (14/20 no mobile): "Correto!", "Incorreto!", "Emparedado!",
+  "Concluído!", "Quase!", "Tempo esgotado!", "Respondido".
+- **Explicação**: botão sempre **outlined**, sem ícone, rótulo "Explicação". Abre um **modal** (`explainDialog` em
+  `parts.js`, o mesmo diálogo das atividades): selo no tom, etiqueta "Explicação", título e o texto; fecha em "Fechar
+  explicação" (outlined), no fundo ou com Esc, e o foco volta ao botão. "Continuar" é sempre o botão cheio, na cor do tom.
+- **Texto complementar sempre na Explicação** (saiu o `note` ao lado do selo): No lugar e Ordenadinho também no acerto;
+  Emparedado no acerto ("A resposta é …"); Caça-palavras no "Concluído!" (as palavras). Leitura e Slideshow seguem só com
+  o selo.
+- **Feedback novo, a cada jogada** (as mensagens que ficavam dentro do jogo foram para a barra; ficou só a orientação):
+  - Memória (5): par certo "Correto!", par errado "Incorreto!", todos os pares "Concluído!".
+  - Misturadinho (6): palavra certa "Correto!", errada "Incorreto!".
+  - Quebra-cabeça (9): troca que encaixa peça "Correto!", que não encaixa "Incorreto!", imagem completa "Concluído!".
+  - Jogo dos 7 erros (10): achou "Correto!", errou o lugar "Incorreto!", todos "Concluído!". "Esse você já encontrou" e a
+    dica continuam dentro do jogo (`msg.tip`).
+  - Enquete (12) e Enquete aberta (13): sempre positivo, "Respondido", com a confirmação na Explicação.
+- O tempo do Caça-palavras (180 s) ainda será revisto.
+
+### Rota de aprendizagem: coluna lateral com a rolagem do Curso (24/11/2026)
+
+- A coluna lateral da Rota (card da rota, "Sobre a rota" e Categorias) agora rola como a do Curso: quando é mais alta que a
+  tela, desce junto até a base encostar a 16px da base da tela e, ao rolar para cima, volta até o topo encostar abaixo da
+  app bar. Antes ficava presa no topo e a parte de baixo não aparecia em telas baixas. A Rota usa a mesma função
+  (`stickyAside`, agora exportada de `js/screens/course-detail.js`) com `data-sticky-aside` na coluna.
+- **Chevron do card de curso só no hover (24/11/2026):** como no card de atividade do Curso (`.c-cd-tl__go`), o chevron
+  da direita (`.c-lp-course__go`) não aparece nem ocupa espaço fora do hover (a barra de progresso vai até a borda); no
+  hover e no foco pelo teclado ele entra e empurra a barra. No curso bloqueado não aparece. Regra no fim de
+  `css/screens/learning-path.css`.
+
+### Curso e Tabuleiro: "Materiais" vira "Materiais de apoio" (24/11/2026)
+
+- O rótulo do botão/aba de materiais passou a ser **"Materiais de apoio"** (com o contador ao lado): abas do mobile do
+  Curso (`course-detail.js`) e do Tabuleiro (`board.js`), aba do Dock e botão da barra integrada do Tabuleiro. Cabe em 360
+  (abas) e no Dock de 400. A Rota de aprendizagem não tem botão de materiais.
+
+### Curso: cabeçalho do módulo reorganizado (24/11/2026)
+
+- No acordeão de módulos (`.c-cd-module__head`, desktop e mobile): o **título aparece inteiro** (sem corte em 2 linhas
+  com "…"), indo até o chevron; o **chevron fica no topo**, com a 1ª linha do título no meio dele; e a **barra de progresso**
+  fica na linha de "N atividades · tempo", **alinhada à direita do card** (sob o chevron, na mesma borda direita das
+  pílulas de pontos das atividades). Grade de 3 colunas no fim de `css/screens/course-detail.css`; o HTML não mudou.
+
+### Curso: botão do card no mobile igual ao do desktop (24/11/2026)
+
+- O botão do card do curso no mobile (`mobileSummary` em `js/screens/course-detail.js`, também na aba "Visão geral" do
+  Tabuleiro) usa o mesmo texto e ícone do desktop em cada estado: **Iniciar** e **Continuar** (play-circle, vão para a
+  trilha) e **Ver certificado** (award, vai para Certificados). Saiu o "Ir para a trilha" (e a opção `trailCta`).
+- **Card do curso no mobile com os componentes do desktop (24/11/2026):** abaixo da capa (selos e duração), do título e do
+  autor, o card mobile (`mobileSummary`) usa o mesmo miolo do card lateral do desktop (`summaryBody`): as 4 informações com
+  ícone de 16 ("Certificado de conclusão"), o progresso com "x de N atividades concluídas" (só com o curso iniciado), o
+  botão do estado e os infocards de pontos e moedas (no lugar da linha "Recompensas" com pílulas). Saíram a linha
+  divisória e os estilos próprios dessas partes no mobile; título e autor com recuo de 16, como o resto.
+- **Card da rota no mobile com os componentes do desktop (24/11/2026):** como no Curso, abaixo da capa, do tipo e do
+  título, o card mobile da Rota (`mobileSummary` em `js/screens/learning-path.js`) usa o mesmo miolo do card lateral do
+  desktop (`sideBody`): as 6 informações com ícone de 16 ("Certificado de conclusão") e os infocards de pontos e moedas, no
+  lugar da linha "Recompensas" com pílulas. Saiu a linha divisória.
+- **Sem o "Rota de aprendizagem" acima do título no card mobile da Rota (24/11/2026):** a etiqueta saiu (e a classe
+  `.c-lp-mkicker`); o card mostra direto o título. A informação segue na lista ("Rota de aprendizagem sequencial").
+
+### Curso: lista de atividades na escala mobile (24/11/2026)
+
+- Abaixo de 1179, a linha do tempo de atividades do módulo (`.c-cd-tl`) usa a escala mobile, coerente com o cabeçalho do
+  módulo: título 12/18 700 (era 14/20), "Atividade N · X min" e estrelas 10/12 (era 11/14), pílula de pontos e moedas
+  10/12 com ícones de 12 (era 12/16 com 14) e ícone do tipo de 12. No desktop nada muda; o bottom sheet do Tabuleiro, que
+  reaproveita essas classes, segue com os próprios tamanhos.
+- **Chevron sempre visível no mobile (24/11/2026):** abaixo de 1179 e em telas de toque (`hover: none`), o chevron do card
+  de atividade do Curso (`.c-cd-tl__go`) e do card de curso da Rota (`.c-lp-course__go`) fica sempre à mostra, já que não
+  há hover. No desktop com mouse continua só no hover; no curso bloqueado não aparece.
+- **Chevron do card de atividade à direita no mobile (24/11/2026):** abaixo de 1179, o chevron (`.c-cd-tl__go`) vai para a
+  borda direita do card (`margin-left: auto`), na linha da pílula de pontos e moedas, que segue alinhada ao título.
+- **Sem hover no mobile (24/11/2026):** abaixo de 1179 e em telas de toque (`hover: none`), Curso e Rota não mudam mais
+  nada no hover: fundo dos cards de atividade (linha do tempo e cards), do cabeçalho do módulo, dos materiais, das abas e
+  do card de curso da Rota, a cor dos links "Voltar" e o chevron que andava 2px. O toque (`:active`) e o foco pelo teclado
+  seguem com o retorno visual. Regras no fim de `course-detail.css` e `learning-path.css`; no desktop com mouse nada muda.
+- **Chevron parado no toque (24/11/2026):** no mobile, o chevron do card de atividade fica sempre na borda direita, também
+  no toque, no foco e no "hover" que o toque deixa preso (a regra do hover do desktop zerava a margem e o puxava para a
+  esquerda). No card de curso da Rota ele também não anda mais no toque nem no foco.
+
+### Curso e Rota: marcador atual menor e com pulse (24/11/2026)
+
+- O marcador roxo da atividade atual (linha do tempo do Curso, `.c-cd-tl__item--current .c-cd-tl__node`) e do curso atual
+  (trilho da Rota, `.c-lp-route__node.is-current`) ficou 50% menor (10 em vez de 20, centralizado no trilho) e ganhou um
+  **pulse**: um anel na cor da marca sai do ponto e some a cada 2 s (`cd-node-pulse`). Com `prefers-reduced-motion`, fica
+  parado com o anel claro fixo. Desktop e mobile. Regra no fim de `css/screens/course-detail.css` (vale para as duas telas).
+- **Ajuste (24/11/2026):** o marcador atual voltou a ter o **círculo cinza de 20** dos outros marcadores (borda
+  border/default, fundo da página), com a **bolinha roxa de 10 dentro** (`::after`), e é ela que pulsa (anel de até 6).
+
+### Curso: trilho das atividades com o espaçamento da Rota (24/11/2026)
+
+- O trilho da linha do tempo de atividades (`.c-cd-tl`) ficou à mesma distância da borda do card que o trilho dos cursos da
+  Rota: do centro da linha à borda esquerda do card, **27 no desktop** e **19 no mobile** (eram 19 e 15; `padding-left`
+  16 e 8). Da linha aos cards (atividades ou cursos), 18 nos dois, como já era.
+- Conferido que marcadores e trilho são iguais nas duas telas: círculo de 20 com borda de 2 (cinza border/default; verde
+  icon/success com fundo background/success na concluída), check e cadeado de 10 com traço 3, linha de 2 (verde no trecho
+  feito, cinza border/default no resto) e o marcador atual (círculo cinza com a bolinha roxa de 10 que pulsa) com a mesma
+  regra.
+
+### Componente novo: trilho vertical (`rail`) — Rota e Curso com o mesmo código (24/11/2026)
+
+- O trilho dos cursos da Rota virou componente: `rail({ status, first, last, before, after })` em
+  `js/components/rail.js` + `css/components/rail.css` (importado em `css/app.css`). Cada item tem o traço de cima, o
+  marcador e o traço de baixo (`.c-rail`, `.c-rail__line`, `.c-rail__node`); os traços dos itens seguidos se emendam.
+  Estados do marcador: `done` (verde com check), `current` (círculo cinza com a bolinha roxa que pulsa), `locked`
+  (cadeado) e `open` (liberado, vazio). `before`/`after` pintam de verde o caminho já feito; `first`/`last` escondem as
+  pontas.
+- A **Rota** (`coursesSection`) e a **linha do tempo de atividades do Curso** (`timelineRow`) usam o componente. No
+  Curso saíram o traço desenhado em cada item (`.c-cd-tl__item::before`) e o marcador próprio (`.c-cd-tl__node`); na Rota,
+  `.c-lp-route__rail/__line/__node` (fica só o recuo de 4 sobre o vão entre os cards). O visual não mudou: conferido em
+  1440 e 360, com os traços contínuos, os marcadores no meio de cada card e o recuo de 27/19 da borda.
+
+### Rota: curso bloqueado com capa colorida e cadeado (24/11/2026)
+
+- O card do curso bloqueado mantém as **cores da capa** (saiu o cinza com 70% de opacidade).
+- No lugar do chevron, um **cadeado** (`lock`, icon/tertiary): no desktop com mouse aparece no hover (como o chevron dos
+  outros cards, sem fundo de hover); no mobile, tablet e telas de toque fica sempre à mostra, no mesmo lugar do chevron.
+- O card continua sem ação (div com cursor de bloqueado; o toque mostra o aviso "Conclua o curso anterior…").
+- **Cadeado em 16 (24/11/2026):** o cadeado é o `lock` do Feather (mesma biblioteca do chevron). Como o desenho dele enche
+  quase toda a caixa (18×20 de 24) e o chevron é fino (6×12), ele fica em 16, centralizado na mesma caixa de 20 do chevron
+  e na mesma borda direita, para os dois terem o mesmo peso visual.
+
+### Curso: card de informações do curso no mobile pelo screenshot (24/11/2026) — substitui a versão com o miolo do desktop
+
+- `mobileSummary` (`js/screens/course-detail.js`) volta a ter a escala mobile, como no screenshot: capa com selos e duração,
+  título 12/16, autor (avatar 24, 10/12), linha, as 4 informações (ícones de 8, 10/12, "Certificado"), o progresso
+  ("Progresso" e % 10/12 bold, barra de 8) com **"x de N atividades concluídas"** embaixo (10/12), o botão mobile de 30 e
+  **dois infocards** de pontos e moedas lado a lado (`.c-cd-mbox`: borda, radius 8, padding 8; ícone de 8, "3.500 /3.500"
+  12/16 e o rótulo 10/12 alinhado ao número). Recuo de 8 no card, como antes.
+- O botão segue com o texto e o ícone do estado (Iniciar, Continuar ou Ver certificado), como no desktop (pedido de
+  24/11/2026), no lugar do "Ir para a trilha" do screenshot.
+- O card mobile da Rota continua com o miolo do card lateral do desktop; os recuos de 16 dele ficaram no modificador
+  `.c-cd-mcard--side` (`learning-path.css`).
+- **"Sobre o curso" no mobile (24/11/2026):** a aba "Visão geral" do mobile (Curso e Tabuleiro) ganhou o card "Sobre o
+  curso" entre a Descrição e as Categorias (`mobileAbout` em `js/screens/course-detail.js`): os números (módulos,
+  atividades e tempo de conteúdo) e os recursos (Atividades, Prova, Missões, Materiais de apoio, Tutor.IA), os mesmos do
+  card da coluna lateral do desktop, num card de seção.
+- **Escala dos números em "Sobre o curso" no mobile (24/11/2026):** os cards de módulos, atividades e tempo (`.c-cd-about-m
+  .c-cd-box`) usam a mesma escala dos infocards de pontos e moedas do card do curso: valor 12/16 bold (era 14/20) e rótulo
+  10/12 (era 12/16).
+
+### Rota: card mobile com os elementos do Curso mobile (24/11/2026) — substitui o miolo do desktop no mobile
+
+- O card da rota no mobile (`mobileSummary` em `js/screens/learning-path.js`) usa os elementos do card mobile do Curso:
+  linha abaixo do título, as 6 informações em `.c-cd-mcard__facts` (ícones de 8, 10/12, "Certificado") e os infocards de
+  pontos e moedas `.c-cd-mbox` (`mobileBox`, agora exportado de `course-detail.js`). Saiu o modificador
+  `.c-cd-mcard--side`.
+- "Sobre a rota" no mobile usa a mesma escala do "Sobre o curso" (`.c-cd-about-m`): valor 12/16 bold e rótulo 10/12.
+
+### Tabuleiro: pulse do pin atual nos moldes da bolinha do Curso (24/11/2026)
+
+- O pin da próxima atividade (`.c-board-enode.is-current`, Versão E no desktop e trilha vertical no mobile/tablet) trocou o
+  halo fixo que respirava pelo **pulse** da bolinha roxa do Curso (`c-rail-pulse`): um anel na cor do módulo sai da borda
+  do pin (45% de opacidade) e cresce até 18px sumindo, a cada 2 s, ease-out (`c-board-epulse` em `css/screens/board.css`).
+  Com `prefers-reduced-motion`, sem animação (como antes).
+- **Pins 50% maiores na trilha mobile (24/11/2026):** abaixo de 768, a escala dos pins da trilha vertical (`trailVLayout`,
+  `s`) passou de 0,76 (64px) para 1,14 (**96px**). Estrelas, selo do número, halo e o espaçamento entre os pins acompanham
+  a escala. No tablet segue 84.
+- **Espaço entre os pins 50% maior na trilha mobile (24/11/2026):** abaixo de 768, o vão entre um pin e o seguinte (da borda
+  de um à borda do outro) passou de 79 para **119** (`step` em `trailVLayout`: folga de 68 em vez de 28 entre o selo do
+  número e as estrelas do pin seguinte). No tablet segue como antes.
+- **Borda branca da trilha 2× mais grossa (24/11/2026):** na Versão E (desktop) e na trilha vertical (mobile/tablet), a
+  borda branca em volta da linha de progresso passou de 1,5 para 3 de cada lado, crescendo para fora: caminho branco de
+  12 (era 9) e sombra de 16 (era 13). A linha do progresso na cor do módulo segue com 6.
+- **Botão "ir para a atividade atual" à direita no mobile (24/11/2026):** abaixo do desktop (trilha vertical), o botão
+  (`.c-board-jump`) fica fixo na lateral direita, a 16 da borda e 96 da base (acima da navigation bar), em vez de no centro
+  sobre a trilha. No mockup ele divide o canto com os botões "Tweaks" e "Catálogo", que só existem no protótipo.
+
+### Tabuleiro: botão do bottom sheet só com o verbo (24/11/2026)
+
+- O botão do bottom sheet do pin (`pinSheet` em `js/screens/board.js`) mostra só **"Iniciar"** (ícone `play-circle`, o
+  mesmo dos botões do Curso) ou **"Refazer"** (`rotate-ccw`) na concluída; bloqueada, "Iniciar" desabilitado com o
+  cadeado. Antes: "Iniciar atividade/avaliação/missão" e "Refazer …" com seta. O nome inteiro fica no `aria-label`.
+
+### Tabuleiro: pontos e moedas do Dock nos infocards do Curso (24/11/2026)
+
+- No card de informações do curso do Tabuleiro (Dock), pontos e moedas saíram da pílula e passaram a usar os **mesmos
+  infocards do card do curso da tela Curso**: ícone na caixa, "620 /3.500" e o rótulo ("pontos disponíveis" / "moedas
+  disponíveis"; "ganhos/ganhas" no curso concluído), lado a lado na largura do cartão. Helper novo `rewardBoxes(d)`
+  exportado de `js/screens/course-detail.js` e usado nos dois lugares.
+- **Abas do Dock à esquerda (24/11/2026):** "Sobre" e "Materiais de apoio" ficam alinhadas à esquerda, na mesma borda dos
+  infocards de pontos e moedas e das informações (antes, centralizadas). Saiu também a regra da pílula de pontos antiga.
+
+### Tabuleiro: Dock recolhido numa peça só, com "barriguinha" (24/11/2026)
+
+- A pílula recolhida do Dock e o botão do chevron viraram uma peça única (como no rascunho): no meio da borda de baixo da
+  pílula sai uma "barriguinha" de 48 × 18, na mesma cor, com os cantos de baixo arredondados e emendada por duas curvas
+  côncavas de 10 (`::before`/`::after` com `radial-gradient`). O chevron fica dentro dela, e ela segue sendo o botão de
+  expandir (o clique na pílula também abre).
+- A silhueta inteira ganha o contorno de 1 (`--color-border-default`) e a sombra por `filter: drop-shadow` (a borda e o
+  `box-shadow` próprios saíram), para não aparecer emenda entre a pílula e a barriga. Regras no fim de
+  `css/screens/board.css`. O Dock aberto não mudou.
+- **Totalmente arredondado (24/11/2026):** a barriguinha virou um meio círculo de 48 × 24 (antes 48 × 18, que deixava os
+  cantos achatados) e as curvas da emenda passaram de 10 para 14. As pontas da pílula já eram totalmente arredondadas
+  (raio de 22 na altura de 44).
+- **Barriguinha também no Dock aberto (24/11/2026):** o botão de recolher (chevron para cima) do cartão aberto virou o mesmo
+  meio círculo de 48 × 24 emendado no meio da borda de baixo (curvas de 14). O cartão perdeu a borda e a sombra próprias;
+  a silhueta (cartão + barriga) ganha o contorno de 1 e a sombra por `drop-shadow`. A altura máxima do cartão ficou 24
+  menor, para a barriga terminar acima da base da tela.
+
+### Tabuleiro: sequência do card de informações ao carregar (24/11/2026) — substitui "Dock recolhe sozinho"
+
+- Ao carregar a tela, o card de informações (Dock) começa **fechado** (pílula, `dockClosed: true` no estado inicial),
+  **abre sozinho 1200 ms** depois (`DOCK_AUTO_OPEN`, com a animação de abrir), fica aberto **3000 ms** (`DOCK_AUTO_CLOSE`)
+  e **fecha** (animação de recolher). Medido: pronto em ~1,6 s, aberto em ~3,0 s, fechado em ~6,3 s.
+- Continuam: um scroll/swipe da pessoa na trilha fecha o card na hora (e, antes da abertura, cancela a sequência); o
+  fechamento pelo tempo espera o foco e o ponteiro saírem do cartão; a abertura e o fechamento automáticos não movem o foco.
+
+### Tabuleiro: Dock abre e fecha como uma peça só, crescendo de pílula para cartão (24/11/2026)
+
+- Abrir e fechar o card de informações agora é um movimento contínuo (`morphDock` em `js/screens/board.js`, Web Animations;
+  substitui a troca com `is-entering`/`is-leaving`):
+  - **Abrir:** o conteúdo da pílula some (120 ms); o cartão aparece recortado no tamanho da pílula (44 de altura, cantos de
+    22) e **cresce para baixo** até a altura toda (cantos de 16) em 420 ms, desacelerando; a barriguinha com o chevron desce
+    junto com a borda de baixo; o conteúdo do cartão entra no fim (220 ms, a partir de 240 ms).
+  - **Fechar:** o conteúdo some (120 ms); o cartão **encolhe para cima** até a pílula (380 ms), com a barriguinha subindo
+    junto; a pílula volta e o conteúdo dela aparece (160 ms).
+- O recorte é o `clip-path` do cartão e o contorno/sombra seguem a silhueta (`drop-shadow` no Dock). A sequência anda por
+  timers, não pelo fim das animações, para o Dock nunca ficar preso com a aba em segundo plano. Com
+  `prefers-reduced-motion`, a troca é direta. Medido em 1440: a parte visível do cartão vai de 44 a 772 com a barriguinha
+  acompanhando a borda.
+- O fechamento automático conta 3 s a partir do fim da abertura (`DOCK_AUTO_CLOSE + 540`).
+
+### Tabuleiro: bico no cartão do pin (24/11/2026)
+
+- O cartão que abre no hover/foco do pin (desktop, `.c-board-tip--left/--right`) ganhou um **bico** apontando para o pin:
+  quadrado de 12 girado 45° (`::before`), com o fundo e a borda do cartão nos dois lados de fora, no meio da lateral voltada
+  para o pin (o cartão é centralizado na altura do pin). O cartão ficou 16 além da borda do pin (era 8) para o bico caber
+  com folga. O bottom sheet do toque não tem bico.
+- **Bico integrado e arredondado (24/11/2026):** o bico deixou de ser um quadrado girado por cima do cartão. Agora é um
+  triângulo de 10 × 20 com a ponta arredondada (`clip-path: path(...)`), na cor do cartão e emendado nele; o cartão perdeu a
+  borda e a sombra próprias e a silhueta inteira (cartão + bico) ganha o contorno de 1 e a sombra por `drop-shadow`, como o
+  Dock, sem emenda visível.
+
+### Tabuleiro: fundo por módulo troca por limiar, com fade automático (24/11/2026) — substitui o fade ligado à rolagem
+
+- O fundo do módulo N entra quando o **cartão dele chega à beira da área da trilha** (o último pin do módulo anterior já
+  saiu da tela): na horizontal, a borda esquerda do cartão a **24 ou menos** da borda esquerda da faixa (`BG_EDGE_X`); na
+  vertical (mobile/tablet), o topo do cartão a **160 ou menos** do topo da tela, logo abaixo das abas (`BG_EDGE_Y`). Volta ao
+  fundo anterior quando o cartão passa de novo desse ponto. No fim da trilha, o último módulo com o cartão na tela entra.
+- A troca é um **fade automático** (CSS em `.c-board-bg__layer`: opacidade em 900 ms e a imagem assentando de 1,08 para 1
+  em 1,4 s), com duração própria — não acompanha a velocidade do scroll/swipe. Ao redesenhar a tela, as camadas vão direto
+  ao estado certo, sem animar. Com `prefers-reduced-motion`, troca direto. Saiu `hFade`.
+- **Divisor na base do Dock aberto (24/11/2026):** um traço (`--color-border-default`) fica fixo a 16 da borda de baixo do
+  cartão; abaixo dele, uma faixa de 16 na cor do cartão, e o conteúdo rola só acima do traço. É o `::after` do cartão,
+  preso na base da área de rolagem (`position: sticky; bottom: 0`, com o `padding-bottom` do cartão zerado). Sem rolagem,
+  o traço fica 12 abaixo do último item.
+- **Barriguinha numa curva só e seta girando (24/11/2026):**
+  - A barriguinha (recolhido e aberto) deixou de ser meio círculo + duas curvas côncavas emendadas (que deixavam quebras):
+    agora é um sino de 88 × 24 desenhado por `clip-path: path(...)` com duas curvas de Bézier, saindo tangente da borda e
+    voltando sem nenhum canto. Com o teclado, o foco pinta a barriguinha de `--color-surface-system-subtle` (o clip-path
+    cortaria o contorno de foco).
+  - A seta gira meia volta junto com o movimento (`morphDock`): ao abrir, de "para baixo" a "para cima" enquanto o cartão
+    cresce (420 ms); ao fechar, de "para cima" a "para baixo" enquanto encolhe (380 ms). Ela não some mais na troca.
+- **Barriguinha presa à borda durante a animação (24/11/2026):** a barriguinha se soltava do cartão ao abrir e fechar
+  porque o CSS dela tinha `transition` em `transform` (0,1 s), que atrasava cada passo, e porque o recorte e o deslocamento
+  eram animações separadas. Agora `tweenDock` move o recorte do cartão (altura visível e raio de 22 → 16) e a barriguinha
+  juntos, quadro a quadro (`requestAnimationFrame`, mesma curva), com as transições do CSS desligadas durante o movimento;
+  um timer garante o estado final com a aba em segundo plano. A barriguinha também entra 4 por baixo da borda (antes 1),
+  para não abrir fresta em posições de meio pixel. Medido em 1440: a barriguinha fica a −4 da borda em todos os quadros,
+  abrindo e fechando.
+
+### Card de informações do curso/rota em duas colunas no tablet (24/11/2026)
+
+- `mobileSummary` (curso e rota) agrupa nome, linha, dados, progresso, botão e pontos/moedas em `.c-cd-mcard__info`.
+- A partir de 768px (até 1179, onde o painel mobile é usado), `.c-cd-mcard` vira grid de duas colunas iguais
+  (`minmax(0,1fr) minmax(0,1fr)`, gap 16): imagem 16:9 à esquerda, presa no topo; informações à direita.
+- No mobile, `.c-cd-mcard__info` usa `display: contents` e o card continua em uma coluna, como antes.
+
+### Rota de aprendizagem: missões, notícias, biblioteca e eventos nas etapas + estado "Liberada" (25/11/2026)
+
+- A lista "O que você verá nessa rota" virou uma lista de **etapas** (`routeSteps` em `js/data/learning-path.js`): os 4 cursos
+  intercalados com 1 notícia, 1 material da Biblioteca, 1 missão e 1 evento. Tipos em `stepKinds` (rótulo, ícone, área que abre).
+- Todas as etapas usam o mesmo card (`stepCard`, antes `courseCard`) e o mesmo trilho (`rail`). O que muda por tipo (`stepDetails`):
+  - curso: tempo e módulos, autor;
+  - notícia: publicação e tempo de leitura, autor;
+  - material: tipo e data, curtidas e visualizações;
+  - missão: evidência/meta, escopo e período, prazo;
+  - evento: modo/local e data, vagas.
+  Rótulos e ícones vêm das próprias áreas (`kindLabel`/`periodLabel`, `materialInfo`, `modeInfo`).
+- Miniatura: o curso usa a capa; as outras etapas usam a capa de exemplo (`c-cover`) com o ícone do tipo. Toda miniatura tem um
+  selo escuro com o tipo (`.c-lp-course__kind`). O card leva à área da etapa (#curso, #feed, #biblioteca, #missoes, #eventos).
+- Textos: "8 etapas · Realize as etapas em sequência", "Conclua a etapa anterior para liberar esta", aba mobile "Conteúdo 8",
+  "4 Cursos e 4 conteúdos" no card da rota e "Sobre a rota" com Cursos, Conteúdos e Tempo dos cursos.
+- Novo estado `liberada` (`#rota?estado=liberada`, Tweaks → Estado da rota → Liberada): nada concluído, todas as etapas abertas
+  (trilho com círculos vazios, `rail` status `open`), sem cadeado, "Realize as etapas em qualquer ordem" e "Rota de aprendizagem
+  liberada" no lugar de "sequencial".
+
+### Rota: ajustes nos cards por tipo de etapa + anel do trilho (25/11/2026)
+
+- **Notícia:** sem barra de progresso; no lugar dela vão as reações e os comentários (`24 reações · 6 comentários`).
+- **Biblioteca:**
+  - sem progresso; no lugar vão curtidas e visualizações (saíram do canto da linha das tags);
+  - sem selo Obrigatório;
+  - miniatura 1:1 (`.c-lp-course--material`). No mobile é um quadrado de 120. A partir do 768 o quadrado tem a altura das
+    miniaturas 16:9, então todos os cards têm a mesma altura (130 no 768).
+- **Missão:** sem selo Obrigatório. "Evidência · Individual · Único" fica à direita, na mesma linha do selo Novo
+  (`.c-lp-course--missao .c-lp-course__top` sem quebra).
+- **Evento:** sem selo Sugerido e sem progresso; no lugar vão as vagas (`64/100 vagas disponíveis`).
+- O rodapé vem de `stepDetails().foot`. Sem `foot`, o card mostra a barra de progresso (curso e missão).
+- **Trilho (`css/components/rail.css`):** o anel cinza/verde do marcador agora é `box-shadow: inset 0 0 0 2px`, não mais `border`.
+  O navegador arredonda bordas para pixels inteiros da tela: com escala de 125%, os 2px viravam 1,6px e o anel ficava mais
+  fino que o traço de 2. Em cores forçadas o anel volta a ser borda. Vale para a Rota e para a linha do tempo do Curso.
+
+### Rota: imagens nas etapas que não são curso (25/11/2026)
+
+- Notícia, material da Biblioteca, missão e evento ganharam imagem (`image` em `routeSteps`). São imagens de exemplo que já estão
+  no projeto, de tema tecnologia/dados:
+  - notícia: `slots/slideshow-img-3.webp`;
+  - biblioteca: `slots/leitura-galeria-3.webp`;
+  - missão: `slots/slideshow-img-1.webp`;
+  - evento: `slots/atividade-figura-1.webp`.
+- `stepCard` usa `c.image` (curso: a capa da rota). Sem imagem, cai na capa de exemplo `c-cover` com o ícone do tipo.
+- A imagem da biblioteca segue 1:1 (`.c-lp-course--material .c-lp-course__media img`).
+
+### Rota mobile: etapas no layout dos cards mobile das áreas (25/11/2026)
+
+- Abaixo de 768, cada etapa usa `stepCardCompact`, o mesmo layout dos cards mobile de Cursos, Missões, Eventos, Feed e
+  Biblioteca. Reaproveita as classes `c-course-compact` (`css/screens/courses.css`) com o modificador `c-lp-mcard`:
+  - imagem recuada com cantos de 4 e selos só com ícone na borda de baixo (Novo `award`, Sugerido `zap`, Obrigatório
+    `alert-circle`);
+  - curso: duração no selo escuro embaixo à direita; prazo em cima à direita;
+  - selo do tipo em cima à esquerda;
+  - título de 2 linhas e uma linha de informação (`infoLine`, ícone de 8 e dois textos de 10);
+  - rodapé: tags à esquerda e, à direita, o indicador da área mais a ação (chevron, cadeado ou check).
+- Informação e indicador por tipo:
+  - curso: Curso / n Módulos, donut de progresso;
+  - notícia: publicação / leitura, reações e comentários;
+  - biblioteca: tipo / data, imagem 1:1;
+  - missão: Evidência / Individual · Único, contador n/100 (meta: donut);
+  - evento: data / horário, vagas n/100.
+- A partir de 768 segue o card com a miniatura ao lado (`stepCard`). A tela ganhou o breakpoint 768 (`breakpoints: [TABLET, DESK]`).
+- Na rota, o título tem altura automática: nos grids a altura fixa de 36 alinha os cards, mas aqui deixava vão.
+
+### Rota mobile: biblioteca em duas colunas (25/11/2026)
+
+- O card compacto da biblioteca (`.c-lp-mcard--material`) fica em linha:
+  - à esquerda, a imagem 1:1 de 112, recuada 8;
+  - à direita, o texto (título, informação, tags e a ação).
+- O card fica com 130 de altura em 360. Só CSS, em `css/screens/learning-path.css`.
+
+### Tabuleiro: "Continuar" de volta no pin atual (25/11/2026)
+
+- A Versão E (padrão no desktop) e a trilha vertical do mobile/tablet (que usam `nodeE`) não tinham o balão flutuante
+  "Continuar"/"Começar" das outras versões. Agora têm:
+  - é o mesmo `.c-board-start`, com o modificador `.c-board-enode__start`;
+  - fica 14px acima do pin, fora do alcance do pulse, com a ponta para o pin e o balanço;
+  - no mobile acompanha a escala do pin.
+- O clique abre a atividade direto (`openNode` com `data-direct`), como antes.
+
+### Tabuleiro → atividade: fade out da trilha e apresentação "montada" (25/11/2026)
+
+- **Saída do Tabuleiro** (`leaveTo` em `js/screens/board.js`):
+  - vale para o clique no pin, no "Continuar" e no "Iniciar" do bottom sheet;
+  - a tela recebe `.is-route-leaving` e some em 320 ms; só então o endereço muda;
+  - com movimento reduzido, vai direto.
+- **Sem esqueleto na chegada** (`js/core/transition.js`): `skipNextSkeleton()` pede que a próxima troca de tela entre pronta;
+  `app.js` consome o pedido em `go()`. O fade in da apresentação faz o papel do carregamento.
+- **Apresentação com as informações da atividade** (`js/screens/activity/intro.js`):
+  - ícone da mecânica num disco de 56;
+  - "Módulo M · Atividade N" e o nome da atividade do curso;
+  - o título;
+  - pílulas com mecânica, duração, etapas (quando > 1) e pontos;
+  - o texto.
+  `activityHref(n)` agora leva `&atv=n` e `courseActivity(n)` (`js/data/activity.js`) devolve módulo, número, nome, minutos e
+  etapas. Sem `atv` (outros caminhos), fica "Atividade N" e as pílulas de mecânica e pontos.
+- **Montagem:**
+  - a tela entra com fade in (400 ms);
+  - cada peça entra na ordem de `--i`, a cada 90 ms a partir de 150 ms (opacidade + 16 px para cima, 550 ms);
+  - o X entra em 500 ms e o rodapé com "Iniciar" sobe em 600 ms;
+  - nada disso roda com movimento reduzido. CSS no fim de `css/screens/activity.css`.
+
+### Apresentação da atividade: linhas reorganizadas (25/11/2026)
+
+- Saiu o ícone grande do topo e a pílula da mecânica ("Quiz", "Memória").
+- Nova ordem:
+  1. ícone + "Módulo M · Atividade N" (ícone e rótulo do card de atividade do Curso: `edit`; missão `target` e "Missão";
+     avaliação LP-Icon `challenge` e "Avaliação");
+  2. pílulas de duração, etapas e pontos;
+  3. título = nome da atividade do curso (o mesmo do card);
+  4. o texto.
+- `courseActivity(n)` passou a devolver também o `kind` da atividade.
+- Kicker com o ícone "para fora" (a partir de 768): `margin-left: -22px`. O texto alinha com a borda esquerda das pílulas e do
+  título (64 = 64 = 64 no 768); o ícone fica a 42. No mobile segue em linha, porque a margem lateral (16) não comporta os 22.
+
+### Card de informações do Curso no tablet: pontos e moedas embaixo da imagem (25/11/2026)
+
+- Os infocards de pontos e moedas (`.c-cd-mcard__boxes`) saíram de `.c-cd-mcard__info` e preenchem o vão embaixo da imagem
+  (coluna 1, linha 2 do grid); as informações ocupam a coluna 2 nas duas linhas. A imagem continua 16:9.
+- Resultado:
+  - no 768 as colunas terminam a 19 px uma da outra;
+  - no 1100 a imagem é maior e a coluna da esquerda passa a ser a mais alta, com um vão menor que antes, agora embaixo das
+    informações.
+- Mobile: mesma ordem de antes (os infocards já eram os últimos).
+- Rota: os infocards ficam na coluna da direita. Sem progresso e sem botão, as informações dela já são mais baixas que a
+  imagem, e embaixo dela o card ficaria mais alto.
+
+### Curso → atividade com a mesma transição do Tabuleiro (25/11/2026)
+
+- `leaveTo` foi para `js/core/transition.js` (compartilhado). A classe `.is-route-leaving` saiu do `board.css` e foi para o
+  `css/shell.css`.
+- Na página Curso, um clique em link `#atividade` (card de atividade, desktop e mobile) faz o fade out da página e abre a
+  apresentação, sem esqueleto.
+- Ctrl/Cmd/Shift + clique e o botão do meio seguem o link normal.
+- O "Continuar" do card do curso vai para o Tabuleiro e não muda.
+
+### Curso: abrir e fechar módulos com animação (25/11/2026)
+
+- `toggleModules` em `js/screens/course-detail.js` (clique no módulo e "Expandir/Recolher"), desktop e mobile:
+  - **Abrir:** a lista cresce de 0 até a altura dela (320 ms), as linhas entram em sequência (30 ms entre elas) e o chevron gira
+    meia volta.
+  - **Fechar:** a lista encolhe até 0 e some (260 ms) e o chevron gira de volta; no fim, o set tira a lista.
+  - A lista corta o conteúdo só durante a animação.
+  - Um clique durante a animação é ignorado. Com movimento reduzido, troca direto.
+- O chevron do módulo agora é sempre o `chevron-down`; aberto, o CSS gira 180°.
+
+### Apresentação → mecânica em dois tempos (25/11/2026)
+
+- `startAct` (`js/screens/activity.js`):
+  1. **Saída (600 ms):**
+     - a app bar sobe e some (`data-hide-topbar` ligado já no clique);
+     - ao mesmo tempo, as linhas da apresentação somem subindo 24 px, de cima para baixo, com 40 ms entre elas
+       (`.c-act--intro.is-leaving`);
+     - o X some e o rodapé com "Iniciar" desce.
+  2. **Entrada (`is-enter`):**
+     - o menu com as informações da atividade entra da esquerda e a barra desce (como antes);
+     - a mecânica é montada: cada filho da seção da mecânica sobe 16 px e aparece, a 200, 270, 340… ms;
+     - o rodapé sobe por último, a 450 ms.
+- Um clique duplo em "Iniciar" é ignorado. Com movimento reduzido, troca direto.
+- Ordem da entrada: primeiro o card lateral (600 ms) e só depois a mecânica é montada (a partir de 600 ms, 70 ms entre as peças);
+  o rodapé sobe a 850 ms. Só com o card lateral à mostra (a partir de 1180 e com o menu aberto); sem ele, a montagem segue
+  começando a 200 ms.
+- A barra de desempenho (`.c-act-hudrow`) e o « (`.c-act-sidetoggle`) entram junto com a mecânica, não mais com o card lateral:
+  a 600 ms com o card lateral; a 200 ms sem ele.
+
+### Mecânicas: linha de informação no modelo do Figma (25/11/2026; LP-DesignSystem 4.0, node 5299:92699)
+
+- **`head` (`js/screens/activity/head.js`):** recebe `{ mech, task, how, title, aside, before }` no lugar de `kicker`.
+  - **Linha de cima** (`.c-act-head__info`, 12/16): ícone da mecânica (16, o mesmo do menu) + **nome da mecânica** · o que fazer
+    · como fazer, com pontos de 2px. À direita, as pills.
+  - **Progresso:** "Pergunta 1 de 3" virou a pill `stepPill` ("1 de 3", cor do sistema). Os acertos usam `hitsPill` (verde).
+  - **`before`:** conteúdo entre a linha e o título. No Quiz com apoio, a linha vem primeiro, depois a imagem e o texto de apoio.
+- **As 16 mecânicas foram migradas.** Exemplos:
+  - Quiz: "Escolha uma alternativa · Toque numa alternativa ou use as teclas A a D" (a letra final segue o número de
+    alternativas);
+  - Memória: "Encontre os pares · Toque em duas cartas por vez";
+  - Caça-palavras: "Encontre as palavras ocultas · Clique e arraste da primeira até a última letra da palavra".
+- **Instruções que estavam embaixo e foram para a linha:**
+  - This or that: saiu "Toque num card ou use as teclas A e B";
+  - Enquete: a nota de baixo fica só para a escolha feita e para o voto.
+- No mobile a linha quebra quando não cabe e as pills descem.
+
+### Mecânicas: ajudas no rodapé, ao lado do Continuar (25/11/2026)
+
+- Cada mecânica pode ter `aux: state => [{ label, icon, action, disabled, title, data }]`. A tela junta essas ajudas ao rodapé
+  (`f.aux`) e `footer` (`parts.js`) as desenha como botões stroked à esquerda do Continuar.
+- **Migradas:**
+  - Emparedado: Dica;
+  - Memória: Recomeçar;
+  - Misturadinho: Dica / Mais uma letra;
+  - Ordenadinho: Limpar;
+  - Quebra-cabeça: Segure para espiar, Encaixar uma e Reembaralhar;
+  - 7 erros: Mostrar onde.
+- Os botões saíram do conteúdo e da linha das pills. O "Segure para espiar" segue funcionando pelo `[data-peek]` em qualquer
+  ponto da tela.
+- **Mobile (abaixo de 600):** as ajudas viram botões só com o ícone (38px; o nome fica no `aria-label` e no `title`) e o
+  Continuar ocupa o resto da linha.
+
+### Atividades: capa do curso sem a busca (25/11/2026)
+
+- O botão de busca saiu da capa do menu de atividades (`cover` em `parts.js`). No mobile fica só o botão de mostrar/ocultar a
+  lista. A lógica da busca (`toggleSearch`, `searchResults`) continua no código, sem ponto de entrada.
+- **Menu lateral** (`.c-act-cover--side`): a capa deixou de ser 16:9 (sobrava uma faixa vazia em cima, onde ficava a busca).
+  Agora tem a altura do conteúdo, com 20 de respiro em cima e embaixo: 144px no 1440, era cerca de 180. A imagem segue à
+  direita, em 16:9 na altura toda, sob o mesmo véu.
+- No mobile a capa segue 16:9.
+
+### Mecânicas: sem os avisos de orientação (25/11/2026)
+
+- **Saíram as pílulas cinza de orientação** (`.c-act-msg` com `toast`) entre o cabeçalho e o jogo. A linha de informação do
+  cabeçalho já diz o que fazer e como.
+  - Memória: "Memorize as posições: cada par errado conta uma jogada";
+  - Misturadinho: "Pressione a 1ª letra e arraste até a última" e "Dica: comece pela letra destacada" (a letra destacada segue);
+  - Quebra-cabeça: "Peças no lugar certo travam com ✓. Comece pelos cantos";
+  - 7 erros: "Os erros podem estar em cores, formas, objetos a mais ou a menos";
+  - Mosaico: "Toque nos cards para selecioná-los" e "Você pode selecionar quantos cards quiser".
+- **Exceção:** no 7 erros, o aviso aparece só como resposta do "Mostrar onde" ("Olhe dentro do círculo dourado.").
+
+### Mecânica "Leitura" removida (25/11/2026)
+
+- **Saiu a mecânica 2 (Leitura e teoria multimídia).** Foram removidos:
+  - `readingMech` e `readingView` de `js/screens/activity/reading.js`;
+  - a entrada em `MECHS` (`js/screens/activity.js`);
+  - a linha em `activities`, a apresentação `intros[2]` e os dados `reading` em `js/data/activity.js`.
+- **Ficam:**
+  - o Slideshow (16), com a conclusão pela rolagem (`trackScroll` agora só para ele);
+  - os utilitários `code` e `figure`, usados pelo Quiz com apoio.
+- Os grupos de atividades do curso (`activityGroups`) se redistribuem entre as 15 mecânicas restantes.
+- `#atividade?item=2` é ignorado (abre a atividade atual).
+- As atividades do curso do tipo "leitura" (no Curso e no Tabuleiro) são outra coisa e continuam.
+- Os estilos `.c-act-read__*` que só a Leitura usava (galeria, cartão que vira, player) ficaram no CSS, sem uso.
+- **Estilos da Leitura apagados:** 36 regras e 2 listas de seletores aparadas em `css/screens/activity.css`, cerca de 4,5 KB.
+  - Classes: `.c-act-read__block`, `__h`, `__gallery`, `__center`, `__split`, `__reflect`, `__side`, `.c-act-figure--square`,
+    `--ruled`, `.c-act-flip*`, `.c-act-pod*`, `.c-act-video` e `.c-act-placeholder--square`;
+  - também as variações delas nos tweaks de tipografia (type-b, type-c).
+- **Ficam** (usados pelo Slideshow e pelo Quiz com apoio): `.c-act-read`, `__intro`, `__p`, `__kicker`, `__quote`, `__accent`,
+  `.c-act-figure`, `__img`, `__caption` e `.c-act-code`. A seção do CSS virou "Slideshow".
+
+### Atividades no mobile e tablet: lista em bottom sheet (25/11/2026)
+
+- **Abaixo de 1024** (sem o menu lateral), sai o bloco do topo da página: a capa do curso e a lista que abria embaixo dela.
+- **A barra de desempenho fica entre dois botões** (buttonIcon large com contorno, como o « e o X do desktop):
+  - à esquerda, o menu (ícone `menu`, ação `openTrail`), que abre a lista;
+  - à direita, o fechar (`.c-act-hud__close--row`).
+  - O X que ficava dentro da barra saiu.
+- **Lista de atividades** (`trailSheet` em `parts.js`): bottom sheet (`panel`, mode sheet) com o título "Atividades do curso" e os
+  mesmos grupos e a avaliação final do menu lateral; no estilo "Cards", o menu de cards.
+  - Só a lista rola; o título fica parado.
+  - Fecha pelo fundo, pelo Esc (`closeTrail`, com a animação de saída de `leavePanel`) ou ao escolher uma atividade.
+- O desktop não muda.
+- **Duas linhas no mobile e no tablet:** o menu e o fechar ficam na primeira linha, um em cada ponta (`order` 0 e 1). A barra de
+  desempenho ocupa a linha de baixo, com a largura toda (`order: 2; flex: 1 1 100%`).
+- **Vidas no mobile e no tablet:** uma pílula com o coração cheio (icon/error) e o número ("♥ 3"), `.c-act-hud__lives-count`. Com
+  1 vida ou menos, o número fica em text/error. No desktop seguem os três corações.
+- A lista vai direto no bottom sheet, sem o card do menu por cima: sem borda, raio, sombra ou fundo próprios em
+  `.c-panel .c-act-sheet`, e sem o recuo de 8 do corpo do sheet (`.c-act-sheet__box .c-panel__body`). O título e as atividades
+  ocupam a largura do sheet, e a lista segue rolando sozinha.
+
+### Menu de atividades: contagem junto do rótulo (25/11/2026)
+
+- No cabeçalho de cada atividade (menu lateral no desktop e bottom sheet no mobile), saiu a pílula "0/12" à direita.
+- A contagem vai no rótulo: "ATIVIDADE 1 • 0/12". Usa o mesmo ponto de 3px (`c-cd-bullet`, text/secondary) do "MÓDULO 1 •
+  1h 25min" acima.
+- `.c-act-group__count` agora é um `span` dentro de `.c-act-group__label`, e o `title` "n de N concluídas" continua nele.
+- **Chevron à direita** (desktop e mobile): no cabeçalho de cada atividade do menu, as informações ficam à esquerda e o chevron
+  à direita. Fechada, ele aponta para baixo; aberta, gira 180° e aponta para cima (`.c-act-group__caret.is-open`). Antes ficava
+  à esquerda e, fechado, girava -90°.
+- **Abrir e fechar com animação** (`toggleGroup` em `js/screens/activity.js`, no mesmo modelo dos módulos do Curso):
+  - **Abrir:** a lista cresce de 0 até a altura dela (300 ms), as linhas entram em sequência (25 ms entre elas) e o chevron gira
+    meia volta.
+  - **Fechar:** a lista encolhe até 0 e some (240 ms) e o chevron gira de volta.
+  - Vale no menu lateral e no bottom sheet. Um clique durante a animação é ignorado. Com movimento reduzido, troca direto.
+- **Só a atividade atual aberta ao entrar** (desktop e mobile): `closedExceptCurrent` (`js/screens/activity.js`) fecha todas as
+  atividades do menu, menos a atual.
+  - A atual é a do link (`?atv=n`, vindo do Curso ou do Tabuleiro) ou, sem ele, a primeira atividade que tem a mecânica aberta.
+  - Vale no carregamento da tela. Depois, o que o usuário abre ou fecha fica como ele deixou.
+
+### Atividades: botão "mais" no lugar do X (25/11/2026)
+
+- **O X da barra virou o botão "mais"** (`more-vertical`, `toggleMore`). Ele abre as opções da atividade.
+  - **Desktop:** menu suspenso de 280 embaixo do botão, alinhado à direita dele, no modelo do menu do perfil. Tem
+    "Preferências" → "Efeitos sonoros" (chave `c-switch`, `toggleSound`) e "Sair da atividade", que abre a confirmação de
+    sempre. Fecha com clique fora, com Esc ou no próprio botão.
+  - **Mobile e tablet:** as mesmas opções num bottom sheet, mais "Ver atividades do curso", que troca para o sheet da lista
+    (`moreTrail`). O botão de menu (hambúrguer) saiu; o "mais" fica sozinho à direita, na primeira linha.
+- **Pílulas da barra** (tempo, sequência, vidas e pontos) alinhadas à direita no mobile e no tablet.
+- **Linha de informação das mecânicas no mobile** (abaixo de 768): some o nome da mecânica ("Quiz") e o ponto depois dele. Fica
+  "ícone · o que fazer · como fazer". O nome continua no HTML para leitor de tela (`.c-act-head__mech`, visualmente oculto).
+- **Pílulas da linha de informação** (mobile e tablet, abaixo de 1024): a informação tem como base a largura do texto inteiro
+  (`flex: 1 1 max-content`).
+  - Se o texto não cabe numa linha ao lado das pílulas ("1 de 3", "0 acertos"), as pílulas descem para a linha de baixo,
+    alinhadas à esquerda, e o texto fica sozinho em cima.
+  - Se cabe, as pílulas seguem à direita.
+  - Conferido: em 375 o texto fica em cima e as pílulas embaixo, à esquerda; em 600 e 768 fica tudo numa linha.
+- **Pílulas de pontos com estrela** (desktop e mobile): na barra de desempenho, a pílula de pontos ("250 pts") e a de ganho
+  ("+ 30 pts") trocaram o ícone `zap` (raio) pelo `star`, o mesmo ícone de pontos do Curso e da Rota.
+
+- **Curso concluído: "Revisar" e card "Certificado recebido" (25/11/2026; desktop e mobile).** Com o curso concluído, o botão do card do curso deixou de ser "Ver certificado" e virou **Revisar** (ícone `rotate-ccw`, leva ao Tabuleiro). O certificado ganhou um card próprio, `certificateCard` em `js/screens/course-detail.js`, no modelo do "Sobre o curso": título "Certificado recebido", o certificado (selo `badge-3`, nome, "Recebido em" e carga horária, dados em `course.certificate` de `js/data/course-detail.js`) e o botão stroked **Ver certificado** (`#certificados`). Desktop: na coluna lateral, logo abaixo do card do curso. Mobile: na Visão geral, logo abaixo do card do curso. Só aparece com o curso concluído. Estilo em `css/screens/course-detail.css` (`.c-cd-cert`, `.c-cd-cert-m`).
+
+- **Menu de atividades com módulos em card (rascunho de 25/11/2026; desktop e mobile).** Cada módulo virou um card recolhível (borda, radius 2xl, surface/elevated, 12 entre cards): o cabeçalho é um botão com "MÓDULO 1 • 1h 25min", o título do módulo (até 2 linhas) e o chevron à direita. Aberto, mostra os grupos "ATIVIDADE N • d/N" e cada mecânica num card próprio (ícone, título e pontos, andamento à direita; a atual com a borda da ação e fundo da marca suave), e a missão do módulo; fechado, só o cabeçalho. Ao entrar, só o módulo (e a atividade) atual fica aberto. Usa o mesmo mapa `closed` e a mesma animação dos grupos (chave `m<n>`; `groupParts` agora pega o elemento logo depois do cabeçalho). Marcação em `groups()` de `js/screens/activity/parts.js`; estilo no fim de `css/screens/activity.css`.
+
+- **Estado da trilha nos tweaks da Atividade (25/11/2026).** Na seção Trilha, o switch "Desbloquear todas" virou a escolha **Estado da trilha**, com os mesmos estados do Curso: Não iniciado (padrão: só a 1ª disponível), Em andamento (as 5 primeiras concluídas e a 6ª atual), Concluído (todas concluídas) e Todas liberadas (nada concluído e qualquer atividade abre). No endereço: `estado=andamento|concluido|liberado`; o antigo `desbloquear=1` vale como liberado. Trocar o estado refaz o status e mantém a atividade aberta. `statusForState` e `firstOpen` em `js/screens/activity/flow.js`.
+- **Capa do menu lateral da Atividade em 16:9 (25/11/2026).** A capa do curso no menu lateral (desktop) passou a ter proporção 16:9, com a imagem cobrindo a área toda e o texto (Curso, título e progresso) embaixo.
+
+- **Tweaks da Atividade enxutos (25/11/2026).** Saíram o tweak "Atividade aberta" (o link `?item=` continua funcionando) e o "Estilo do menu de atividades": o menu fica só no estilo Capa. O estilo "Cards" foi apagado (`trailCards` em `js/screens/activity/parts.js`, `tw.trilha` em `js/screens/activity.js` e as 35 regras `.c-act-tcard*`/`.c-act-trail--cards` de `css/screens/activity.css`).
+
+- **Cards de atividade com 4 estados (25/11/2026; desktop e mobile).** O tweak "Estado da trilha" agora também define o acesso a cada card de atividade do menu (`groupAccess` em `js/screens/activity/parts.js`): **Não iniciado**, só a 1ª atividade do módulo 1 liberada; **Em andamento**, até a 5ª atividade do módulo 1; **Concluído**, todas liberadas; nos dois primeiros, as demais ficam bloqueadas (cadeado no lugar do chevron, texto em text/secondary, contagem 0/N) e não abrem a lista de mecânicas. **Todas liberadas**: todas clicáveis (seta para a direita; o clique abre a 1ª mecânica da atividade), mas sem abrir a lista de mecânicas. Estilo no fim de `css/screens/activity.css`.
+
+- **Mecânicas em lista e andamento na atividade (25/11/2026; desktop e mobile).** As mecânicas do menu deixaram de ser cards: viraram uma lista simples (ícone, título e "mecânica · pontos"), sem contorno, sem fundo e sem o andamento à direita; a atual fica com o fundo da marca suave. O andamento foi para o cabeçalho da atividade: anel de 24 (progressDonut) à esquerda do chevron, com a média do andamento das mecânicas dela. Atividade bloqueada mostra só o cadeado.
+
+- **Rolagem do menu de atividades fora dos cards (25/11/2026; desktop e mobile).** A lista do menu reserva sempre o espaço da barra de rolagem (`scrollbar-gutter: stable`) dentro do respiro da direita (2 + 14 da barra = os 16 da esquerda). O card de módulo não muda de largura quando a rolagem aparece, e a barra fica no espaço entre o card e a borda do menu.
+
+- **Sem anel de andamento na atividade (25/11/2026).** O anel de 24 no cabeçalho da atividade do menu saiu de vez: o cabeçalho fica com "ATIVIDADE N • d/N", o título e o chevron (ou o cadeado / a seta). As mecânicas continuam sem andamento.
+
+- **Atividades em card no menu (25/11/2026; desktop e mobile).** Dentro do card do módulo, cada atividade virou um card de cantos arredondados (radius xl, borda border/default, fundo background/default, 8 entre um e outro), sem a linha embaixo do cabeçalho; aberta, as mecânicas ficam dentro do card. Os textos e os tamanhos não mudaram. Hover (atividade liberada ou só clicável): borda na cor da marca suave, fundo background/subtle e o chevron ou a seta na cor da marca; bloqueada não tem hover. CSS no fim de `css/screens/activity.css`.
+
+- **Coluna padrão e escala do conteúdo das mecânicas (25/11/2026).** Coluna central padrão de **720px** (`--act-col` em `css/screens/activity.css`, era 792) para todas as mecânicas, com a barra de desempenho e o rodapé na mesma largura. Escala revista para o conteúdo caber em 1440 × 900 sem rolar: título 18/28 (era 20/32); imagens 16:9 (texto de apoio e slideshow) com no máximo min(320px, 36vh) de altura, recortadas; memória e mosaico em até 520px (cartas de ~121, eram 169); quebra-cabeça em até 560px; alternativas do quiz e da avaliação com respiro 12/16 e texto 14/20 (eram 16/20 e 16/24). Em 1440 × 900 só o slideshow (leitura longa) e o quiz com apoio rolam. Conferido em 1440, 768 e 360, sem rolagem lateral.
+
+- **Texto de apoio e slideshow mais contidos (25/11/2026).** Título do tópico do Slideshow 18/28 800 (era fluido de 20 a 28); título do texto de apoio do Quiz 16/24 800, abaixo da pergunta (18/28); parágrafos de leitura 14/22 (eram 16/28); 16 entre imagem e texto (era 24) e 8 entre kicker, título e parágrafos (era 16). As variantes de tipografia dos tweaks (Versão B e LP 4.0) mantêm os próprios tamanhos.

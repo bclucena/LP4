@@ -7,7 +7,7 @@ import { exam as E } from '../../data/activity.js';
 import { upd, finish, fx, clock2, statusOf } from './flow.js';
 import { sfx } from '../../core/sound.js';
 import { examInfo } from '../../components/exam-dialog.js';
-import { head } from './head.js';
+import { head, stepPill } from './head.js';
 
 const Q = E.questions;
 export const init = () => ({ started: false, q: 0, sel: null, ans: [], sec: 0, tries: 0, result: null, review: false });
@@ -21,7 +21,7 @@ function question(x) {
     <span class="c-act-option__letter" aria-hidden="true">${'ABCDEF'[i]}</span><span class="c-act-option__text">${esc(t)}</span>
   </button>`).join('');
   return `<section class="c-act-card c-act-quiz" aria-label="Avaliação · questão">
-    ${head({ kicker: `Questão ${x.q + 1} de ${Q.length} · Escolha uma alternativa`, title: esc(item.q) })}
+    ${head({ mech: 'Avaliação', task: 'Escolha uma alternativa', how: `Toque numa alternativa ou use as teclas A a ${'ABCDEF'[item.o.length - 1]}`, title: esc(item.q), aside: stepPill(x.q + 1, Q.length) })}
     <div class="c-act-quiz__options" role="radiogroup" aria-label="Alternativas">${opts}</div>
   </section>`;
 }

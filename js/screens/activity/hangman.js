@@ -5,7 +5,7 @@
 import { cx, esc } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { hangman as H, KEY_ROWS } from '../../data/activity.js';
-import { finish, later, fx, plural } from './flow.js';
+import { finish, later, fx, plural, verdict, defaultFooter } from './flow.js';
 import { sfx } from '../../core/sound.js';
 import { button } from '../../components/button.js';
 import { pill } from '../../components/badges.js';
@@ -24,7 +24,6 @@ function view(state) {
   const L = h.last;
   const missFx = fx(state, 'hangKey') && L && !L.hit;
   const revealed = [...LETTERS].filter(c => h.guessed.includes(c)).length;
-  const hintOff = h.won || lost || state.coins < H.hintCost || h.hints >= H.maxHints;
   const wall = h.won ? 8 : 14 + (err / H.maxErrors) * 86;
 
   let idx = -1;
@@ -50,10 +49,9 @@ function view(state) {
       : '';
 
   return `<section class="c-act-card c-act-hang" aria-label="Emparedado">
-    ${head({ kicker: 'Descubra a palavra · toque nas letras', title: esc(H.question), aside: `
+    ${head({ mech: 'Emparedado', task: 'Descubra a palavra', how: 'Toque nas letras ou use o teclado', title: esc(H.question), aside: `
           ${pill({ color: 'grey', label: `${H.answer.split(' ').length} palavras · ${LETTERS.length} letras` })}
           ${pill({ color: 'grey', label: `${revealed}/${LETTERS.length} descobertas` })}
-        ${button({ variant: 'stroked', size: 'mobile', iconStart: 'help-circle', action: 'hangHint', disabled: hintOff, title: 'Revela uma letra da resposta', label: h.hints >= H.maxHints ? 'Dicas esgotadas' : `Dica · ${H.hintCost} moedas` })}
       ` })}
     <div class="c-act-hang__layout">
       <div class="c-act-hang__stage">
@@ -74,7 +72,6 @@ function view(state) {
         <div class="c-act-hang__words" aria-label="Palavra secreta">${slots}</div>
         <div class="c-act-hang__toast" aria-live="polite">${toastHtml}</div>
         <div class="c-act-keys">${keyboard}</div>
-        ${lost ? `<div class="c-act-alert c-act-alert--error"><b>Emparedado!</b> A resposta era “${esc(H.answer)}”.</div>` : ''}
       </div>
     </div>
   </section>`;
@@ -113,13 +110,26 @@ const actions = {
   hangRetry: ctx => { sfx('click'); ctx.set({ hang: init() }); },
 };
 
+/** Ajuda no rodapé: Dica (revela uma letra). */
+function aux(state) {
+  const h = state.hang;
+  const lost = errorsOf(h.guessed) >= H.maxErrors;
+  const hintOff = h.won || lost || state.coins < H.hintCost || h.hints >= H.maxHints;
+  return [{ icon: 'help-circle', action: 'hangHint', disabled: hintOff, title: 'Revela uma letra da resposta', label: h.hints >= H.maxHints ? 'Dicas esgotadas' : `Dica · ${H.hintCost} moedas` }];
+}
+
 export default {
   id: 4,
+  aux,
   key: 'hang',
   init,
   view,
   actions,
-  footer: s => (errorsOf(s.hang.guessed) >= H.maxErrors && s.justDone !== 4 ? { label: 'Tentar de novo', action: 'hangRetry' } : null),
+  footer: s => {
+    if (errorsOf(s.hang.guessed) >= H.maxErrors && s.justDone !== 4) return { label: 'Tentar de novo', action: 'hangRetry', ...verdict(false, { title: 'Emparedado!', why: `A resposta era “${H.answer}”.` }) };
+    if (s.hang.won && s.justDone === 4) return { ...defaultFooter(s), ...verdict(true, { why: `A resposta é “${H.answer}”.` }) };
+    return null;
+  },
   keys: (ctx, e) => {
     if (!/^[a-z0-9]$/i.test(e.key)) return false;
     guess(ctx, e.key.toUpperCase());

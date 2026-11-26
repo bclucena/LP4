@@ -5,7 +5,7 @@
 import { cx, esc } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { place as P } from '../../data/activity.js';
-import { upd, finish, later, fx, shuffle, toast, streakOn } from './flow.js';
+import { upd, finish, later, fx, shuffle, toast, streakOn, verdict, defaultFooter } from './flow.js';
 import { pointerDrag, dragged } from './drag.js';
 import { sfx, tones } from '../../core/sound.js';
 import { head } from './head.js';
@@ -40,13 +40,12 @@ function view(state) {
     </div>`;
   }).join('');
   return `<section class="c-act-card c-act-place" aria-label="No lugar">
-    ${head({ kicker: 'Arraste as opções e solte nos quadros corretos · ou toque na opção e depois no quadro', title: esc(P.question) })}
+    ${head({ mech: 'No lugar', task: 'Leve cada opção ao quadro certo', how: 'Arraste e solte ou toque na opção e depois no quadro', title: esc(P.question) })}
     <div class="c-act-place__zones">${zones}</div>
     <div class="c-act-bank" data-action="placeZone" data-zone="bank" data-drop-place="bank">
       <div class="c-act-bank__head"><b>Opções</b><span>${bank.length} de ${P.items.length} restantes</span></div>
       <div class="c-act-bank__chips">${bank.length ? bank.map(id => chip(state, id)).join('') : `<span class="c-act-bank__done">${icon('check', 16)}Tudo posicionado. Confira e confirme.</span>`}</div>
     </div>
-    <div class="c-act-msg" aria-live="polite">${pl.msg ? toast(esc(pl.msg.t), pl.msg.ok ? 'ok' : 'bad', fx(state, 'placeCheck')) : ''}</div>
   </section>`;
 }
 
@@ -96,11 +95,13 @@ const actions = {
 };
 
 function footer(state) {
-  if (state.justDone === 7) return null;
   const pl = state.place;
+  // Resultado na barra: acerto com o resumo ao lado do selo; erro com o que deu errado no botão "Explicação".
+  const res = pl.msg ? verdict(pl.msg.ok, { why: pl.msg.t }) : {};
+  if (state.justDone === 7) return pl.msg?.ok ? { ...defaultFooter(state), ...res } : null;
   const left = listOf(state, 'bank').length;
   const ready = !left && !pl.result;
-  return { label: pl.result ? 'Conferindo…' : left ? `Confirmar (${left} restantes)` : 'Confirmar', action: 'placeConfirm', disabled: !ready };
+  return { label: pl.result ? 'Conferindo…' : left ? `Confirmar (${left} restantes)` : 'Confirmar', action: 'placeConfirm', disabled: !ready, ...res };
 }
 
 export default {

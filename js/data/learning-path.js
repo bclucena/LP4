@@ -1,5 +1,6 @@
 // Dados de exemplo da Rota de aprendizagem (Figma LP-DesignSystem 4.0, página "Rota"). Conteúdo fictício.
 import { course } from './course-detail.js';
+import { channels } from './feed.js';
 
 const carla = { name: 'Carla Silva', avatar: 'assets/fluxo/avatar-carla.png' };
 const mariana = { name: 'Mariana Silva', avatar: 'assets/fluxo/avatar-mariana.png' };
@@ -34,4 +35,29 @@ export const routeStates = {
   'nao-iniciado': { done: () => 0, currentPct: 0 },
   andamento: { done: () => 1, currentPct: 40 },
   concluido: { done: total => total, currentPct: 0 },
+  // Liberada: nada concluído e todas as etapas disponíveis, em qualquer ordem (sem cadeado e sem etapa "atual").
+  liberada: { done: () => 0, currentPct: 0, open: true },
 };
+
+/** Tipos de etapa da rota: rótulo, ícone (Feather) e a área do app que a etapa abre. Os rótulos e ícones de cada tipo seguem as
+    próprias áreas (Missões, Feed, Biblioteca, Eventos). */
+export const stepKinds = {
+  curso: { label: 'Curso', icon: 'book-open', href: '#curso' },
+  noticia: { label: 'Notícia', icon: 'send', href: '#feed' },
+  material: { label: 'Biblioteca', icon: 'bookmark', href: '#biblioteca' },
+  missao: { label: 'Missão', icon: 'flag', href: '#missoes' },
+  evento: { label: 'Evento', icon: 'calendar', href: '#eventos' },
+};
+
+/** Etapas da rota, na ordem: os cursos intercalados com uma notícia, um material da Biblioteca, uma missão e um evento.
+    Cada tipo traz os dados que o card dele mostra (ver stepCard em js/screens/learning-path.js). */
+export const routeSteps = [
+  { kind: 'curso', ...routeCourses[0] },
+  { kind: 'noticia', image: 'assets/fluxo/slots/slideshow-img-3.webp', title: 'LGPD na prática: o que muda no atendimento aos clientes', channel: channels[2], published: 'Publicado há 2 dias', readMin: 4, tags: ['Compliance'], extraTags: 1, author: mariana, novo: true, likes: 24, comments: 6 },
+  { kind: 'curso', ...routeCourses[1] },
+  { kind: 'material', image: 'assets/fluxo/slots/leitura-galeria-3.webp', title: 'Guia rápido: as bases legais da LGPD', material: 'arquivo', date: '12 Set. 2026', tags: ['Compliance'], extraTags: 2, likes: 128, views: 342 },
+  { kind: 'missao', image: 'assets/fluxo/slots/slideshow-img-1.webp', title: 'Mapeie os dados pessoais tratados no seu setor', mission: 'evidencia', scope: 'Individual', period: 'unico', ends: 'Encerra em 12 dias', tags: ['Compliance'], extraTags: 0, novo: true },
+  { kind: 'curso', ...routeCourses[2] },
+  { kind: 'evento', image: 'assets/fluxo/slots/atividade-figura-1.webp', title: 'Workshop ao vivo: como agir em um vazamento de dados', mode: 'online', place: 'Online', date: '10 Dez. 2026 · 14:00 - 16:00', slots: 100, taken: 64, tags: ['Segurança'], extraTags: 0 },
+  { kind: 'curso', ...routeCourses[3] },
+];

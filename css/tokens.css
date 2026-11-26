@@ -147,6 +147,11 @@
   --color-module-2: var(--color-red-600);
   --color-module-3: var(--color-green-700);
   --color-module-4: var(--color-purple-500);
+  /* Estrela de progresso (estrelas dos pins concluídos no Tabuleiro): iguais nos dois temas, ficam sobre imagem. */
+  --color-star-fill: var(--color-yellow-400);
+  --color-star-shine: var(--color-yellow-300);
+  --color-star-empty: var(--color-gray-100);
+  --color-star-border: var(--color-gray-50);
   --color-action-active: #570090;
   --color-ui: #7b2fbe;
   --color-brand-strong: #7b2fbe;

@@ -1,4 +1,6 @@
+import { leaveTo } from '../core/transition.js';
 import { cx, esc, range } from '../core/dom.js';
+import { rail } from '../components/rail.js';
 import { icon } from '../core/icons.js';
 import { lpIcon } from '../core/lp-icons.js';
 import { createView, onEscape } from '../core/view.js';
@@ -17,7 +19,7 @@ import { course, modules as allModules, materials as allMaterials, courseStates,
 
    - Abaixo de 1179 (360 e 768 no Figma): componentes mobile. App bar e navigation bar da casca, linha "Voltar", abas de
      verdade (Visão geral, Conteúdo, Materiais) e, em Visão geral, o card do curso (imagem com selos e duração, autor,
-     informações, progresso, "Ir para a trilha", recompensas), a descrição e as categorias.
+     informações, progresso, o botão do estado (Iniciar, Continuar ou Revisar), recompensas), a descrição e as categorias.
    - A partir de 1179 (1179, 1180, 1366 e 1440): capa larga com imagem desfocada, card do curso em coluna lateral (400)
      que sobe sobre a capa e fica sticky, e as seções em cards (Descrição, Conteúdo, Materiais de apoio).
 
@@ -79,7 +81,8 @@ function derive(state) {
   const totalMin = all.reduce((sum, a) => sum + a.min, 0);
   const open = state.open ?? (next ? { [finished ? 0 : next.mi]: true } : {});
   const cta = finished
-    ? { label: 'Ver certificado', icon: 'award', href: '#certificados', hint: 'Você concluiu este curso. Revise quando quiser.' }
+    // Concluído (25/11/2026): o botão vira "Revisar" (volta ao Tabuleiro); o certificado fica no card "Certificado recebido".
+    ? { label: 'Revisar', icon: 'rotate-ccw', href: '#tabuleiro', hint: 'Você concluiu este curso. Revise quando quiser.' }
     : started
       ? { label: 'Continuar', icon: 'play-circle', href: '#tabuleiro', hint: `Próxima: ${next.title} · Módulo ${next.mi + 1}` }
       : { label: 'Iniciar', icon: 'play-circle', href: '#tabuleiro', hint: next ? `Comece por: ${next.title} · Módulo ${next.mi + 1}` : '' };
@@ -189,18 +192,26 @@ export const courseProgress = (d, cls = '') => `<div class="${cx('c-cd-side__pro
       <span class="c-cd-side__progress-sub">${d.finished ? `Todas as ${d.total} atividades concluídas` : `${d.done} de ${d.total} atividades concluídas`}</span>
     </div>`;
 
+/** Infocards de pontos e moedas do card do curso (ícone na caixa, recebido/possível e o rótulo). Também no Dock do Tabuleiro. */
+export const rewardBoxes = d => `${infoBox(icon('star', 18), fmtInt(d.rewards.got.pts), d.finished ? 'pontos ganhos' : 'pontos disponíveis', fmtInt(d.rewards.max.pts))}
+      ${infoBox(lpIcon('coin', 18), fmtInt(d.rewards.got.coins), d.finished ? 'moedas ganhas' : 'moedas disponíveis', fmtInt(d.rewards.max.coins))}`;
+
 /** Card do curso. `cover`, `progress`, `cta` e `rewards` desligam a capa, o progresso, o botão e os infocards de pontos e moedas (o Dock do Tabuleiro mostra a capa e o
     progresso no topo e não tem o botão). */
-export const summary = (d, { cover = true, progress = true, cta = true, rewards = true } = {}) => `<aside class="c-cd-side c-cd-side--course" aria-label="Resumo do curso">
+export const summary = (d, { cover = true, ...opts } = {}) => `<aside class="c-cd-side c-cd-side--course" aria-label="Resumo do curso">
     ${cover ? `<img class="c-cd-side__cover" src="${esc(course.cover)}" alt="" />` : ''}
-    <ul class="c-cd-side__facts">${facts().map(([ic, text]) => `<li>${ic}<span>${text}</span></li>`).join('')}</ul>
+    ${summaryBody(d, opts)}
+  </aside>`;
+
+/** Miolo do card do curso (informações, progresso, botão e infocards de pontos e moedas): o mesmo no card lateral do desktop
+    e no card do curso do mobile (mobileSummary). */
+const summaryBody = (d, { progress = true, cta = true, rewards = true } = {}) => `<ul class="c-cd-side__facts">${facts().map(([ic, text]) => `<li>${ic}<span>${text}</span></li>`).join('')}</ul>
     ${progress && d.started ? courseProgress(d, 'c-cd-side__pad') : ''}
     ${cta ? `<div class="c-cd-side__pad">${ctaLink(d)}</div>` : ''}
     ${rewards ? `<div class="c-cd-side__pad c-cd-side__rewards">
       ${infoBox(icon('star', 18), fmtInt(d.rewards.got.pts), d.finished ? 'pontos ganhos' : 'pontos disponíveis', fmtInt(d.rewards.max.pts))}
       ${infoBox(lpIcon('coin', 18), fmtInt(d.rewards.got.coins), d.finished ? 'moedas ganhas' : 'moedas disponíveis', fmtInt(d.rewards.max.coins))}
-    </div>` : ''}
-  </aside>`;
+    </div>` : ''}`;
 
 /* ---------- Sobre o curso ---------- */
 const stats = d => [
@@ -226,6 +237,29 @@ export const sideCategories = () => `<section class="c-cd-side" aria-labelledby=
     <h3 class="c-cd-side__title" id="cd-categories-side">Categorias</h3>
     <div class="c-cd-side__pad">${categoryTags()}</div>
   </section>`;
+
+/** "Certificado recebido" (25/11/2026; só com o curso concluído), no modelo do card "Sobre o curso": título, o certificado
+    (selo, nome, data de recebimento e carga horária) e o botão "Ver certificado", que leva à área de Certificados.
+    `mobile` usa a escala do card de seção do mobile (c-cd-card). */
+export const certificateCard = (d, { mobile = false } = {}) => {
+  if (!d.finished) return '';
+  const c = course.certificate;
+  const body = `<div class="c-cd-cert">
+      <span class="c-cd-cert__seal" aria-hidden="true">${lpIcon('badge-3', mobile ? 16 : 20)}</span>
+      <span class="c-cd-cert__text">
+        <b class="c-cd-cert__name">${esc(c.name)}</b>
+        <span class="c-cd-cert__meta"><span>Recebido em <b>${esc(c.received)}</b></span>${bullet}<span>${esc(c.hours)}</span></span>
+      </span>
+    </div>`;
+  const btn = `<a class="${cx('c-button c-button--stroked c-button--block', mobile && 'c-button--mobile')}" href="#certificados"><span>Ver certificado</span>${icon('award', 16)}</a>`;
+  return mobile
+    ? `<section class="c-cd-card c-cd-cert-m" aria-labelledby="cd-cert-m"><h2 class="c-cd-card__title" id="cd-cert-m">Certificado recebido</h2>${body}${btn}</section>`
+    : `<section class="c-cd-side" aria-labelledby="cd-cert-side">
+    <h3 class="c-cd-side__title" id="cd-cert-side">Certificado recebido</h3>
+    <div class="c-cd-side__pad">${body}</div>
+    <div class="c-cd-side__pad">${btn}</div>
+  </section>`;
+};
 
 export const sideAbout = d => `${sideAboutCourse(d)}
   ${sideCategories()}`;
@@ -284,9 +318,8 @@ function activityRow(a, d) {
 export const earnedStars = n => `<span class="c-cd-bullet" aria-hidden="true"></span><span class="c-cd-tl__stars" role="img" aria-label="${n} de 3 estrelas">${[1, 2, 3].map(k =>
   `<span class="${cx('c-cd-tl__star', k <= n && 'is-on')}">${icon('star', 12)}</span>`).join('')}</span>`;
 
-const TL_ICON = { done: 'check', locked: 'lock' }; // liberadas (atual e abertas): marcador sem ícone
 
-function timelineRow(a, d) {
+function timelineRow(a, d, pos = {}) {
   const st = actStatus(a.index, d);
   const look = actLook(a, 14);
   const r = actRewards(a);
@@ -304,7 +337,8 @@ function timelineRow(a, d) {
       </span>
       ${st === 'locked' ? '' : `<span class="c-cd-tl__go" aria-hidden="true">${icon('chevron-right', 20)}</span>`}
     </span>`;
-  const node = `<span class="c-cd-tl__node" aria-hidden="true">${TL_ICON[st] ? icon(TL_ICON[st], 10) : ''}</span>`;
+  // Trilho e marcador: o componente da Rota (rail). O traço de cima fica verde da concluída até a atual; o de baixo, só na concluída.
+  const node = rail({ status: st, first: pos.first, last: pos.last, before: st === 'done' || st === 'current', after: st === 'done' });
   let row;
   if (st === 'locked') row = `<div class="c-cd-tl__row" aria-disabled="true" title="${STATUS_HINT.locked}">${inner}<span class="u-sr-only">Bloqueada</span></div>`;
   else if (g === 'avaliacao') row = `<button type="button" class="c-cd-tl__row" data-action="openExam" data-key="act-${a.index}" aria-haspopup="dialog" title="${STATUS_HINT[st]}">${inner}</button>`;
@@ -327,11 +361,11 @@ function moduleItem(m, mi, d) {
         <span class="c-cd-module__meta">${metaLine(meta)}</span>
       </span>
       <span class="c-cd-module__progress" role="img" aria-label="${md} de ${m.acts.length} atividades concluídas"><span class="c-cd-module__track"><span class="${cx(mDone && 'is-done')}" style="width:${pct}%"></span></span><span class="c-cd-module__pct">${pct}%</span></span>
-      <span class="c-cd-module__chev">${icon(open ? 'chevron-up' : 'chevron-down', 16)}</span>
+      <span class="c-cd-module__chev">${icon('chevron-down', 16)}</span>
     </button>
     ${open
       ? d.lista === 'linha'
-        ? `<ol class="c-cd-tl" id="cd-mod-${mi}">${d.all.filter(a => a.mi === mi).map(a => timelineRow(a, d)).join('')}</ol>`
+        ? `<ol class="c-cd-tl" id="cd-mod-${mi}">${d.all.filter(a => a.mi === mi).map((a, j, list) => timelineRow(a, d, { first: j === 0, last: j === list.length - 1 })).join('')}</ol>`
         : `<ol class="c-cd-module__acts" id="cd-mod-${mi}">${d.all.filter(a => a.mi === mi).map(a => activityRow(a, d)).join('')}</ol>`
       : ''}
   </div>`;
@@ -383,15 +417,16 @@ export const mobileTabs = (state, d) => {
   const defs = [
     { id: 'sobre', label: 'Visão geral' },
     { id: 'conteudo', label: 'Conteúdo', count: d.total },
-    { id: 'materiais', label: 'Materiais', count: d.materials.length },
+    { id: 'materiais', label: 'Materiais de apoio', count: d.materials.length },
   ];
   return `<nav class="c-cd-mtabs" aria-label="Seções do curso"><div class="c-cd-mtabs__row" role="tablist">${defs.map(t =>
     `<button type="button" role="tab" id="cd-tab-${t.id}" class="${cx('c-cd-mtab', state.tab === t.id && 'is-active')}" aria-selected="${state.tab === t.id}" aria-controls="cd-panel" data-action="setTab" data-id="${t.id}"><span>${t.label}</span>${t.count ? `<span class="c-cd-mtab__count">${t.count}</span>` : ''}</button>`).join('')}</div></nav>`;
 };
 
-/** Card do curso no mobile ("side card cursos mobile"). */
-export function mobileSummary(d, { trailCta = true } = {}) {
-  const cta = d.finished || !trailCta ? d.cta : { label: 'Ir para a trilha', icon: 'play-circle', href: '#tabuleiro', hint: d.cta.hint };
+/** Card do curso no mobile ("side card cursos mobile", screenshot de 24/11/2026): capa com selos e duração, título e autor,
+    linha, as 4 informações (ícones de 8, 10/12), o progresso com "x de N atividades concluídas", o botão do estado (Iniciar,
+    Continuar ou Ver certificado; "button mobile" de 30) e os dois infocards de pontos e moedas. */
+export function mobileSummary(d) {
   return `<section class="c-cd-mcard" aria-labelledby="cd-title">
     <div class="c-cd-mcard__media">
       <img class="c-cd-mcard__cover" src="${esc(course.cover)}" alt="" />
@@ -400,33 +435,49 @@ export function mobileSummary(d, { trailCta = true } = {}) {
         <span class="c-cd-mcard__time">${icon('clock', 8)}${esc(fmtMinutes(d.totalMin))}</span>
       </div>
     </div>
-    <div class="c-cd-mcard__name">
-      <h1 class="c-cd-mcard__title" id="cd-title">${esc(course.fullTitle)}</h1>
-      <span class="c-cd-mcard__author">${avatar({ use: 'image', src: course.author.avatar, px: 24 })}<b>${esc(course.author.name)}</b>${bullet}<span>${esc(course.author.role)}</span></span>
+    <div class="c-cd-mcard__info">
+      <div class="c-cd-mcard__name">
+        <h1 class="c-cd-mcard__title" id="cd-title">${esc(course.fullTitle)}</h1>
+        <span class="c-cd-mcard__author">${avatar({ use: 'image', src: course.author.avatar, px: 24 })}<b>${esc(course.author.name)}</b>${bullet}<span>${esc(course.author.role)}</span></span>
+      </div>
+      <hr class="c-cd-mcard__rule" />
+      <ul class="c-cd-mcard__facts">
+        <li>${icon('users', 8)}<span><b>${esc(course.started)}</b> Usuários iniciaram o curso</span></li>
+        <li>${icon('monitor', 8)}<span>Acesso mobile e desktop</span></li>
+        <li>${lpIcon('badge-3', 8)}<span>Certificado</span></li>
+        <li>${lpIcon('calendar-check-off', 8)}<span>Última atualização <b>${esc(course.updated)}</b></span></li>
+      </ul>
+      <div class="c-cd-mcard__progress">
+        <div class="c-cd-mcard__progress-head"><span>${d.finished ? 'Concluído!' : 'Progresso'}</span><span>${d.pct}%</span></div>
+        <div class="c-cd-mcard__track"><span class="${cx(d.finished && 'is-done')}" style="width:${d.pct}%"></span></div>
+        <span class="c-cd-mcard__progress-sub">${d.finished ? `Todas as ${d.total} atividades concluídas` : `${d.done} de ${d.total} atividades concluídas`}</span>
+      </div>
+      <div class="c-cd-mcard__pad">
+        ${d.next
+          ? `<a class="c-button c-button--primary c-button--block c-cd-mcard__cta" href="${d.cta.href}" title="${esc(d.cta.hint)}"><span>${d.cta.label}</span>${icon(d.cta.icon, 16)}</a>`
+          : `<span class="c-button c-button--primary c-button--block c-cd-mcard__cta" aria-disabled="true" data-state="disabled">Em breve</span>`}
+      </div>
     </div>
-    <hr class="c-cd-mcard__rule" />
-    <ul class="c-cd-mcard__facts">
-      <li>${icon('users', 8)}<span><b>${esc(course.started)}</b> Usuários iniciaram o curso</span></li>
-      <li>${icon('monitor', 8)}<span>Acesso mobile e desktop</span></li>
-      <li>${lpIcon('badge-3', 8)}<span>Certificado</span></li>
-      <li>${lpIcon('calendar-check-off', 8)}<span>Última atualização <b>${esc(course.updated)}</b></span></li>
-    </ul>
-    <div class="c-cd-mcard__progress">
-      <div class="c-cd-mcard__progress-head"><span>${d.finished ? 'Concluído!' : 'Progresso'}</span><span>${d.pct}%</span></div>
-      <div class="c-cd-mcard__track"><span class="${cx(d.finished && 'is-done')}" style="width:${d.pct}%"></span></div>
-    </div>
-    <div class="c-cd-mcard__pad">
-      ${d.next
-        ? `<a class="c-button c-button--primary c-button--block c-cd-mcard__cta" href="${cta.href}" title="${esc(cta.hint)}"><span>${cta.label}</span>${icon(cta.icon, 16)}</a>`
-        : `<span class="c-button c-button--primary c-button--block c-cd-mcard__cta" aria-disabled="true" data-state="disabled">Em breve</span>`}
-    </div>
-    <div class="c-cd-mcard__rewards">
-      <b>Recompensas</b>
-      ${mpill({ tone: 'system', iconName: 'star', label: `${fmtInt(d.rewards.got.pts)}/${fmtInt(d.rewards.max.pts)}` })}
-      ${mpill({ tone: 'system', iconHtml: lpIcon('coin', 8), label: `${fmtInt(d.rewards.got.coins)}/${fmtInt(d.rewards.max.coins)}` })}
+    <div class="c-cd-mcard__boxes">
+      ${mobileBox(icon('star', 8), fmtInt(d.rewards.got.pts), fmtInt(d.rewards.max.pts), d.finished ? 'pontos ganhos' : 'pontos disponíveis')}
+      ${mobileBox(lpIcon('coin', 8), fmtInt(d.rewards.got.coins), fmtInt(d.rewards.max.coins), d.finished ? 'moedas ganhas' : 'moedas disponíveis')}
     </div>
   </section>`;
 }
+
+/** Infocard de pontos ou moedas do card mobile: ícone de 8, recebido/possível (12/16) e o rótulo (10/12) alinhado ao número. */
+export const mobileBox = (iconHtml, got, max, label) => `<div class="c-cd-mbox">
+    <span class="c-cd-mbox__value">${iconHtml}<b>${esc(got)}</b><span class="c-cd-mbox__of">/${esc(max)}</span></span>
+    <span class="c-cd-mbox__label">${esc(label)}</span>
+  </div>`;
+
+/** "Sobre o curso" no mobile: os números (módulos, atividades e tempo de conteúdo) e os recursos, os mesmos do card da coluna
+    lateral do desktop, num card de seção (como o "Sobre a rota" da Rota no mobile). */
+export const mobileAbout = d => `<section class="c-cd-card c-cd-about-m" aria-labelledby="cd-about-m">
+    <h2 class="c-cd-card__title" id="cd-about-m">Sobre o curso</h2>
+    ${statBoxes(d)}
+    <div role="group" aria-label="Recursos disponíveis">${resourceTags()}</div>
+  </section>`;
 
 export const mobileCategories = () => `<section class="c-cd-card" aria-labelledby="cd-categories">
     <h2 class="c-cd-card__title" id="cd-categories">Categorias</h2>
@@ -438,7 +489,7 @@ function mobilePanel(state, d) {
     ? content(d, false)
     : state.tab === 'materiais'
       ? materialsSection(d)
-      : `${mobileSummary(d)}${description(d, false)}${mobileCategories()}`;
+      : `${mobileSummary(d)}${certificateCard(d, { mobile: true })}${description(d, false)}${mobileAbout(d)}${mobileCategories()}`;
   return `<div class="c-cd-mbody" id="cd-panel" role="tabpanel" aria-labelledby="cd-tab-${state.tab}">${body}</div>`;
 }
 
@@ -496,6 +547,7 @@ function view(state) {
         </div>
         <div class="c-course-detail__aside" data-sticky-aside>
           ${summary(d)}
+          ${certificateCard(d)}
           ${sideAbout(d)}
         </div>
       </div>
@@ -507,8 +559,8 @@ function view(state) {
 /* ---------- Comportamento de rolagem (desktop) ---------- */
 
 /** Coluna lateral sticky que acompanha a rolagem quando é mais alta que a tela: desce junto até a base encostar na base
-    da tela e, ao inverter, volta até o topo encostar abaixo da app bar. */
-function stickyAside(ctx) {
+    da tela e, ao inverter, volta até o topo encostar abaixo da app bar. Também usada na Rota de aprendizagem. */
+export function stickyAside(ctx) {
   const el = ctx.root.querySelector('[data-sticky-aside]');
   const y = window.scrollY;
   const delta = y - (ctx.lastY ?? y);
@@ -531,6 +583,57 @@ function toast(ctx, text) {
   toastTimer = setTimeout(() => !ctx.destroyed && ctx.set({ toast: '' }), 2200);
 }
 
+/* Abrir e fechar módulos com animação (25/11/2026), no desktop e no mobile. A tela é refeita a cada set (innerHTML), então a
+   animação fica em volta do set:
+   - fechar: a lista encolhe até 0 (altura e opacidade) e o chevron gira de volta, ainda no HTML atual; no fim, o set tira a lista;
+   - abrir: o set põe a lista; ela cresce de 0 até a altura dela e as linhas entram em sequência, e o chevron gira meia volta
+     (o CSS deixa o chevron do módulo aberto girado 180°; a animação parte de 0°).
+   "Expandir/Recolher" faz o mesmo em todos os módulos que mudam. Um clique durante a animação é ignorado. Com movimento
+   reduzido, troca direto. */
+const MOD_OPEN_MS = 320;
+const MOD_CLOSE_MS = 260;
+const MOD_EASE = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+
+const moduleParts = (ctx, mi) => {
+  const head = ctx.root.querySelector(`.c-cd-module__head[data-id="${mi}"]`);
+  return { head, list: ctx.root.querySelector(`#cd-mod-${mi}`), chev: head?.querySelector('.c-cd-module__chev .c-icon') };
+};
+
+function toggleModules(ctx, next) {
+  if (ctx.modAnimating) return;
+  const prev = derive(ctx.state).open;
+  const keys = new Set([...Object.keys(prev), ...Object.keys(next)].map(Number));
+  const closing = [...keys].filter(i => prev[i] && !next[i]);
+  const opening = [...keys].filter(i => !prev[i] && next[i]);
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { ctx.set({ open: next }); return; }
+  ctx.modAnimating = true;
+  const finish = () => {
+    ctx.set({ open: next });
+    opening.forEach(mi => {
+      const { list, chev } = moduleParts(ctx, mi);
+      chev?.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(180deg)' }], { duration: MOD_OPEN_MS, easing: MOD_EASE });
+      if (!list) return;
+      // Corta o conteúdo só durante a animação (fora dela, sombras e o foco das linhas não podem ser cortados).
+      list.style.overflow = 'hidden';
+      list.animate([{ height: '0px', opacity: 0 }, { height: `${list.scrollHeight}px`, opacity: 1 }], { duration: MOD_OPEN_MS, easing: MOD_EASE })
+        .finished.then(() => { list.style.overflow = ''; }, () => {});
+      [...list.children].forEach((row, j) => row.animate(
+        [{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }],
+        { duration: 240, delay: 60 + Math.min(j, 10) * 30, easing: 'ease-out', fill: 'backwards' }));
+    });
+    setTimeout(() => { ctx.modAnimating = false; }, opening.length ? MOD_OPEN_MS : 0);
+  };
+  if (!closing.length) { finish(); return; }
+  closing.forEach(mi => {
+    const { list, chev } = moduleParts(ctx, mi);
+    chev?.animate([{ transform: 'rotate(180deg)' }, { transform: 'rotate(0deg)' }], { duration: MOD_CLOSE_MS, easing: MOD_EASE, fill: 'forwards' });
+    if (list) list.style.overflow = 'hidden';
+    list?.animate([{ height: `${list.offsetHeight}px`, opacity: 1 }, { height: '0px', opacity: 0 }], { duration: MOD_CLOSE_MS, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' });
+  });
+  // Por timer (e não pelo fim da animação): com a aba em segundo plano as animações param, mas o módulo fecha do mesmo jeito.
+  setTimeout(() => { if (ctx.destroyed) { ctx.modAnimating = false; return; } finish(); }, MOD_CLOSE_MS);
+}
+
 const actions = {
   ...examDialogActions,
   openExam: (ctx, el) => openExamDialog(ctx, el.dataset.key),
@@ -542,12 +645,12 @@ const actions = {
   toggleModule: (ctx, el) => {
     const mi = Number(el.dataset.id);
     const open = derive(ctx.state).open;
-    ctx.set({ open: { ...open, [mi]: !open[mi] } });
+    toggleModules(ctx, { ...open, [mi]: !open[mi] });
   },
   toggleAll: ctx => {
     const d = derive(ctx.state);
     const allOpen = d.modules.every((_, i) => d.open[i]);
-    ctx.set({ open: Object.fromEntries(d.modules.map((_, i) => [i, !allOpen])) });
+    toggleModules(ctx, Object.fromEntries(d.modules.map((_, i) => [i, !allOpen])));
   },
   openMaterial: (ctx, el) => toast(ctx, el.dataset.link === 'true' ? 'Abrindo em nova aba…' : 'Download iniciado'),
 };
@@ -572,6 +675,14 @@ export function mountCourseDetail(root, { loading = true } = {}) {
       });
       ctx.listen('scroll', () => stickyAside(ctx), window);
       ctx.listen('resize', () => stickyAside(ctx), window);
+      // Card de atividade e "Continuar" (links #atividade): fade out da página e a apresentação da atividade entra com fade in
+      // (leaveTo, js/core/transition.js), como no Tabuleiro. Ctrl/Cmd/Shift + clique e o botão do meio seguem o link normal.
+      ctx.listen('click', e => {
+        const a = e.target.closest?.('a[href^="#atividade"]');
+        if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        leaveTo(ctx, a.getAttribute('href'));
+      });
       // Imagem do fundo enviada ou removida pelo painel Tweaks: refaz a tela.
       ctx.listen('module-images-change', () => ctx.render(), window);
       // #curso?estado=... trocado com a tela aberta: a casca não remonta (mesma página), então a tela relê o hash.

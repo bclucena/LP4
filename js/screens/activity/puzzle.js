@@ -5,7 +5,7 @@
 import { cx } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { puzzle as Z } from '../../data/activity.js';
-import { upd, finish, later, fx, plural, toast, streakOn } from './flow.js';
+import { upd, finish, later, fx, plural, toast, streakOn, verdict, defaultFooter } from './flow.js';
 import { pointerDrag, dragged } from './drag.js';
 import { sfx, tones } from '../../core/sound.js';
 import { button } from '../../components/button.js';
@@ -36,20 +36,13 @@ function view(state) {
       ${locked ? `<span class="c-act-badge c-act-badge--ok c-act-badge--sm${fx(state, 'puzSnap') && z.snap.includes(i) ? ' is-in' : ''}">${icon('check', 10)}</span>` : ''}
     </button>`;
   }).join('');
-  const hintOff = z.done || state.coins < Z.hintCost;
   return `<section class="c-act-card c-act-puz" aria-label="Quebra-cabeça">
-    ${head({ kicker: 'Arraste uma peça sobre outra para trocá-las de lugar · ou toque em duas peças', title: 'Reorganize as peças e monte a imagem do curso de LGPD', aside: `${pill({ color: 'green', iconName: 'check', label: `${n}/${N} no lugar` })}${pill({ color: 'grey', outline: true, label: plural(z.moves, 'troca', 'trocas') })}` })}
-    <div class="c-act-msg" aria-live="polite">${z.msg ? toast(z.msg.t, z.msg.ok ? 'ok' : 'bad', fx(state, 'puzSnap')) : toast('Peças no lugar certo travam com ✓. Comece pelos cantos')}</div>
+    ${head({ mech: 'Quebra-cabeça', task: 'Monte a imagem', how: 'Arraste uma peça sobre outra ou toque em duas peças para trocá-las', title: 'Reorganize as peças e monte a imagem do curso de LGPD', aside: `${pill({ color: 'green', iconName: 'check', label: `${n}/${N} no lugar` })}${pill({ color: 'grey', outline: true, label: plural(z.moves, 'troca', 'trocas') })}` })}
     <div class="c-act-card__center">
       <div class="${cx('c-act-puz__board', z.done && 'is-done', z.done && fx(state, 'puzSnap') && 'is-glow')}" data-puz-board>
         <div class="c-act-puz__grid">${cells}</div>
         <div class="c-act-puz__peek" aria-hidden="true" style="background-image:url('${Z.image}')"></div>
       </div>
-    </div>
-    <div class="c-act-card__center c-act-card__center--wrap">
-      ${button({ variant: 'stroked', iconStart: 'eye', label: 'Segure para espiar', data: { peek: '' } })}
-      ${button({ variant: 'stroked', iconStart: 'help-circle', action: 'puzHint', disabled: hintOff, label: `Encaixar uma · ${Z.hintCost} moedas` })}
-      ${button({ variant: 'stroked', iconStart: 'shuffle', label: 'Reembaralhar', action: 'puzShuffle', disabled: z.done })}
     </div>
   </section>`;
 }
@@ -121,13 +114,24 @@ function tick(ctx) {
   if (t) t.textContent = `${String(Math.floor(z.sec / 60)).padStart(2, '0')}:${String(z.sec % 60).padStart(2, '0')}`;
 }
 
+/** Ajudas no rodapé: Segure para espiar (o toque é tratado em mount: [data-peek]), Encaixar uma e Reembaralhar. */
+function aux(state) {
+  const z = state.puz;
+  return [
+    { icon: 'eye', label: 'Segure para espiar', data: { peek: '' } },
+    { icon: 'help-circle', action: 'puzHint', disabled: z.done || state.coins < Z.hintCost, label: `Encaixar uma · ${Z.hintCost} moedas` },
+    { icon: 'shuffle', label: 'Reembaralhar', action: 'puzShuffle', disabled: z.done },
+  ];
+}
+
 export default {
   id: 9,
+  aux,
   key: 'puz',
   init,
   view,
   actions,
-  footer: () => null,
+  footer: s => (s.puz.msg ? { ...defaultFooter(s), ...verdict(s.puz.msg.ok, { title: s.puz.done ? 'Concluído!' : undefined, why: s.puz.msg.t }) } : null),
   mount,
   tick,
   elapsed: s => s.puz.sec,

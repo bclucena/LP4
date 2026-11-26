@@ -3,14 +3,6 @@
    o que é da rota: o trilho dos cursos, o card do curso ("cardCourse" use=path). O certificado usa a linha de Materiais de apoio (c-cd-material).
    Mobile primeiro (abaixo de 1179, escala mobile); a partir de 1179, a escala do desktop. */
 
-.c-lp-mkicker {
-  margin-bottom: -12px;
-  color: var(--color-text-brand);
-  font-size: 10px;
-  line-height: 12px;
-  font-weight: 700;
-}
-
 /* ---------- Trilho + lista de cursos ("sideCard/pathRoute" + "courseList") ---------- */
 .c-lp-route {
   display: flex;
@@ -32,49 +24,9 @@
 .c-lp-route__item:first-child { padding-top: 0; }
 .c-lp-route__item:last-child { padding-bottom: 0; }
 
-.c-lp-route__rail {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-block: -4px; /* no 1º e no último a ponta sobra 4px para fora, mas esse traço fica escondido */
-}
-
-
-.c-lp-route__line {
-  flex: 1;
-  width: 2px;
-  background-color: var(--color-border-default);
-}
-
-.c-lp-route__line.is-on { background-color: var(--color-icon-success); }
-.c-lp-route__line.is-hidden { visibility: hidden; }
-
-.c-lp-route__node {
-  display: flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--color-border-default);
-  border-radius: 50%;
-  background-color: var(--color-background-default);
-  color: var(--color-icon-tertiary);
-}
-
-.c-lp-route__node.is-done {
-  border-color: var(--color-icon-success);
-  background-color: var(--color-background-success);
-  color: var(--color-text-success);
-}
-
-.c-lp-route__node.is-current {
-  border-color: var(--color-surface-system-default);
-  background-color: var(--color-surface-system-default);
-  box-shadow: 0 0 0 3px var(--color-surface-system-light);
-}
-
-.c-lp-route__node .c-icon { width: 10px; height: 10px; stroke-width: 3; }
+/* O trilho (componente c-rail, css/components/rail.css) avança sobre os 4 de cima e de baixo de cada item, para o traço não ter
+   falha no vão entre os cards. */
+.c-lp-route__item > .c-rail { margin-block: -4px; }
 
 /* ---------- Card do curso ---------- */
 .c-lp-course {
@@ -98,7 +50,7 @@
   object-fit: cover;
 }
 
-.c-lp-course.is-locked .c-lp-course__media img { filter: grayscale(1); opacity: 0.7; }
+/* Bloqueado: a capa mantém as cores (24/11/2026; antes ficava em cinza e apagada). */
 
 /* 1ª linha do corpo: selos à esquerda, tempo e módulos à direita (quebra se faltar espaço). */
 .c-lp-course__top {
@@ -298,7 +250,7 @@ a.c-lp-course:active .c-lp-course__title { color: var(--color-surface-system-emp
 
   .c-lp-course__media img { border-radius: 8px; }
 
-  .c-lp-course__pills { gap: 8px; }
+  .c-lp-course__pills { gap: 4px; } /* Figma cardCourse-route, "pillsRight": 4 (o mesmo do cardCourse) */
 
   .c-lp-course__deadline {
     bottom: 24px;
@@ -343,3 +295,244 @@ a.c-lp-course:active .c-lp-course__title { color: var(--color-surface-system-emp
 
 
 }
+
+/* Chevron só no hover (e no foco pelo teclado), como o card de atividade do Curso (.c-cd-tl__go): fora dele não ocupa
+   espaço (largura 0 e a margem negativa anula o gap de 8 do rodapé) e a barra de progresso vai até a borda; no hover ele
+   entra à direita e empurra a barra. No bloqueado não aparece. */
+.c-lp-course__go {
+  width: 0;
+  margin-left: -8px;
+  overflow: hidden;
+  opacity: 0;
+  transition: width 0.2s ease-out, margin 0.2s ease-out, opacity 0.2s ease-out, transform 0.15s ease-out, color 0.15s;
+}
+
+a.c-lp-course:is(:hover, :focus-visible) .c-lp-course__go {
+  width: 20px;
+  margin-left: 0;
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-lp-course__go { transition: none; }
+}
+
+/* Mobile, tablet e telas de toque (sem hover): o chevron do curso que abre fica sempre visível (no bloqueado, não). */
+@media (max-width: 1178px), (hover: none) {
+  a.c-lp-course .c-lp-course__go { width: 20px; margin-left: 0; opacity: 1; }
+}
+
+/* Mobile, tablet e telas de toque: sem hover no card de curso (o toque, :active, e o foco pelo teclado seguem). */
+@media (max-width: 1178px), (hover: none) {
+  a.c-lp-course:hover:not(:focus-visible, :active) { background-color: var(--color-background-default); }
+  a.c-lp-course:is(:hover, :focus-visible, :active) .c-lp-course__go { transform: none; } /* o chevron não se mexe no toque */
+}
+
+
+/* Curso bloqueado (24/11/2026): no lugar do chevron, um cadeado (icon/tertiary). No desktop com mouse ele aparece no hover,
+   como o chevron dos outros cards (sem fundo nem clique: o card continua sem ação, cursor de bloqueado); no mobile, tablet e
+   telas de toque fica sempre à mostra, no mesmo lugar do chevron. */
+.c-lp-course.is-locked:is(:hover, :focus-within) .c-lp-course__go { width: 20px; margin-left: 0; opacity: 1; }
+
+@media (max-width: 1178px), (hover: none) {
+  .c-lp-course.is-locked .c-lp-course__go { width: 20px; margin-left: 0; opacity: 1; }
+}
+
+/* O cadeado do Feather enche quase toda a caixa (18×20 de 24) e o chevron é fino (6×12): em 16, centralizado na mesma caixa de
+   20 do chevron, os dois ficam com o mesmo peso visual. */
+.c-lp-course.is-locked .c-lp-course__go { justify-content: center; }
+.c-lp-course.is-locked .c-lp-course__go .c-icon { flex: none; width: 16px; height: 16px; }
+
+
+/* ---------- Etapas que não são curso (25/11/2026) ----------
+   Notícia, material da Biblioteca, missão e evento usam o mesmo card do curso. Sem imagem própria, a miniatura é a capa de
+   exemplo (c-cover, a mesma dos cards dessas áreas) com o ícone do tipo no centro. Em toda etapa, um selo escuro no canto de
+   cima da miniatura diz o tipo (Curso, Notícia, Biblioteca, Missão, Evento). */
+.c-lp-course__cover {
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  color: var(--color-text-on-color);
+}
+
+.c-lp-course__cover .c-icon { width: 32px; height: 32px; opacity: 0.9; }
+
+.c-lp-course__kind {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background-color: var(--color-surface-dark);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  color: var(--color-text-on-color);
+  font-size: 8px;
+  line-height: 12px;
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .c-lp-course__cover { border-radius: 6px; }
+  .c-lp-course__kind { top: 16px; left: 16px; }
+}
+
+@media (min-width: 1179px) {
+  .c-lp-course__cover { border-radius: 8px; }
+  .c-lp-course__cover .c-icon { width: 40px; height: 40px; }
+
+  .c-lp-course__kind {
+    top: 24px;
+    left: 24px;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+}
+
+/* ---------- Ajustes por tipo de etapa (25/11/2026) ---------- */
+/* Rodapé sem progresso (notícia: reações e comentários; biblioteca: curtidas e visualizações; evento: vagas). */
+.c-lp-course__stats {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+.c-lp-course__stats > span:not(.c-cd-bullet) { display: inline-flex; align-items: center; gap: 2px; }
+.c-lp-course__stats b { color: var(--color-text-default); font-weight: 700; }
+.c-lp-course__stats .c-icon { color: var(--color-icon-default); }
+
+/* Missão: os dados (evidência · individual · único) ficam à direita, na mesma linha do selo Novo. */
+.c-lp-course--missao .c-lp-course__top { flex-wrap: nowrap; }
+.c-lp-course--missao .c-lp-course__meta { margin-left: auto; white-space: nowrap; }
+
+/* Biblioteca: miniatura 1:1. No mobile (card em coluna) é um quadrado de 120 no canto; a partir do 768, um quadrado com a
+   altura das miniaturas 16:9 das outras etapas (o card fica com a mesma altura). */
+.c-lp-course--material .c-lp-course__cover,
+.c-lp-course--material .c-lp-course__media img { aspect-ratio: 1 / 1; border-radius: 6px; }
+.c-lp-course--material .c-lp-course__media { align-self: flex-start; width: 120px; padding: 8px 0 0 8px; }
+.c-lp-course--material .c-lp-course__cover { border-radius: 6px; }
+.c-lp-course--material .c-lp-course__kind { top: 12px; left: 12px; }
+
+@media (min-width: 768px) {
+  .c-lp-course--material .c-lp-course__media { align-self: center; width: calc(112px + 8px); padding: 8px 0 8px 8px; }
+  .c-lp-course--material .c-lp-course__kind { top: 16px; left: 16px; }
+}
+
+@media (min-width: 1179px) {
+  .c-lp-course__stats { gap: 4px; font-size: 12px; line-height: 16px; }
+  .c-lp-course__stats > span:not(.c-cd-bullet) { gap: 4px; }
+  .c-lp-course--material .c-lp-course__media { width: calc(135px + 16px); padding: 16px 0 16px 16px; }
+  .c-lp-course--material :is(.c-lp-course__cover, .c-lp-course__media img) { border-radius: 8px; }
+  .c-lp-course--material .c-lp-course__kind { top: 24px; left: 24px; }
+}
+
+/* ---------- Card compacto da etapa no mobile (abaixo de 768; 25/11/2026) ----------
+   Usa o card mobile de Cursos (c-course-compact, css/screens/courses.css), o mesmo layout dos cards mobile de Missões,
+   Eventos, Feed e Biblioteca. Aqui só o que é da rota: a imagem real, o selo do tipo, o prazo, o indicador e a ação no fim do
+   rodapé e os estados (bloqueado, concluído). */
+.c-lp-mcard { color: inherit; text-decoration: none; }
+
+.c-lp-mcard__img {
+  display: block;
+  object-fit: cover;
+}
+
+.c-lp-mcard--material .c-lp-mcard__img { aspect-ratio: 1 / 1; } /* biblioteca: capa quadrada, como na área */
+
+.c-lp-mcard .c-lp-course__kind { top: 4px; left: 4px; }
+
+/* Prazo do curso ("Encerra em 50min"): selo escuro no canto de cima, à direita. */
+.c-lp-mcard__deadline {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background-color: var(--color-surface-dark);
+  color: var(--color-text-on-color);
+  font-size: 8px;
+  line-height: 12px;
+  font-weight: 600;
+}
+
+.c-lp-mcard .c-course-compact__foot { gap: 8px; }
+.c-lp-mcard .c-course-compact__tags { flex-wrap: wrap; min-width: 0; }
+
+/* Fim do rodapé: o indicador da área (donut, contador, reações) e a ação (chevron, cadeado ou check). */
+.c-lp-mcard__end {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.c-lp-mcard__count {
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+}
+
+.c-lp-mcard__stats {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+.c-lp-mcard__stats .c-icon { color: var(--color-icon-default); }
+
+.c-lp-mcard__go {
+  display: flex;
+  color: var(--color-icon-default);
+}
+
+.c-lp-mcard.is-done .c-lp-mcard__go { color: var(--color-icon-success); }
+.c-lp-mcard.is-locked { cursor: not-allowed; }
+.c-lp-mcard.is-locked .c-lp-mcard__go { color: var(--color-icon-tertiary); }
+
+/* Sem hover no mobile (toque): o card de Cursos ganha sombra no hover; aqui só o toque (:active) marca. */
+.c-lp-mcard:hover { box-shadow: none; }
+a.c-lp-mcard:active { background-color: var(--color-background-subtle); border-color: var(--color-surface-system-default); }
+
+/* Título com a altura do texto: nos grids das áreas a altura fixa (36) alinha os cards lado a lado; na lista da rota, com um
+   card por linha, um título de 1 linha deixaria um vão. */
+.c-lp-mcard .c-course-compact__title { height: auto; }
+
+/* Biblioteca no mobile em duas colunas (25/11/2026): à esquerda a imagem 1:1 (112, recuada 8 em cima, embaixo e à esquerda);
+   à direita o texto (título, informação e o rodapé com as tags e a ação), com o rodapé encostado embaixo. */
+.c-lp-mcard--material { flex-direction: row; }
+
+.c-lp-mcard--material .c-course-compact__top {
+  flex: none;
+  align-self: flex-start;
+  width: calc(112px + 8px);
+  padding: 8px 0 8px 8px;
+}
+
+.c-lp-mcard--material .c-course-compact__pills { bottom: 1px; }
+
+.c-lp-mcard--material .c-course-compact__body {
+  min-width: 0;
+  padding: 8px;
+}
+
+.c-lp-mcard--material .c-course-compact__foot { padding-left: 0; }

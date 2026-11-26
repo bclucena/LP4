@@ -1,3 +1,4 @@
+import { takeSkipSkeleton } from './core/transition.js';
 import { createView, onEscape } from './core/view.js';
 import { icon } from './core/icons.js';
 import { cx, esc } from './core/dom.js';
@@ -128,10 +129,12 @@ function go(id) {
   // Links como <a href="#atividade?item=3"> já trocam o hash; só reescreve quando a troca veio de um botão.
   if (pageFromHash() !== id) history.replaceState(null, '', `#${id}`);
   window.scrollTo({ top: 0 });
-  shell.state.loading = true;
+  // Vindo de uma saída animada (Tabuleiro → atividade, js/core/transition.js): a tela entra pronta, sem o esqueleto.
+  const skipSkeleton = takeSkipSkeleton();
+  shell.state.loading = !skipSkeleton;
   shell.set({ page: id });
   clearTimeout(loadingTimer);
-  loadingTimer = setTimeout(() => screen?.set({ loading: false }), 900);
+  if (!skipSkeleton) loadingTimer = setTimeout(() => screen?.set({ loading: false }), 900);
 }
 
 window.addEventListener('hashchange', () => {

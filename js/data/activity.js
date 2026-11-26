@@ -17,7 +17,6 @@ export const activityCourse = {
 export const activities = [
   { id: 1, title: 'Quiz interativo de aquecimento', mech: 'Quiz', xp: 150, icon: 'help-circle' },
   { id: 17, title: 'Quiz com imagem e texto de apoio', mech: 'Quiz', xp: 150, icon: 'help-circle' },
-  { id: 2, title: 'Leitura e teoria multimídia', mech: 'Leitura', xp: 100, icon: 'book-open' },
   { id: 16, title: 'Slideshow: HTML e CSS', mech: 'Slideshow', xp: 120, icon: 'monitor' },
   { id: 3, title: 'Caça-palavras de fixação', mech: 'Caça-palavras', xp: 200, icon: 'grid' },
   { id: 4, title: 'Emparedado', mech: 'Emparedado', xp: 250, icon: 'type' },
@@ -47,10 +46,6 @@ export const intros = {
   17: { t: 'Leia, observe e responda', ps: [
     'Neste quiz, cada pergunta vem acompanhada de uma imagem e de um texto de apoio. Leia com calma antes de responder: a resposta certa está no conteúdo.',
     'Você tem 20 segundos por pergunta depois de chegar às alternativas. Acertos seguidos aumentam a sua sequência e rendem mais pontos.',
-  ] },
-  2: { t: 'O que torna uma página semântica?', ps: [
-    'Nesta leitura você vai entender por que tags como <header>, <nav>, <main> e <footer> são melhores do que divs genéricas, e como elas ajudam navegadores, buscadores e leitores de tela.',
-    'O conteúdo mistura texto, áudio, imagem e vídeo. Avance no seu ritmo: a atividade é concluída quando você chega ao fim da página.',
   ] },
   16: { t: 'Fundamentos de HTML e CSS', ps: [
     'Do esqueleto da página ao seu visual: em seis tópicos curtos, você vai ver como o HTML estrutura o conteúdo e como o CSS define a aparência e o layout.',
@@ -128,7 +123,18 @@ export const activityGroups = boardModules.flatMap((m, mi) => m.activities.map((
 }));
 
 /** Link da atividade n (0, 1, 2…) do Curso e do Tabuleiro: abre direto a tela de Atividades na 1ª mecânica dela. */
-export const activityHref = n => `#atividade?item=${activityGroups[n]?.ids[0] ?? PLAYABLE[n % PLAYABLE.length]}`;
+export const activityHref = n => `#atividade?item=${activityGroups[n]?.ids[0] ?? PLAYABLE[n % PLAYABLE.length]}&atv=${n}`;
+
+/** Atividade n do curso (a do Tabuleiro e do Curso, `atv` no link): módulo, número no módulo, nome, duração e quantas
+    mecânicas (etapas) tem. Usada na apresentação da atividade (./screens/activity/intro.js). */
+export function courseActivity(n) {
+  const g = activityGroups[n];
+  if (!g) return null;
+  const mi = moduleStarts.findLastIndex(start => start <= n);
+  const j = n - moduleStarts[mi];
+  const [kind, , min] = boardModules[mi].activities[j];
+  return { module: mi + 1, number: j + 1, kind, name: g.name, min, steps: g.ids.length };
+}
 
 /** Módulos do menu: divisores com "Módulo N • tempo" e o título, cada um com os grupos das suas atividades. */
 export const activityModules = boardModules.map((m, i) => ({
@@ -165,17 +171,6 @@ export const quizSupport = [
     e: 'O Grid é bidimensional: controla linhas e colunas juntas. O Flexbox trabalha em uma direção por vez.' },
 ].map(x => ({ ...x, img: `${IMG}slots/${x.img}` }));
 
-/* ---------- 2. Leitura ---------- */
-export const reading = {
-  gallery: [
-    { src: `${IMG}slots/leitura-galeria-1.webp`, alt: 'Estrutura de uma página', caption: 'Estrutura' },
-    { src: `${IMG}slots/leitura-galeria-2.webp`, alt: 'Pessoa usando leitor de tela', caption: 'Acessibilidade' },
-    { src: `${IMG}slots/leitura-galeria-3.webp`, alt: 'Resultados de busca', caption: 'Encontrabilidade' },
-  ],
-  figure: { src: `${IMG}slots/atividade-figura-1.webp`, alt: 'Infográfico: fluxo de renderização do DOM', caption: 'Figura 1: representação do fluxo de renderização e análise semântica do DOM.' },
-  podcast: { title: 'Resumo narrado · Ep. 3', seconds: 90 },
-};
-
 /* ---------- 16. Slideshow ---------- */
 export const slides = [
   { t: 'O que é HTML?', img: 'slideshow-img-1.webp', ps: [
@@ -207,6 +202,8 @@ export const slides = [
 /* ---------- 3. Caça-palavras ---------- */
 export const words = ['HTML', 'CSS', 'NAV', 'GRID', 'FLEX'];
 export const WS_SIZE = 10;
+/** Caça-palavras: tempo limite para achar todas as palavras (segundos). */
+export const WS_TIME = 180;
 
 /* ---------- 4. Emparedado ---------- */
 export const hangman = {

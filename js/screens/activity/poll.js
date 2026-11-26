@@ -4,7 +4,7 @@
 import { cx, esc } from '../../core/dom.js';
 import { icon } from '../../core/icons.js';
 import { poll as P, openPoll as OP } from '../../data/activity.js';
-import { upd, finish, later, fx } from './flow.js';
+import { upd, finish, later, fx, verdict, defaultFooter } from './flow.js';
 import { sfx, tones } from '../../core/sound.js';
 import { pill } from '../../components/badges.js';
 import { head } from './head.js';
@@ -31,9 +31,9 @@ function pollView(state) {
       ${voted && votes[i] === max ? pill({ color: 'yellow', label: 'Mais votada', className: 'c-act-poll__top' }) : ''}
     </button>`;
   }).join('');
-  const note = voted ? 'Obrigado por participar! Seu voto já está contabilizado.' : p.pick != null ? 'Você pode trocar a escolha antes de votar · Enter confirma' : 'Toque numa alternativa ou use as teclas A a F';
+  const note = voted ? 'Obrigado por participar! Seu voto já está contabilizado.' : p.pick != null ? 'Você pode trocar a escolha antes de votar · Enter confirma' : '';
   return `<section class="c-act-card c-act-poll" aria-label="Enquete">
-    ${head({ kicker: voted ? 'Enquete · resultado parcial' : 'Enquete · escolha uma alternativa, não existe resposta certa', title: esc(P.question), aside: pill({ color: 'grey', iconName: 'users', label: `${fmt(total)} votos` }) })}
+    ${head({ mech: 'Enquete', task: voted ? 'Resultado parcial' : 'Escolha uma alternativa, não existe resposta certa', how: voted ? '' : 'Toque numa alternativa ou use as teclas A a F', title: esc(P.question), aside: pill({ color: 'grey', iconName: 'users', label: `${fmt(total)} votos` }) })}
     <div class="c-act-poll__opts" role="radiogroup" aria-label="Alternativas da enquete">${opts}</div>
     <p class="${cx('c-act-card__lead c-act-card__lead--muted', voted && 'c-act-tone--success-strong')}" aria-live="polite">${note}</p>
   </section>`;
@@ -60,9 +60,10 @@ export const pollMech = {
     pollAct: ctx => pollAct(ctx),
   },
   footer: s => {
-    if (s.justDone === 12 || s.status[12] === 'done') return null;
     const voted = s.poll.vote != null;
-    return { label: voted ? 'Concluir' : 'Votar', action: 'pollAct', disabled: !voted && s.poll.pick == null };
+    const res = voted ? verdict(true, { title: 'Respondido', why: 'Seu voto foi registrado. Confira o resultado parcial da enquete.' }) : {};
+    if (s.justDone === 12 || s.status[12] === 'done') return voted ? { ...defaultFooter(s), ...res } : null;
+    return { label: voted ? 'Concluir' : 'Votar', action: 'pollAct', disabled: !voted && s.poll.pick == null, ...res };
   },
   keys: (ctx, e) => {
     const i = 'abcdef'.indexOf(e.key.toLowerCase());
@@ -110,7 +111,7 @@ function openView(state) {
         </div>
       </div>`;
   return `<section class="c-act-card c-act-open" aria-label="Enquete aberta">
-    ${head({ kicker: 'Enquete · questão aberta, escreva sua resposta', title: esc(OP.question), id: 'act-open-q' })}
+    ${head({ mech: 'Enquete aberta', task: 'Escreva sua resposta, não existe resposta certa', how: 'Digite no campo abaixo', title: esc(OP.question), id: 'act-open-q' })}
     ${body}
   </section>`;
 }
@@ -156,9 +157,10 @@ export const openMech = {
     openSubmit: ctx => submit(ctx),
   },
   footer: s => {
-    if (s.justDone === 13) return null;
     const o = s.open;
-    if (o.sentAt) return { label: 'Resposta enviada', action: '', disabled: true };
+    const res = o.sentAt ? verdict(true, { title: 'Respondido', why: 'Sua resposta foi enviada. Obrigado por participar!' }) : {};
+    if (s.justDone === 13) return o.sentAt ? { ...defaultFooter(s), ...res } : null;
+    if (o.sentAt) return { label: 'Resposta enviada', action: '', disabled: true, ...res };
     return { label: 'Responder', action: 'openSubmit', disabled: !helpParts(o.text).ok };
   },
   keys: (ctx, e) => {
