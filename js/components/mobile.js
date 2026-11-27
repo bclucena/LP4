@@ -12,7 +12,7 @@ export const bullet = () => '<span class="c-m-bullet" aria-hidden="true"></span>
 
 /** Pill mobile: ícone de 8px com texto opcional de 8px. tone: info, error, success, warning, subtle ou system. */
 export const mpill = ({ tone = 'system', iconName, iconHtml, label } = {}) =>
-  `<span class="c-m-pill c-m-pill--${tone} ${label ? 'c-m-pill--label' : ''}">${iconHtml ?? (iconName ? icon(iconName, 8) : '')}${label ? esc(label) : ''}</span>`;
+  `<span class="c-m-pill c-m-pill--${tone} ${label ? 'c-m-pill--label' : ''}">${iconHtml ?? (iconName ? icon(iconName, 12) : '')}${label ? esc(label) : ''}</span>`;
 
 const TITLE = 'UX & Design Thinking: Experiência do Usuário nos negócios';
 
@@ -49,10 +49,10 @@ export function cardHome({ variant = 'cursos', title = TITLE, novo = false, agor
   }
   const pills = [novo && mpill({ tone: 'info', iconName: 'award' }), encerrado && mpill({ tone: 'error', iconName: 'x-circle' }), agora && mpill({ tone: 'success', iconName: 'radio' })].filter(Boolean).join('');
   const line = variant === 'eventos'
-    ? infoLine(icon('calendar', 8), `<span>${esc(date)}</span>`, `<span>${esc(time)}</span>`)
+    ? infoLine(icon('calendar', 12), `<span>${esc(date)}</span>`, `<span>${esc(time)}</span>`)
     : variant === 'cursos'
-      ? infoLine(icon('users', 8), 'Entre turmas', 'Semanal')
-      : `<div class="c-m-price"><span class="c-m-price__icon">${icon('dollar-sign', 8)}</span><b>${esc(price)}</b>${multiple ? `${bullet()}<span>(a partir)</span>` : ''}</div>`;
+      ? infoLine(icon('users', 12), 'Entre turmas', 'Semanal')
+      : `<div class="c-m-price"><span class="c-m-price__icon">${icon('dollar-sign', 12)}</span><b>${esc(price)}</b>${multiple ? `${bullet()}<span>(a partir)</span>` : ''}</div>`;
   return cardBase({
     pills, title, fav: variant === 'eventos' ? fav : undefined, favKey, line, ratio: variant === 'loja' ? 'square' : 'wide',
     tags: tagRow(tags, extraTags), progress: variant !== 'loja' ? `<span class="c-m-count">${esc(progress)}</span>` : '',
@@ -62,7 +62,7 @@ export function cardHome({ variant = 'cursos', title = TITLE, novo = false, agor
 /** Card de certificado. kind: curso, evento ou hibrido. */
 export function cardCertificado({ kind = 'curso', novo = true, certificado = true, fav = true, favKey = '' } = {}) {
   const map = { curso: ['book', '3 Cursos'], evento: ['calendar', '2 Eventos'], hibrido: ['layers', '3 Cursos e 2 eventos'] }[kind];
-  return cardBase({ fav, favKey, pills: `${novo ? mpill({ tone: 'info', iconName: 'award' }) : ''}${certificado ? mpill({ tone: 'success', iconName: 'check-circle' }) : ''}`, line: infoLine(icon(map[0], 8), map[1]), progress: count });
+  return cardBase({ fav, favKey, pills: `${novo ? mpill({ tone: 'info', iconName: 'award' }) : ''}${certificado ? mpill({ tone: 'success', iconName: 'check-circle' }) : ''}`, line: infoLine(icon(map[0], 12), map[1]), progress: count });
 }
 
 const statusPill = {
@@ -77,7 +77,7 @@ const statusPill = {
 export const cardMissao = ({ use = 'meta', status = ['novo'], fav = true, favKey = '', progress = 40 } = {}) =>
   cardBase({
     fav, favKey, pills: status.map(s => statusPill[s]).join(''),
-    line: infoLine(icon(use === 'meta' ? 'flag' : 'clipboard', 8), use === 'meta' ? 'Meta' : 'Evidência', `<span class="c-m-inline">Individual ${bullet()} Trimestral</span>`),
+    line: infoLine(icon(use === 'meta' ? 'flag' : 'clipboard', 12), use === 'meta' ? 'Meta' : 'Evidência', `<span class="c-m-inline">Individual ${bullet()} Trimestral</span>`),
     progress: use === 'meta' ? progressDonut(progress) : count,
   });
 
@@ -85,7 +85,7 @@ const libKinds = { arquivo: ['Arquivo', 'file'], audio: ['Áudio', 'music'], vid
 
 /** Card de biblioteca. kind: arquivo, audio, video, imagem ou link. */
 export const cardBiblioteca = ({ kind = 'arquivo', fav = true, favKey = '' } = {}) =>
-  cardBase({ fav, favKey, pills: mpill({ tone: 'info', iconName: 'award' }), line: infoLine(icon(libKinds[kind][1], 8), libKinds[kind][0]), tags: tagRow(['RH', 'CEO', 'CTO']) });
+  cardBase({ fav, favKey, pills: mpill({ tone: 'info', iconName: 'award' }), line: infoLine(icon(libKinds[kind][1], 12), libKinds[kind][0]), tags: tagRow(['RH', 'CEO', 'CTO']) });
 
 /** Emblema de exemplo (as ilustrações do Figma precisam ser exportadas). */
 export function emblem({ kind = 'merito', active = false, size = 80 } = {}) {
@@ -103,7 +103,7 @@ export const cardConquista = ({ kind = 'merito', active = false, novo = true, la
     ${novo ? `<div class="c-m-card__new">${mpill({ tone: 'info', iconName: 'award' })}</div>` : ''}
     <div class="c-m-emblem">${emblem({ kind, active })}</div></div>
     <div class="c-m-card__body"><p class="c-m-card__title c-m-card__title--center">${esc(label)}</p>
-    <div class="c-m-card__spread">${infoLine(icon(kind === 'merito' ? 'award' : 'star', 8), kind === 'merito' ? 'Mérito' : 'Épica')}${progressDonut(progress)}</div></div></div>`;
+    <div class="c-m-card__spread">${infoLine(icon(kind === 'merito' ? 'award' : 'star', 12), kind === 'merito' ? 'Mérito' : 'Épica')}${progressDonut(progress)}</div></div></div>`;
 
 const reactionDot = (tone, name) => `<span class="c-m-reaction c-m-reaction--${tone}">${icon(name, 8)}</span>`;
 
@@ -112,7 +112,7 @@ export function cardNews({ use = 'image', reactions = false, fav = true, favKey 
   return `<div class="c-m-news">
     ${use === 'image' ? '<div class="c-m-card__top"><div class="c-m-image c-m-image--wide"></div></div>' : ''}
     <div class="c-m-news__body ${use === 'text' ? 'c-m-news__body--text' : ''}">
-      <div class="c-m-card__spread c-m-card__spread--top">${infoLine(icon('clock', 8), `<span class="c-m-inline">Publicado há 2 horas ${mpill({ tone: 'info', iconName: 'award' })}</span>`)}${favButton(favKey, fav)}</div>
+      <div class="c-m-card__spread c-m-card__spread--top">${infoLine(icon('clock', 12), `<span class="c-m-inline">Publicado há 2 horas ${mpill({ tone: 'info', iconName: 'award' })}</span>`)}${favButton(favKey, fav)}</div>
       <p class="c-m-news__title">${TITLE}</p>
       <p class="c-m-news__text">Aprendizagem corporativa é o conjunto de ações e estratégias que as empresas utilizam para capacitar seus colaboradores e melhorar resultados.</p>
       <div class="c-m-indent">${tagRow(['RH', 'CEO', 'CTO', 'CFO', 'PSTU', 'BDSM'])}</div>
@@ -126,7 +126,7 @@ export function cardNews({ use = 'image', reactions = false, fav = true, favKey 
 /* ---------- Tabs ---------- */
 /** Abas de 30 de altura, texto de 10px. items: [{ id, label, reaction? }]. Dispara `action` (data-action) com data-id. */
 export const mTabs = ({ items, value, action }) =>
-  `<div role="tablist" class="c-m-tabs">${items.map(i => `<button type="button" role="tab" class="c-m-tab ${i.id === value ? 'is-active' : ''}" aria-selected="${i.id === value}" data-action="${action}" data-id="${i.id}">${i.reaction ? `<span class="c-m-tab__reaction">${icon('thumbs-up', 8).replace('stroke-width="1"', 'stroke-width="3"')}</span>` : ''}${esc(i.label)}</button>`).join('')}</div>`;
+  `<div role="tablist" class="c-m-tabs">${items.map(i => `<button type="button" role="tab" class="c-m-tab ${i.id === value ? 'is-active' : ''}" aria-selected="${i.id === value}" data-action="${action}" data-id="${i.id}">${i.reaction ? `<span class="c-m-tab__reaction">${icon('thumbs-up', 12).replace('stroke-width="1"', 'stroke-width="3"')}</span>` : ''}${esc(i.label)}</button>`).join('')}</div>`;
 
 /* ---------- Text field ---------- */
 /** Campo de texto. state: hover, pressed ou disabled (forçado, catálogo). `input` liga a digitação ao handler (data-input). */
@@ -187,7 +187,7 @@ export const podiumCard = ({ place = 1, username = 'Mariana Santana', pontos = '
   const [tone, label] = podiumTone[place];
   return `<div class="c-m-podium ${place !== 1 ? 'c-m-podium--low' : ''} c-m-podium--${tone}"><div class="c-m-podium__content">
     <div class="c-m-podium__who">${avatar({ size: 'medium', use: 'illustration', px: 40, className: `c-m-podium__avatar ${myProfile ? 'is-mine' : ''}` })}<span class="c-m-podium__name">${esc(username)}</span><small>${label}</small></div>
-    <div class="c-m-podium__score"><span class="c-m-podium__place">${place}</span><b>${esc(pontos)}</b><small>Pontos</small>${myProfile ? `<span class="c-m-podium__mine">${icon('award', 8)} Minha posição</span>` : ''}</div></div><div class="c-m-podium__base"></div></div>`;
+    <div class="c-m-podium__score"><span class="c-m-podium__place">${place}</span><b>${esc(pontos)}</b><small>Pontos</small>${myProfile ? `<span class="c-m-podium__mine">${icon('award', 12)} Minha posição</span>` : ''}</div></div><div class="c-m-podium__base"></div></div>`;
 };
 
 export const rankingPodium = () =>
@@ -196,14 +196,14 @@ export const rankingPodium = () =>
 /** Card de ranking (192). use: ativo ou finalizado. `pressed` marca o selecionado. */
 export const rankingCard = ({ use = 'ativo', pressed = false, title = TITLE, action, id } = {}) =>
   `<button type="button" class="c-m-rankcard" ${pressed ? 'data-state="pressed"' : ''} ${action ? `data-action="${action}" data-id="${id}"` : ''}>
-    <p>${esc(title)}</p>${infoLine(icon('users', 8), 'Entre turmas', 'Semanal')}
+    <p>${esc(title)}</p>${infoLine(icon('users', 12), 'Entre turmas', 'Semanal')}
     <div class="c-m-rankcard__people"><span>${['A', 'B', 'C'].map(() => avatar({ size: 'small', use: 'illustration', className: 'c-avatar--ring' })).join('')}</span><small>+120</small></div>
-    ${infoLine(icon(use === 'ativo' ? 'check-circle' : 'x-circle', 8), use === 'ativo' ? `<span class="c-m-inline">Ativo ${bullet()} 5ª rodada</span>` : 'Finalizado')}
+    ${infoLine(icon(use === 'ativo' ? 'check-circle' : 'x-circle', 12), use === 'ativo' ? `<span class="c-m-inline">Ativo ${bullet()} 5ª rodada</span>` : 'Finalizado')}
   </button>`;
 
 /** Ranking selecionado em cima e lista horizontal de 8 rankings. */
 export const rankingOptions = ({ selected = 0 } = {}) =>
-  `<div class="c-m-options"><div class="c-m-options__top"><div class="c-m-options__current"><p>${TITLE}</p>${infoLine(icon('users', 8), 'Entre turmas', 'Semanal')}</div></div><div class="c-m-options__rule"></div>
+  `<div class="c-m-options"><div class="c-m-options__top"><div class="c-m-options__current"><p>${TITLE}</p>${infoLine(icon('users', 12), 'Entre turmas', 'Semanal')}</div></div><div class="c-m-options__rule"></div>
     <div class="c-m-options__list"><h4>Rankings (8)</h4><div class="c-m-options__row u-thin-scroll">${Array.from({ length: 8 }, (_, i) => rankingCard({ use: i === 7 ? 'finalizado' : 'ativo', pressed: selected === i, action: 'mRankOption', id: i })).join('')}</div></div></div>`;
 
 /* ---------- Progresso ---------- */

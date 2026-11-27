@@ -1,5 +1,6 @@
 import { cx, esc, range } from '../core/dom.js';
 import { icon } from '../core/icons.js';
+import { lpIcon } from '../core/lp-icons.js';
 import { createView, closeOnOutside, onEscape } from '../core/view.js';
 import { minWidth } from '../core/media.js';
 import { tag, pill, mobilePill } from '../components/badges.js';
@@ -65,16 +66,16 @@ function courseCardCompact(c) {
   return `<a class="c-course-compact" href="${courseHref(c)}">
     <div class="c-course-compact__top">
       <div class="c-course-compact__pills">
-        ${c.novo ? mobilePill({ tone: 'info', iconName: 'award' }) : ''}${c.sugerido ? mobilePill({ tone: 'warning', iconName: 'zap' }) : ''}${c.obrigatorio ? mobilePill({ tone: 'error', iconName: 'alert-circle' }) : ''}
+        ${c.novo ? mobilePill({ tone: 'info', iconHtml: lpIcon('badge-2', 12) }) : ''}${c.sugerido ? mobilePill({ tone: 'warning', iconHtml: lpIcon('bulb', 12) }) : ''}${c.obrigatorio ? mobilePill({ tone: 'error', iconName: 'alert-circle' }) : ''}
       </div>
       <div class="c-course-compact__cover-wrap">
         ${cover('LGPD descomplicada', 'c-course-compact__cover')}
-        <span class="c-course-compact__time">${icon('clock', 8)}50min</span>
+        <span class="c-course-compact__time">${icon('clock', 12)}50min</span>
       </div>
     </div>
     <div class="c-course-compact__body">
       <h3 class="c-course-compact__title">${esc(c.title)}</h3>
-      ${infoLine(icon(c.kind === 'curso' ? 'book' : 'compass', 8), c.kind === 'curso' ? 'Curso' : 'Rota de aprendizagem', c.kind === 'curso' ? '4 Módulos' : '8 Cursos')}
+      ${infoLine(icon(c.kind === 'curso' ? 'book' : 'compass', 12), c.kind === 'curso' ? 'Curso' : 'Rota de aprendizagem', c.kind === 'curso' ? '4 Módulos' : '8 Cursos')}
       <div class="c-course-compact__foot">
         <span class="c-course-compact__tags">${tag({ label: 'RH', size: 'mobile' })}${tag({ label: 'CEO', size: 'mobile' })}${tag({ label: '+9', size: 'mobile', outlined: true })}</span>
         ${c.done ? icon('check-circle', 14, 'c-course-compact__done') : progressDonut(c.progress)}

@@ -20,13 +20,13 @@
 
 /* Os 8 entre os cards ficam metade em cada item (4 + 4) e o trilho avança sobre eles, para o marcador ficar no meio exato do
    card e o traço não ter falha. */
-.c-lp-route__item { padding-block: 4px; }
+.c-lp-route__item { padding-block: 8px; } /* 16 entre os cards (26/11/2026; antes 8) */
 .c-lp-route__item:first-child { padding-top: 0; }
 .c-lp-route__item:last-child { padding-bottom: 0; }
 
 /* O trilho (componente c-rail, css/components/rail.css) avança sobre os 4 de cima e de baixo de cada item, para o traço não ter
    falha no vão entre os cards. */
-.c-lp-route__item > .c-rail { margin-block: -4px; }
+.c-lp-route__item > .c-rail { margin-block: -8px; }
 
 /* ---------- Card do curso ---------- */
 .c-lp-course {
@@ -62,10 +62,17 @@
 }
 
 /* Selos (Novo, Sugerido, Obrigatório). */
+/* Selos (Novo, Sugerido, Obrigatório) na borda de baixo da imagem, metade para fora, como no card compacto do mobile
+   (.c-course-compact__pills). A moldura (.c-lp-course__frame) é o próprio retângulo da imagem. */
+.c-lp-course__frame { position: relative; display: block; }
+
 .c-lp-course__pills {
+  position: absolute;
+  bottom: -10px;
+  left: 8px;
+  z-index: 1;
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  gap: 2px;
 }
 
 /* Selo de prazo ("tag" escura com desfoque). */
@@ -79,8 +86,8 @@
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
   color: var(--color-text-on-color);
-  font-size: 8px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 600;
 }
 
@@ -104,8 +111,8 @@
   align-items: center;
   gap: 2px;
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
 }
 
@@ -116,7 +123,7 @@
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-  color: var(--color-text-primary);
+  color: var(--color-text-default);
   font-size: 12px;
   line-height: 16px;
   font-weight: 700;
@@ -137,8 +144,8 @@
   align-items: center;
   gap: 4px;
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
 }
 
@@ -160,8 +167,8 @@
   display: flex;
   justify-content: space-between;
   color: var(--color-text-default);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 800;
 }
 
@@ -222,7 +229,7 @@ a.c-lp-course:active .c-lp-course__title { color: var(--color-surface-system-emp
     padding: 8px 0 8px 8px;
   }
 
-  .c-lp-course__media img { border-radius: 6px; }
+  .c-lp-course__media img { border-radius: 4px; } /* imagem recuada: max(4, raio do card - respiro) = max(4, 8 - 8) */
 
   .c-lp-course__deadline { bottom: 16px; left: 16px; }
 
@@ -241,16 +248,15 @@ a.c-lp-course:active .c-lp-course__title { color: var(--color-surface-system-emp
   .c-lp-route__item { gap: 8px; }
 
   /* Raio 12 e miniatura 16:9 de 240 à esquerda, com o mesmo respiro do corpo (16). */
-  .c-lp-course { border-radius: 12px; }
+  .c-lp-course { border-radius: 16px; } /* o raio dos cards no desktop */
 
   .c-lp-course__media {
     width: calc(240px + 16px);
     padding: 16px 0 16px 16px;
   }
 
-  .c-lp-course__media img { border-radius: 8px; }
+  .c-lp-course__media img { border-radius: 4px; } /* max(4, 16 - 16) */
 
-  .c-lp-course__pills { gap: 4px; } /* Figma cardCourse-route, "pillsRight": 4 (o mesmo do cardCourse) */
 
   .c-lp-course__deadline {
     bottom: 24px;
@@ -274,11 +280,7 @@ a.c-lp-course:active .c-lp-course__title { color: var(--color-surface-system-emp
 
   .c-lp-course__meta > svg { margin-right: 0; }
 
-  .c-lp-course__title {
-    min-height: 40px; /* duas linhas de 20: com 48 aparecia o topo da 3ª linha */
-    font-size: 14px;
-    line-height: 20px;
-  }
+  .c-lp-course__title { min-height: 0; } /* 12/16, como o título dos cards de conteúdo */
 
   .c-lp-course__author {
     gap: 8px;
@@ -359,42 +361,32 @@ a.c-lp-course:is(:hover, :focus-visible) .c-lp-course__go {
 
 .c-lp-course__cover .c-icon { width: 32px; height: 32px; opacity: 0.9; }
 
+/* Tipo da etapa: ícone e texto acima do título (Curso, Notícia, Biblioteca, Missão, Evento; desde 26/11/2026, antes um selo
+   escuro sobre a imagem e depois uma tag). */
 .c-lp-course__kind {
-  position: absolute;
-  top: 8px;
-  left: 8px;
+  /* Mesma formatação da 1ª linha dos cards de notícia, biblioteca, missão e evento (.c-lp-step__kind): ícone e "tipo · tempo"
+     em 12/16 500 text/secondary, 4px acima do título (26/11/2026). */
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 2px 4px;
-  border-radius: 4px;
-  background-color: var(--color-surface-dark);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
-  color: var(--color-text-on-color);
-  font-size: 8px;
-  line-height: 12px;
-  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
 }
 
+.c-lp-course__kind .c-icon { flex: none; margin-right: 2px; color: var(--color-icon-default); }
+/* 4px até o título: o bloco do card largo já tem gap de 4; o do card compacto (mobile) tem 8. */
+.c-lp-mcard .c-lp-course__kind { margin-bottom: -4px; }
+
+
 @media (min-width: 768px) {
-  .c-lp-course__cover { border-radius: 6px; }
-  .c-lp-course__kind { top: 16px; left: 16px; }
+  .c-lp-course__cover { border-radius: 4px; }
 }
 
 @media (min-width: 1179px) {
-  .c-lp-course__cover { border-radius: 8px; }
+  .c-lp-course__cover { border-radius: 4px; }
   .c-lp-course__cover .c-icon { width: 40px; height: 40px; }
-
-  .c-lp-course__kind {
-    top: 24px;
-    left: 24px;
-    gap: 4px;
-    padding: 4px 8px;
-    border-radius: 8px;
-    font-size: 12px;
-    line-height: 16px;
-  }
 }
 
 /* ---------- Ajustes por tipo de etapa (25/11/2026) ---------- */
@@ -407,8 +399,8 @@ a.c-lp-course:is(:hover, :focus-visible) .c-lp-course__go {
   gap: 2px;
   min-width: 0;
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
 }
 
@@ -423,22 +415,19 @@ a.c-lp-course:is(:hover, :focus-visible) .c-lp-course__go {
 /* Biblioteca: miniatura 1:1. No mobile (card em coluna) é um quadrado de 120 no canto; a partir do 768, um quadrado com a
    altura das miniaturas 16:9 das outras etapas (o card fica com a mesma altura). */
 .c-lp-course--material .c-lp-course__cover,
-.c-lp-course--material .c-lp-course__media img { aspect-ratio: 1 / 1; border-radius: 6px; }
+.c-lp-course--material .c-lp-course__media img { aspect-ratio: 1 / 1; border-radius: 4px; }
 .c-lp-course--material .c-lp-course__media { align-self: flex-start; width: 120px; padding: 8px 0 0 8px; }
-.c-lp-course--material .c-lp-course__cover { border-radius: 6px; }
-.c-lp-course--material .c-lp-course__kind { top: 12px; left: 12px; }
+.c-lp-course--material .c-lp-course__cover { border-radius: 4px; }
 
 @media (min-width: 768px) {
   .c-lp-course--material .c-lp-course__media { align-self: center; width: calc(112px + 8px); padding: 8px 0 8px 8px; }
-  .c-lp-course--material .c-lp-course__kind { top: 16px; left: 16px; }
 }
 
 @media (min-width: 1179px) {
   .c-lp-course__stats { gap: 4px; font-size: 12px; line-height: 16px; }
   .c-lp-course__stats > span:not(.c-cd-bullet) { gap: 4px; }
   .c-lp-course--material .c-lp-course__media { width: calc(135px + 16px); padding: 16px 0 16px 16px; }
-  .c-lp-course--material :is(.c-lp-course__cover, .c-lp-course__media img) { border-radius: 8px; }
-  .c-lp-course--material .c-lp-course__kind { top: 24px; left: 24px; }
+  .c-lp-course--material :is(.c-lp-course__cover, .c-lp-course__media img) { border-radius: 4px; }
 }
 
 /* ---------- Card compacto da etapa no mobile (abaixo de 768; 25/11/2026) ----------
@@ -454,8 +443,6 @@ a.c-lp-course:is(:hover, :focus-visible) .c-lp-course__go {
 
 .c-lp-mcard--material .c-lp-mcard__img { aspect-ratio: 1 / 1; } /* biblioteca: capa quadrada, como na área */
 
-.c-lp-mcard .c-lp-course__kind { top: 4px; left: 4px; }
-
 /* Prazo do curso ("Encerra em 50min"): selo escuro no canto de cima, à direita. */
 .c-lp-mcard__deadline {
   position: absolute;
@@ -465,12 +452,12 @@ a.c-lp-course:is(:hover, :focus-visible) .c-lp-course__go {
   border-radius: 4px;
   background-color: var(--color-surface-dark);
   color: var(--color-text-on-color);
-  font-size: 8px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 600;
 }
 
-.c-lp-mcard .c-course-compact__foot { gap: 8px; }
+.c-lp-mcard .c-course-compact__foot { gap: 8px; padding-left: 0; } /* tags alinhadas à lateral esquerda do título */
 .c-lp-mcard .c-course-compact__tags { flex-wrap: wrap; min-width: 0; }
 
 /* Fim do rodapé: o indicador da área (donut, contador, reações) e a ação (chevron, cadeado ou check). */
@@ -483,8 +470,8 @@ a.c-lp-course:is(:hover, :focus-visible) .c-lp-course__go {
 
 .c-lp-mcard__count {
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 700;
 }
 
@@ -493,8 +480,8 @@ a.c-lp-course:is(:hover, :focus-visible) .c-lp-course__go {
   align-items: center;
   gap: 2px;
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
 }
 
@@ -515,7 +502,7 @@ a.c-lp-mcard:active { background-color: var(--color-background-subtle); border-c
 
 /* Título com a altura do texto: nos grids das áreas a altura fixa (36) alinha os cards lado a lado; na lista da rota, com um
    card por linha, um título de 1 linha deixaria um vão. */
-.c-lp-mcard .c-course-compact__title { height: auto; }
+.c-lp-mcard .c-course-compact__title { height: auto; color: var(--color-text-default); line-height: 16px; }
 
 /* Biblioteca no mobile em duas colunas (25/11/2026): à esquerda a imagem 1:1 (112, recuada 8 em cima, embaixo e à esquerda);
    à direita o texto (título, informação e o rodapé com as tags e a ação), com o rodapé encostado embaixo. */
@@ -535,4 +522,76 @@ a.c-lp-mcard:active { background-color: var(--color-background-subtle); border-c
   padding: 8px;
 }
 
-.c-lp-mcard--material .c-course-compact__foot { padding-left: 0; }
+.c-lp-mcard--material .c-course-compact__foot { padding-left: 0; } /* alinhado ao título */
+
+/* Card compacto (mobile): a linha de dados no formato do card do desktop, numa linha só; o que não couber termina em "…". */
+.c-lp-mcard .c-lp-course__meta { gap: 4px; min-width: 0; overflow: hidden; white-space: nowrap; }
+.c-lp-mcard .c-lp-course__meta > svg { flex: none; margin-right: 0; }
+.c-lp-mcard .c-lp-course__meta > span:not(.c-cd-bullet) { flex: none; }
+.c-lp-mcard .c-lp-course__meta > span:last-child { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- Etapa que não é curso (notícia, biblioteca, missão, evento; 26/11/2026) ----------
+   O conteúdo do item de Materiais de apoio (.c-cd-material__*, css/screens/course-detail.css) dentro do contorno do card da
+   rota: ícone em caixa, título em negrito numa linha e "tipo · dado". Sem imagem nem tags. Raio 8 e respiro 8 no mobile;
+   16 e 16 a partir do tablet. */
+.c-lp-step {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  background-color: var(--color-background-default);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+a.c-lp-step:is(:hover, :focus-visible) { background-color: var(--color-background-subtle); }
+.c-lp-step__kind .c-icon { flex: none; margin-right: 2px; color: var(--color-icon-default); }
+.c-lp-step .c-cd-material__text { margin-left: 0; }
+.c-lp-step__kind { margin-bottom: 4px; } /* 4px entre "tipo · dado" e o título */
+a.c-lp-step:active { border-color: var(--color-surface-system-default); }
+
+.c-lp-step__go { display: inline-flex; flex: none; align-self: flex-end; margin-left: auto; color: var(--color-icon-default); } /* na base direita, como o cadeado do card de curso */
+
+/* Notícia: 3 linhas do texto, com reticências no fim, e "Continuar lendo" (Link small). O ícone fica no alto, com o título. */
+.c-lp-step--noticia { align-items: flex-start; }
+
+/* Missão: a barra de progresso do card de Missões (progressLabeled), na largura do texto, 8px abaixo do título. */
+.c-lp-step__progress { display: block; margin-top: 8px; }
+.c-lp-step__excerpt {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  margin-top: 8px;
+  color: var(--color-text-default);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+}
+/* "Continuar lendo" no fim da 3ª linha, depois das reticências, com 8px entre os dois: um espaçador que flutua à direita
+   empurra o link (também flutuando, logo abaixo dele) para a última linha. Sem ícone; não aparece na notícia bloqueada. */
+.c-lp-step__excerpt::before { content: ''; float: right; height: 32px; } /* 2 das 3 linhas de 16 */
+.c-lp-step__more { float: right; clear: both; height: 16px; margin-left: 8px; }
+@media (min-width: 768px) {
+  .c-lp-step__more { margin-left: 16px; } /* 16 no tablet e desktop; 8 no mobile */
+}
+a.c-lp-step:hover .c-lp-step__more { color: var(--color-action-hover); }
+.c-lp-step.is-done .c-lp-step__go { color: var(--color-icon-success); }
+.c-lp-step.is-locked { cursor: not-allowed; }
+
+/* Raio e respiro iguais aos do card de curso da rota: 8 até 1178 e 16 a partir de 1179. */
+@media (min-width: 768px) {
+  .c-lp-step { gap: 8px; }
+}
+
+@media (min-width: 1179px) {
+  .c-lp-step { padding: 16px; border-radius: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-lp-step { transition: none; }
+}
+

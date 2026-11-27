@@ -212,7 +212,7 @@
 .c-ev-card--compact .c-cover__title {
   max-width: 70%;
   margin: 8px;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .c-ev-card--compact .c-ev-card__body {
@@ -238,8 +238,8 @@
 .c-ev-card--compact .c-ev-card__date {
   align-items: flex-start;
   gap: 2px;
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 .c-ev-card--compact .c-ev-card__date .c-icon {
@@ -256,7 +256,7 @@
 
 .c-ev-card__count {
   color: var(--color-text-secondary);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 16px;
 }
 
@@ -267,8 +267,8 @@
 
 .c-ev-btn--compact {
   padding: 4px;
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 /* ---------- Carregando e vazio ---------- */

@@ -43,8 +43,8 @@ export const routeStates = {
     próprias áreas (Missões, Feed, Biblioteca, Eventos). */
 export const stepKinds = {
   curso: { label: 'Curso', icon: 'book-open', href: '#curso' },
-  noticia: { label: 'Notícia', icon: 'send', href: '#feed' },
-  material: { label: 'Biblioteca', icon: 'bookmark', href: '#biblioteca' },
+  noticia: { label: 'Notícia', icon: 'globe', href: '#feed' },
+  material: { label: 'Biblioteca', icon: 'file-text', href: '#biblioteca' },
   missao: { label: 'Missão', icon: 'flag', href: '#missoes' },
   evento: { label: 'Evento', icon: 'calendar', href: '#eventos' },
 };
@@ -53,7 +53,7 @@ export const stepKinds = {
     Cada tipo traz os dados que o card dele mostra (ver stepCard em js/screens/learning-path.js). */
 export const routeSteps = [
   { kind: 'curso', ...routeCourses[0] },
-  { kind: 'noticia', image: 'assets/fluxo/slots/slideshow-img-3.webp', title: 'LGPD na prática: o que muda no atendimento aos clientes', channel: channels[2], published: 'Publicado há 2 dias', readMin: 4, tags: ['Compliance'], extraTags: 1, author: mariana, novo: true, likes: 24, comments: 6 },
+  { kind: 'noticia', excerpt: 'A LGPD mudou a forma como as empresas coletam, guardam e usam os dados dos clientes no atendimento. Agora, cada informação pedida precisa ter uma finalidade clara, e o cliente pode saber o que é feito com os seus dados, pedir a correção ou a exclusão a qualquer momento. Veja o que muda na rotina das equipes de atendimento e como evitar os erros mais comuns.', image: 'assets/fluxo/slots/slideshow-img-3.webp', title: 'LGPD na prática: o que muda no atendimento aos clientes', channel: channels[2], published: 'Publicado há 2 dias', readMin: 4, tags: ['Compliance'], extraTags: 1, author: mariana, novo: true, likes: 24, comments: 6 },
   { kind: 'curso', ...routeCourses[1] },
   { kind: 'material', image: 'assets/fluxo/slots/leitura-galeria-3.webp', title: 'Guia rápido: as bases legais da LGPD', material: 'arquivo', date: '12 Set. 2026', tags: ['Compliance'], extraTags: 2, likes: 128, views: 342 },
   { kind: 'missao', image: 'assets/fluxo/slots/slideshow-img-1.webp', title: 'Mapeie os dados pessoais tratados no seu setor', mission: 'evidencia', scope: 'Individual', period: 'unico', ends: 'Encerra em 12 dias', tags: ['Compliance'], extraTags: 0, novo: true },

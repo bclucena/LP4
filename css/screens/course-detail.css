@@ -39,8 +39,8 @@
   align-items: center;
   gap: 2px;
   color: var(--color-surface-system-emphasis);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 800;
 }
 
@@ -85,8 +85,8 @@
   border-radius: 999px;
   background-color: var(--color-background-subtle);
   color: var(--color-text-default);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 700;
 }
 
@@ -132,35 +132,15 @@
   object-fit: cover;
 }
 
-/* Selos e duração sobre a borda de baixo da imagem. */
-.c-cd-mcard__over {
-  position: absolute;
-  right: 8px;
-  bottom: -7px;
-  left: 8px;
+/* Selos (Novo, Sugerido, Obrigatório) entre a imagem e o título no mobile; no tablet, numa linha própria em cima de tudo,
+   alinhados à lateral esquerda da imagem (26/11/2026; antes sobre a borda da imagem, com a duração ao lado, que virou a 1ª
+   linha da lista de informações). 8px até o que vem embaixo. */
+.c-cd-mcard__pills {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: -8px; /* o gap do card é 16: fica 8 */
   padding: 0 8px;
-}
-
-.c-cd-mcard__flags {
-  display: flex;
-  gap: 2px;
-}
-
-.c-cd-mcard__time {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px 4px;
-  border-radius: 4px;
-  background-color: var(--color-surface-dark);
-  color: var(--color-text-on-color);
-  font-size: 8px;
-  line-height: 12px;
-  font-weight: 600;
 }
 
 .c-cd-mcard__name {
@@ -172,8 +152,8 @@
 
 .c-cd-mcard__title {
   color: var(--color-text-primary);
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 14px; /* 26/11/2026: 14/20 (antes 12/16), para o título se destacar das informações */
+  line-height: 20px;
   font-weight: 700;
 }
 
@@ -183,8 +163,8 @@
   gap: 4px;
   min-width: 0;
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
 }
 
@@ -212,10 +192,10 @@
 .c-cd-mcard__facts li {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px; /* o mesmo espaço entre ícone e texto das caixas de pontos e moedas (.c-cd-mbox__value) */
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
 }
 
@@ -233,8 +213,8 @@
   display: flex;
   justify-content: space-between;
   color: var(--color-text-default);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 700;
 }
 
@@ -276,8 +256,8 @@
 .c-cd-mcard__rewards b {
   margin-right: 4px;
   color: var(--color-text-default);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 700;
 }
 
@@ -320,8 +300,8 @@
   align-items: center;
   gap: 2px;
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
 }
 
@@ -392,8 +372,8 @@
   align-items: center;
   gap: 8px;
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
 }
 
@@ -440,8 +420,8 @@
   align-items: center;
   gap: 2px;
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
 }
 
@@ -502,8 +482,8 @@
   flex-direction: column;
   gap: 2px;
   min-width: 0;
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 /* "Atividade 1 · 8 min": o tipo e o tempo separados pelo ponto (missão só o tipo). */
@@ -544,8 +524,8 @@
   align-items: center;
   gap: 8px;
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
 }
 
@@ -635,8 +615,8 @@ a.c-cd-material:active .c-cd-material__action { background-color: var(--color-su
   flex: 1;
   flex-direction: column;
   min-width: 0;
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 .c-cd-material__name {
@@ -1338,8 +1318,8 @@ a.c-cd-material:active .c-cd-material__action { background-color: var(--color-su
   gap: 4px;
   margin-left: 18px; /* alinhado ao título: ícone de 14 + 4 */
   color: var(--color-text-secondary);
-  font-size: 11px;
-  line-height: 14px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 600;
 }
 
@@ -1497,12 +1477,12 @@ a.c-cd-material:active .c-cd-material__action { background-color: var(--color-su
   .c-cd-tl__title { font-size: 12px; line-height: 18px; }
   .c-cd-tl__head > .c-icon,
   .c-cd-tl__head > svg { width: 12px; height: 12px; margin-top: 3px; }
-  .c-cd-tl__kicker { margin-left: 16px; font-size: 10px; line-height: 12px; font-weight: 500; }
+  .c-cd-tl__kicker { margin-left: 16px; font-size: 12px; line-height: 16px; font-weight: 500; }
   .c-cd-tl__kicker .c-icon,
   .c-cd-tl__kicker svg { width: 12px; height: 12px; }
   .c-cd-tl__kicker .c-cd-tl__star .c-icon { width: 10px; height: 10px; }
   .c-cd-tl__end { margin-left: 16px; }
-  .c-cd-tl__rewards { gap: 8px; padding: 2px 8px; font-size: 10px; line-height: 12px; }
+  .c-cd-tl__rewards { gap: 8px; padding: 2px 8px; font-size: 12px; line-height: 16px; }
   .c-cd-tl__rewards .c-icon,
   .c-cd-tl__rewards svg { width: 12px; height: 12px; }
 }
@@ -1547,7 +1527,7 @@ a.c-cd-material:active .c-cd-material__action { background-color: var(--color-su
    os infocards de pontos e moedas lado a lado (borda border/default, radius 8, padding 8): ícone de 8 e recebido 12/16 bold
    com "/possível" regular; o rótulo 10/12 embaixo, alinhado ao número (8 do ícone + 4). */
 .c-cd-mcard__progress { gap: 4px; }
-.c-cd-mcard__progress-sub { color: var(--color-text-secondary); font-size: 10px; line-height: 12px; font-weight: 500; }
+.c-cd-mcard__progress-sub { color: var(--color-text-secondary); font-size: 12px; line-height: 16px; font-weight: 500; }
 
 .c-cd-mcard__boxes {
   display: grid;
@@ -1579,13 +1559,13 @@ a.c-cd-material:active .c-cd-material__action { background-color: var(--color-su
 .c-cd-mbox__value svg { flex: none; color: var(--color-icon-default); }
 .c-cd-mbox__value b { color: var(--color-text-default); font-weight: 700; }
 .c-cd-mbox__of { margin-left: -2px; }
-.c-cd-mbox__label { padding-left: 12px; color: var(--color-text-secondary); font-size: 10px; line-height: 12px; font-weight: 500; }
+.c-cd-mbox__label { padding-left: 16px; /* alinhado ao texto: ícone de 12 + gap de 4 */ color: var(--color-text-secondary); font-size: 12px; line-height: 16px; font-weight: 500; }
 
 /* "Sobre o curso" no mobile: os cards de números com a escala dos infocards de pontos e moedas do card do curso
    (.c-cd-mbox): valor 12/16 bold e rótulo 10/12, gap de 2. */
 .c-cd-about-m .c-cd-box { gap: 2px; }
 .c-cd-about-m .c-cd-box__value { min-height: 0; font-size: 12px; line-height: 16px; }
-.c-cd-about-m .c-cd-box__label { font-size: 10px; line-height: 12px; }
+.c-cd-about-m .c-cd-box__label { font-size: 12px; line-height: 16px; }
 
 /* Card de informações (curso e rota) no tablet: duas colunas de mesma largura (24/11/2026). À esquerda, a imagem com os
    selos e a duração, na mesma proporção (16:9), presa no topo; à direita, as informações (título, autor, linha, dados,
@@ -1610,7 +1590,7 @@ a.c-cd-material:active .c-cd-material__action { background-color: var(--color-su
     flex-direction: column;
     gap: 12px;
     min-width: 0;
-    padding: 4px 8px 8px 0;
+    padding: 4px 0 8px 0; /* sem respiro extra à direita: o card fica com 8 nas duas laterais */
   }
 
   .c-cd-mcard__info > * { padding-inline: 0; }
@@ -1620,14 +1600,31 @@ a.c-cd-material:active .c-cd-material__action { background-color: var(--color-su
 
 /* Card de informações no tablet: pontos e moedas embaixo da imagem (25/11/2026). A coluna da imagem tinha um vão grande
    embaixo (a imagem 16:9 é bem mais baixa que a coluna de informações); os infocards de pontos e moedas saíram da coluna da
-   direita (.c-cd-mcard__boxes agora fica fora de .c-cd-mcard__info) e ocupam esse espaço, presos no topo, logo abaixo da imagem.
+   direita (.c-cd-mcard__boxes agora fica fora de .c-cd-mcard__info) e ocupam esse espaço, presos à base do card.
    A imagem não muda de proporção. No mobile, a ordem continua a mesma (os infocards já eram os últimos). Só no card do Curso:
    no da Rota (sem progresso e sem botão) a coluna da direita já é mais baixa que a imagem, então lá eles ficam à direita. */
 @media (min-width: 768px) {
-  .c-cd-mcard { grid-template-rows: auto 1fr; }
-  .c-cd-mcard__media { grid-column: 1; grid-row: 1; }
-  .c-cd-mcard__info { grid-column: 2; grid-row: 1 / span 2; }
-  .c-cd-mcard > .c-cd-mcard__boxes { grid-column: 1; grid-row: 2; align-self: start; padding: 0; }
+  /* Coluna da esquerda: os selos (linha 1, na altura do título), a imagem (linha 2) e os infocards do Curso (linha 3). A coluna
+     da direita começa na linha 1, então o topo dos selos e o do título ficam alinhados. */
+  /* Coluna da esquerda: selos, imagem (sempre 16:9) e os infocards do Curso, com o MESMO espaço entre eles, sempre (26/11/2026).
+     A grade usa linhas de respiro (2 e 4) de no mínimo 16px que dividem igualmente a sobra: os selos ficam no topo (na altura
+     do título), os infocards na base do card (distância fixa da borda de baixo) e a imagem no meio, com vãos iguais. Quando a
+     coluna da direita é mais baixa, os respiros ficam em 16 e crescem os vãos em volta do progresso, à direita. */
+  .c-cd-mcard { grid-template-rows: auto minmax(16px, 1fr) auto minmax(16px, 1fr) auto; row-gap: 0; }
+  .c-cd-mcard__pills { grid-column: 1; grid-row: 1; margin-bottom: 0; padding: 0; }
+  .c-cd-mcard__media { grid-column: 1; grid-row: 3; }
+  /* Sem respiro em cima nem embaixo na coluna da direita: o título começa na linha do topo dos selos e o botão termina na
+     mesma linha que os infocards. */
+  .c-cd-mcard__info { grid-column: 2; grid-row: 1 / -1; padding-top: 0; padding-bottom: 0; }
+  /* Quando a coluna da imagem é mais alta, a da direita estica até a base do card e a sobra se divide entre os dois vãos: entre
+     a lista de informações e o progresso, e entre o progresso e o botão. */
+  .c-cd-mcard__info { align-self: stretch; }
+  .c-cd-mcard__info > .c-cd-mcard__progress { margin-block: auto; }
+  .c-cd-mcard > .c-cd-mcard__boxes { grid-column: 1; grid-row: 5; padding: 0; }
+  /* Rota (infocards dentro da coluna da direita, presos à base dela): na esquerda só os selos e a imagem, com a imagem no pé do
+     card e o respiro entre os dois crescendo se a direita for mais alta. */
+  .c-cd-mcard__info > .c-cd-mcard__boxes { margin-top: auto; }
+  .c-cd-mcard:not(:has(> .c-cd-mcard__boxes)) { grid-template-rows: auto minmax(16px, 1fr) auto; }
 }
 
 /* Módulo aberto: o chevron (sempre o chevron-down) fica girado meia volta. O giro de abrir e fechar e a altura da lista são
@@ -1637,54 +1634,49 @@ a.c-cd-material:active .c-cd-material__action { background-color: var(--color-su
 
 /* ==================== Certificado recebido (25/11/2026) ====================
    Card da coluna lateral (desktop) e card de seção na Visão geral (mobile), só com o curso concluído. No modelo do "Sobre o
-   curso": título, o certificado (selo na superfície da marca, nome, "Recebido em" e carga horária) e o botão "Ver certificado"
+   curso": título, o certificado (no formato do item de Materiais de apoio) e o botão "Ver certificado"
    (stroked; o primário do card do curso é "Revisar"). */
 .c-cd-cert {
+  /* Conteúdo no formato do item de Materiais de apoio (.c-cd-material__icon, __text, __name, __meta), com o contorno do card. */
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
+  gap: 4px;
+  padding: 8px;
   border: 1px solid var(--color-border-default);
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
-.c-cd-cert__seal {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: var(--color-surface-system-subtle);
-  color: var(--color-text-brand);
+@media (min-width: 1179px) {
+  .c-cd-cert { gap: 8px; padding: 16px; border-radius: 12px; }
+  .c-cd-cert .c-cd-material__text { margin-left: -4px; }
 }
 
-.c-cd-cert__text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-
-.c-cd-cert__name {
-  color: var(--color-text-primary);
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 700;
-}
-
-.c-cd-cert__meta {
+/* Certificado integrado ao card de informações (Tabuleiro no desktop, 26/11/2026): sem moldura própria, abaixo dos infocards,
+   separado por uma linha; título 14/20 bold, o certificado e o botão. */
+.c-cd-cert-in {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 8px;
-  color: var(--color-text-secondary);
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-default);
+}
+.c-cd-cert-in__title { color: var(--color-text-primary); font-size: 14px; line-height: 20px; font-weight: 700; }
+
+/* Certificado em andamento (26/11/2026): o curso faz parte de um conjunto de cursos que libera o certificado. A barra do
+   progresso do certificado e a dica de quantos cursos faltam. */
+.c-cd-cert__stack { display: flex; flex-direction: column; gap: 12px; }
+.c-cd-cert__progress { display: flex; flex-direction: column; gap: 8px; }
+.c-cd-cert__progress-head {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-text-primary);
   font-size: 12px;
   line-height: 16px;
+  font-weight: 700;
 }
-
-.c-cd-cert__meta b { color: var(--color-text-primary); font-weight: 700; }
+.c-cd-cert__hint { color: var(--color-text-secondary); font-size: 12px; line-height: 16px; }
 
 /* Mobile: escala do card de seção (10/12 e 12/16), selo de 32 e o botão "mobile" de 30. */
 .c-cd-cert-m { display: flex; flex-direction: column; gap: 12px; }
-.c-cd-cert-m .c-cd-cert { gap: 8px; padding: 8px; border-radius: 8px; }
-.c-cd-cert-m .c-cd-cert__seal { width: 32px; height: 32px; }
-.c-cd-cert-m .c-cd-cert__name { font-size: 12px; line-height: 16px; }
-.c-cd-cert-m .c-cd-cert__meta { font-size: 10px; line-height: 12px; }
 .c-cd-cert-m .c-button { gap: 4px; height: 30px; padding: 6px; border-radius: 8px; }

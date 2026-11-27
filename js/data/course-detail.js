@@ -21,7 +21,10 @@ export const course = {
   started: 312,
   updated: '30 set 2026',
   // Certificado do curso concluído (card "Certificado recebido"): nome, data em que foi recebido e carga horária.
-  certificate: { name: 'Certificado de conclusão: LGPD Descomplicada', received: '12 out 2026', hours: '4h' },
+  certificate: { name: 'LGPD Descomplicada', received: '12 out 2026', hours: '4h' },
+  // Certificado em andamento (tweak certificado=andamento): o curso faz parte de um conjunto de cursos que, juntos, liberam o
+  // certificado. `done` já conta este curso; cada curso vale 100/total do certificado.
+  certificateSet: { name: 'Especialista em LGPD', total: 4, done: 2 },
   points: '3.500',
   coins: '500',
   description: [

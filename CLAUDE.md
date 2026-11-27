@@ -33,10 +33,12 @@ de layout daqui. Leia antes de criar: `README.md`, `docs/ARQUITETURA.md` (como e
 - Fundo da página é `--color-background-default` = `#f8f8f8` ("branco" do Figma), não `#fff`.
 - Fonte: Plus Jakarta Sans (`var(--font-sans)`), já carregada localmente.
 - Tipografia (desktop): display-lg 48/48 700 · display-sm 30/40 700 · heading 20/32 700 · subtitle 16/24 700 · price 18/28 700 ·
-  body 14/20 (400–800) · caption 12/16 (300–800). Mobile: caption/body 10/12, heading-area 12/16 700.
+  body 14/20 (400–800) · caption 12/16 (300–800). Mobile: caption/body 12/16 (o Figma diz 10/12, mas **nenhum texto fica abaixo de 12px**), heading-area 12/16 700.
   Há divergências rótulo × render no Figma (ver FIGMA-MAP.md); na dúvida, confirme com design.
 - Espaçamento em múltiplos de 4px. Padding de componentes de interação: 0 a 24px, igual em todos os breakpoints.
 - Radius: 2, 4, 6, 8, 12, 16, 24, full. Sombras: `--shadow-2xs` a `--shadow-2xl`.
+- Cards: 8px no mobile/compactos, 16px no tablet/desktop. Imagem encostada na borda segue o raio do card; imagem recuada usa
+  máx(4px, raio do card − respiro) (cantos concêntricos). Detalhes em `design-system/HANDOFF.md`.
 - Ícones: Feather via `icon('nome', tamanho)` de `js/core/icons.js`; quando o Feather não tiver, os LP-Icons (próprios da Ludos Pro)
   via `lpIcon('nome', tamanho)` de `js/core/lp-icons.js`. Os dois são exportados do Figma (SVGs em `assets/icons/feather` e
   `assets/icons/lp`), têm traço de 1px e herdam a cor do texto. Não edite os `.js` gerados: troque o SVG e rode o gerador.

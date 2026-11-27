@@ -242,8 +242,8 @@
   align-items: center;
   height: 18px;
   color: var(--color-text-primary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 700;
 }
 
@@ -269,8 +269,8 @@
   border-radius: 4px;
   background-color: var(--color-background-default);
   color: var(--color-surface-system-emphasis);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 400;
 }
 

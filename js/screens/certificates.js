@@ -53,7 +53,7 @@ function certCardCompact(c) {
     </div>
     <div class="c-ce-card__body">
       <h3 class="c-ce-card__title">${esc(c.title)}</h3>
-      <span class="c-ce-card__info">${icon(k.icon, 10)}${esc(c.meta)}</span>
+      <span class="c-ce-card__info">${icon(k.icon, 12)}${esc(c.meta)}</span>
       <div class="c-ce-card__foot">
         ${downloadButton(c, true)}
         ${c.progress >= 100 ? '<span class="c-ce-card__done">100%</span>' : progressDonut(c.progress)}

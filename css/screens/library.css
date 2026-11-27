@@ -6,8 +6,8 @@
   align-items: center;
   gap: 4px;
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 .c-sections__crumb b {
@@ -41,7 +41,7 @@
   border-radius: 4px;
   background-color: var(--color-background-default);
   color: var(--color-surface-system-emphasis);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 16px;
 }
 
@@ -314,8 +314,10 @@
 }
 
 .c-lib-card--compact .c-cover__title {
-  margin: 8px;
-  font-size: 10px;
+  /* Texto mínimo de 12px no mobile: até 2 linhas e acima do selo "Novo" (.c-lib-card__new). */
+  -webkit-line-clamp: 2;
+  margin: 8px 8px 28px;
+  font-size: 12px;
 }
 
 .c-lib-card__new {
@@ -349,8 +351,8 @@
   align-items: center;
   gap: 2px;
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
 }
 

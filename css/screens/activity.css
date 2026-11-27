@@ -281,7 +281,7 @@
 
 .c-act-group__label {
   color: var(--color-text-secondary);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 16px;
   font-weight: 800;
   letter-spacing: 0.09em;
@@ -2128,7 +2128,7 @@
 
 .c-act-module__label {
   color: var(--color-text-brand);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 16px;
   font-weight: 800;
   letter-spacing: 0.09em;
@@ -2323,7 +2323,7 @@ html:has(.c-act)::-webkit-scrollbar-thumb:hover { background-color: var(--color-
 .c-act-odo__reel > span { height: 1lh; }
 
 /* Card do curso: "Curso" 10/16, título 14/20 700 em branco sobre a imagem, porcentagem 12px (só o número, 0–100%). */
-.c-act-cover .c-act-cover__kicker { font-size: 10px; line-height: 16px; }
+.c-act-cover .c-act-cover__kicker { font-size: 12px; line-height: 16px; }
 
 .c-act-cover .c-act-cover__title,
 .c-act--type-b .c-act-cover__title {
@@ -2424,7 +2424,7 @@ html:has(.c-act)::-webkit-scrollbar-thumb:hover { background-color: var(--color-
 /* Tamanhos fluidos (clamp) viram estilos do DS por faixa de largura. */
 .c-act--type-c .c-act-code { font-size: 14px; line-height: 20px; } /* body, dentro do parágrafo 16/24 */
 .c-act--type-c .c-act-ws__cell { font-size: 12px; line-height: 16px; } /* caption; de 768: subtitle 16/24 */
-.c-act--type-c :is(.c-act-mem__art, .c-act-mos__face) { font-size: 10px; line-height: 12px; } /* mobile caption; de 768: caption 12/16 */
+.c-act--type-c :is(.c-act-mem__art, .c-act-mos__face) { font-size: 12px; line-height: 16px; } /* mobile caption; de 768: caption 12/16 */
 .c-act--type-c .c-act-mix__letter { font-size: 20px; line-height: 32px; } /* heading; de 1180: display-sm 30/40 */
 @media (min-width: 768px) {
   .c-act--type-c .c-act-ws__cell { font-size: 16px; line-height: 24px; }
@@ -2896,18 +2896,13 @@ html:has(.c-act)::-webkit-scrollbar-thumb:hover { background-color: var(--color-
 }
 
 /* Card de atividade por estado da trilha (25/11/2026; desktop e mobile; groupAccess em js/screens/activity/parts.js).
-   Bloqueada: textos em text/secondary, cadeado no lugar do chevron, sem hover e sem abrir. Só clicável ("Todas liberadas"):
-   seta para a direita no lugar do chevron; o clique abre a 1ª mecânica da atividade, sem mostrar a lista. */
-.c-act-group__lock,
-.c-act-group__go { display: inline-flex; flex: none; margin-left: auto; color: var(--color-icon-default); }
+   Bloqueada: textos em text/secondary, cadeado no lugar do chevron, sem hover e sem abrir. Em "Todas liberadas" todas
+   abrem a lista de mecânicas, como as liberadas. */
+.c-act-group__lock { display: inline-flex; flex: none; margin-left: auto; color: var(--color-icon-default); }
 
 .c-act-group__head.is-locked { cursor: not-allowed; }
 .c-act-group__head.is-locked .c-act-group__name { color: var(--color-text-secondary); }
 .c-act-group__head.is-locked .c-act-group__lock { color: var(--color-text-tertiary); }
-
-.c-act-group__head.is-link { cursor: pointer; }
-.c-act-group__head.is-link:hover .c-act-group__name { color: var(--color-text-brand); }
-.c-act-group__head.is-link:hover .c-act-group__go { color: var(--color-text-brand); }
 
 /* Mecânicas em lista simples (25/11/2026; desktop e mobile): sem contorno, sem fundo e sem o andamento à direita; a atual com o
    fundo da marca suave e o texto em negrito. Sem anel de andamento também na atividade (saiu em 25/11/2026). */
@@ -2924,8 +2919,6 @@ html:has(.c-act)::-webkit-scrollbar-thumb:hover { background-color: var(--color-
 .c-act-group__items > .c-act-item:hover { background-color: var(--color-background-subtle); }
 .c-act-group__items > .c-act-item.is-current { background-color: var(--color-surface-system-subtle); }
 .c-act-group__items > .c-act-item.is-locked:hover { background-color: transparent; }
-
-.c-act-group__go { order: 2; }
 
 /* Rolagem do menu de atividades (25/11/2026; desktop e mobile): o espaço da barra fica sempre reservado (scrollbar-gutter) e
    sai do respiro da direita, então o card de módulo tem sempre a mesma largura, com ou sem rolagem, e a barra (14 no WebKit)
@@ -2970,7 +2963,7 @@ html:has(.c-act)::-webkit-scrollbar-thumb:hover { background-color: var(--color-
   background-color: var(--color-background-subtle);
 }
 
-.c-act-module .c-act-group__head:not(.is-locked):hover :is(.c-act-group__caret, .c-act-group__go) { color: var(--color-text-brand); }
+.c-act-module .c-act-group__head:not(.is-locked):hover .c-act-group__caret { color: var(--color-text-brand); }
 .c-act-module .c-act-group__head:focus-visible { outline-offset: -2px; }
 
 /* ==================== Coluna padrão e escala do conteúdo (25/11/2026; todas as mecânicas) ====================

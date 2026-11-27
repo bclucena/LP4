@@ -247,8 +247,8 @@
   height: 18px;
   margin-bottom: 8px;
   color: var(--color-text-primary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 700;
 }
 
@@ -270,8 +270,8 @@
   padding: 12px;
   border-radius: 8px;
   color: var(--color-text-default);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
   text-align: left;
 }

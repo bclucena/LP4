@@ -54,7 +54,7 @@ function itemCardCompact(item, balance) {
     </div>
     <div class="c-st-card__body">
       <h3 class="c-st-card__title">${esc(item.title)}</h3>
-      <span class="c-st-card__kind">${icon('box', 10)}Item único</span>
+      <span class="c-st-card__kind">${icon('box', 12)}Item único</span>
       <div class="c-st-card__foot">${price(item.price, true)}${buyButton(item, balance, true)}</div>
     </div>
   </article>`;
