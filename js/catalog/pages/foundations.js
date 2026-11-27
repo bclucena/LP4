@@ -54,7 +54,7 @@ export const typography = () => `
   ${section('Escala primitiva', 'xs a 9xl com 9 pesos (thin a black). Aqui, xs a 7xl em Bold.', `<div class="rows rows--tight">${primitive.map(([k, size]) =>
     `<div><span class="rows__name" style="width:96px">${k} (${size}px)</span><span style="font-weight:700;color:var(--color-text-primary);font-size:${size}px;line-height:1.2">Aa</span></div>`).join('')}</div>`)}
   ${section('Type mobile', '10px / 12px para caption, body e subtitle, e 12px / 16px para heading-area. Pesos de light a extrabold.', `<div class="pg-box pg-box--pad" style="display:flex;flex-wrap:wrap;gap:24px">
-    ${mobileWeights.map(([w, n]) => `<span style="font-size:10px;line-height:12px;font-weight:${n};color:var(--color-text-primary)">type-mobile/${w}</span>`).join('')}
+    ${mobileWeights.map(([w, n]) => `<span style="font-size:12px;line-height:16px;font-weight:${n};color:var(--color-text-primary)">type-mobile/${w}</span>`).join('')}
     <span style="font-size:12px;line-height:16px;font-weight:700;color:var(--color-text-primary)">type-mobile/heading-area</span></div>`)}`;
 
 /* ---------- Espaçamento, raio e breakpoints ---------- */

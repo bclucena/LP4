@@ -21,6 +21,8 @@ const versions = [{ value: 'a', label: 'Versão A' }, { value: 'b', label: 'Vers
 export const tweaks = {
   curso: [
     { id: 'estado', section: 'Curso', label: 'Estado do curso', type: 'choice', options: [...courseStates, { value: 'liberado', label: 'Todas liberadas' }], default: 'andamento' },
+    { id: 'certificado', section: 'Curso', label: 'Certificado', hint: 'Aparece com o curso concluído. Em andamento: o curso faz parte de um conjunto de cursos que libera o certificado', type: 'choice', default: 'recebido',
+      options: [{ value: 'recebido', label: 'Recebido' }, { value: 'andamento', label: 'Em andamento' }] },
     { id: 'vazio', section: 'Curso', label: 'Estados vazios', hint: 'Sem atividades e materiais', type: 'switch' },
     { id: 'fundo', section: 'Fundo', label: 'Fundo', type: 'choice', default: 'imagem',
       options: [{ value: 'cor', label: 'Cor' }, { value: 'imagem', label: 'Imagem' }] },
@@ -36,6 +38,8 @@ export const tweaks = {
   ],
   tabuleiro: [
     { id: 'estado', section: 'Curso', label: 'Estado do curso', hint: 'Trilha liberada: nada concluído e todos os pins (atividades, avaliações e missões) disponíveis, em qualquer ordem', type: 'choice', options: [...courseStates, { value: 'liberado', label: 'Trilha liberada' }], default: 'andamento' },
+    { id: 'certificado', section: 'Curso', label: 'Certificado', hint: 'Aparece com o curso concluído. Em andamento: o curso faz parte de um conjunto de cursos que libera o certificado', type: 'choice', default: 'recebido',
+      options: [{ value: 'recebido', label: 'Recebido' }, { value: 'andamento', label: 'Em andamento' }] },
     { id: 'layout', section: 'Trilha', label: 'Layout', hint: 'Moderno: trilha larga, nomes nos pins e o cartão da próxima atividade', type: 'choice', default: 'classico',
       options: [{ value: 'classico', label: 'Clássico' }, { value: 'moderno', label: 'Moderno' }] },
     { id: 'painel', section: 'Painel', label: 'Menu lateral', hint: 'Float: ícones que abrem um cartão flutuante. Barra integrada: as informações numa barra em cima da trilha. Dock: um cartão compacto no canto, com a próxima atividade, que recolhe numa pílula', type: 'choice', default: 'dock',
@@ -56,7 +60,7 @@ export const tweaks = {
   ],
   atividade: [
     // Estado da trilha (25/11/2026): os mesmos estados do Curso. "Todas liberadas" substitui o antigo switch "Desbloquear todas".
-    { id: 'estado', section: 'Trilha', label: 'Estado da trilha', hint: 'Não iniciado: só a 1ª atividade do módulo 1 liberada. Em andamento: até a 5ª atividade do módulo 1. Concluído: todas liberadas. Todas liberadas: todas clicáveis, sem abrir a lista de mecânicas', type: 'choice', default: 'nao-iniciado',
+    { id: 'estado', section: 'Trilha', label: 'Estado da trilha', hint: 'Não iniciado: só a 1ª atividade do módulo 1 liberada. Em andamento: até a 5ª atividade do módulo 1. Concluído: todas liberadas. Todas liberadas: todas abertas, com a lista de mecânicas', type: 'choice', default: 'nao-iniciado',
       options: [...courseStates, { value: 'liberado', label: 'Todas liberadas' }] },
     { id: 'tipografia', section: 'Layout', label: 'Tipografia', hint: 'LP 4.0: tamanhos de fonte, alturas de linha e espaçamentos dos estilos do design system LP 4.0 no Figma', type: 'choice', options: [...versions, { value: 'c', label: 'LP 4.0' }], default: 'a' },
     { id: 'apoio', section: 'Ordenadinho', label: 'Imagem de apoio', type: 'switch', default: true },

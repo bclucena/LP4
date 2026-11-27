@@ -64,7 +64,7 @@ function eventCardCompact(e, state) {
     <div class="c-ev-card__cover c-cover"><span class="c-cover__title">${esc(e.title)}</span></div>
     <div class="c-ev-card__body">
       <div class="c-ev-card__head"><h3 class="c-ev-card__title">${esc(e.title)}</h3>${bookmark(e, state.favs.includes(e.id), 12)}</div>
-      <span class="c-ev-card__date">${icon('calendar', 10)}30 dez 2026 - 02 jan 2027 · 14:00 - 18:00</span>
+      <span class="c-ev-card__date">${icon('calendar', 12)}30 dez 2026 - 02 jan 2027 · 14:00 - 18:00</span>
       <div class="c-ev-card__bottom">
         <span class="c-ev-card__row">${tag({ label: e.category, size: 'mobile' })}${e.slots === null ? '<span class="c-ev-card__count c-ev-card__count--free">Ilimitadas</span>' : `<b class="c-ev-card__count">${e.taken}/${e.slots}</b>`}</span>
         ${actionsRow(e, joined, true)}

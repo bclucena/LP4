@@ -211,7 +211,7 @@
 .c-st-card--compact .c-cover__title {
   max-width: 70%;
   margin: 8px;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .c-st-card__sold {
@@ -222,8 +222,8 @@
   border-radius: 999px;
   background-color: var(--color-background-error);
   color: var(--color-text-error);
-  font-size: 8px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 600;
 }
 
@@ -241,8 +241,8 @@
 
 .c-st-card--compact .c-st-card__kind {
   gap: 2px;
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 .c-st-card--compact .c-st-card__foot {
@@ -253,8 +253,8 @@
 
 .c-st-buy--compact {
   padding: 4px;
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 /* ---------- Carregando e vazio ---------- */

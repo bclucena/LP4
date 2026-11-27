@@ -7,7 +7,7 @@ import { pill, tag } from '../components/badges.js';
 import { mpill } from '../components/mobile.js';
 import { avatar } from '../components/avatar.js';
 import { rail } from '../components/rail.js';
-import { progressDonut, infoLine } from '../components/progress.js';
+import { progressDonut, progressLabeled } from '../components/progress.js';
 import { fmtMinutes } from '../data/course-detail.js';
 import { stickyAside, mobileBox } from './course-detail.js';
 import { route, routeSteps, routeStates, stepKinds } from '../data/learning-path.js';
@@ -59,7 +59,7 @@ const bullet = '<span class="c-cd-bullet" aria-hidden="true"></span>';
 const metaLine = parts => parts.map(p => `<span>${esc(p)}</span>`).join(bullet);
 
 const flagPills = mobile => (route.flags.novo
-  ? (mobile ? mpill({ tone: 'info', iconHtml: lpIcon('badge-2', 8), label: 'Novo' }) : pill({ label: 'Novo', color: 'blue', iconHtml: lpIcon('badge-2', 16) }))
+  ? (mobile ? mpill({ tone: 'info', iconHtml: lpIcon('badge-2', 12), label: 'Novo' }) : pill({ label: 'Novo', color: 'blue', iconHtml: lpIcon('badge-2', 16) }))
   : '');
 
 const facts = (d, px) => [
@@ -148,6 +148,11 @@ const STATUS = {
   open: { label: 'Liberado' },
 };
 
+/** Tipo da etapa (Curso, Notícia, Biblioteca, Missão, Evento): ícone e texto (sem a moldura de tag, desde 26/11/2026) acima
+    do título do card (mobile, tablet e
+    desktop). */
+const kindTag = (kind, mobile, extra) => `<span class="c-lp-course__kind">${icon(kind.icon, mobile ? 12 : 16)}${metaLine([kind.label, extra].filter(Boolean))}</span>`;
+
 /** Linha de dados do card de cada tipo de etapa (à direita dos selos) e o canto direito da linha das tags. Os textos e ícones
     seguem os cards das próprias áreas (Missões, Feed, Biblioteca, Eventos). */
 function stepDetails(c, px) {
@@ -177,20 +182,12 @@ function stepDetails(c, px) {
     capa do curso; notícia, material, missão e evento, a imagem de cada um (sem imagem, a capa de exemplo c-cover com o ícone do tipo). Na miniatura, um
     selo escuro diz o tipo da etapa. O card todo leva à área da etapa (Curso, Feed, Biblioteca, Missões, Eventos). */
 function stepCard(c, mobile) {
-  const p = mobile
-    ? (tone, ic, label) => mpill({ tone, iconHtml: ic(8), label })
-    // Tablet e desktop: ícone e nome (desde 19/11/2026; antes só o ícone). Sem espaço, o tempo e os módulos descem de linha.
-    : (tone, ic, label) => pill({ label, color: { info: 'blue', warning: 'yellow', error: 'red' }[tone], iconHtml: ic(16) });
   const kind = stepKinds[c.kind];
   const locked = c.status === 'locked';
   const px = mobile ? 8 : 16;
-  const { meta, side, foot } = stepDetails(c, px);
-  // Selos ficam no corpo, na linha dos dados: a imagem é uma miniatura e não comporta os três lado a lado.
-  const flags = [
-    c.novo && p('info', n => lpIcon('badge-2', n), 'Novo'),
-    c.sugerido && p('warning', n => lpIcon('bulb', n), 'Sugerido'),
-    c.obrigatorio && p('error', n => icon('alert-circle', n), 'Obrigatório'),
-  ].filter(Boolean).join('');
+  // Sem a linha de dados (tempo e módulos, data, publicação, local; retirada em 26/11/2026).
+  const { side, foot } = stepDetails(c, px);
+  // Sem os selos Novo, Sugerido e Obrigatório nos conteúdos da rota (retirados em 26/11/2026).
   // O card inteiro é o link (só um chevron indica a ação). Bloqueado: não é link; o clique avisa por que.
   const name = esc(`${c.index + 1}. ${kind.label}: ${c.title} (${STATUS[c.status].label})`);
   const open = locked
@@ -204,16 +201,12 @@ function stepCard(c, mobile) {
     : `<span class="c-lp-course__cover c-cover c-lp-course__cover--${c.kind}">${icon(kind.icon, mobile ? 32 : 40)}</span>`;
   return `${open}
     <div class="c-lp-course__media">
-      ${media}
-      <span class="c-lp-course__kind">${icon(kind.icon, mobile ? 8 : 12)}${esc(kind.label)}</span>
+      <span class="c-lp-course__frame">${media}</span>
       ${c.deadline ? `<span class="c-lp-course__deadline">${esc(c.deadline)}</span>` : ''}
     </div>
     <div class="c-lp-course__body">
       <div class="c-lp-course__info">
-        <div class="c-lp-course__top">
-          ${flags ? `<div class="c-lp-course__pills">${flags}</div>` : ''}
-          ${meta}
-        </div>
+        ${kindTag(kind, mobile, fmtMinutes(c.min))}
         <h3 class="c-lp-course__title" title="${esc(c.title)}">${esc(c.title)}</h3>
         <div class="c-lp-course__row">
           <span class="c-cd-tags">${c.tags.map(t => tag({ label: t, size: mobile ? 'mobile' : 'md' })).join('')}${c.extraTags ? tag({ label: `+${c.extraTags}`, outlined: true, size: mobile ? 'mobile' : 'md' }) : ''}</span>
@@ -233,47 +226,62 @@ function stepCard(c, mobile) {
 
 /** Card compacto da etapa no mobile (abaixo de 768): o mesmo layout dos cards mobile de Cursos, Missões, Eventos, Feed e
     Biblioteca (classes c-course-compact, css/screens/courses.css). Imagem recuada com cantos de 4 e os selos só com ícone
-    sobrepostos na borda de baixo; o selo escuro do tipo no canto de cima; título de 2 linhas; a linha de informação (ícone de
-    8 e dois textos de 10); no rodapé, as tags e o indicador de cada área. O último ícone do rodapé é a ação: chevron, cadeado
+    sobrepostos na borda de baixo; o selo escuro do tipo no canto de cima; título de 2 linhas; a linha de informação numa linha só (ícone de
+    12 e as partes separadas por bullet, como no card do desktop); no rodapé, as tags e o indicador de cada área. O último ícone do rodapé é a ação: chevron, cadeado
     (bloqueado) ou check (concluído). A biblioteca tem imagem 1:1, como na área dela. */
+/** Etapa que não é curso (notícia, biblioteca, missão, evento; 26/11/2026): o conteúdo no formato do item de Materiais de
+    apoio (.c-cd-material__icon, __name, __meta), dentro do contorno do card, sem imagem nem tags. A linha de dados traz o
+    tipo e o dado principal de cada um; a notícia mostra ainda 3 linhas do texto (com reticências) e "Continuar lendo" (o
+    estilo do Link small; não é outro link, o card todo já é); a missão, a barra de progresso do card de Missões
+    (progressLabeled: "Progresso x%" e a barra). Bloqueada não fica apagada: só o cadeado indica. À direita, o cadeado (bloqueada), o check (concluída) ou, a partir do tablet, o
+    chevron. */
+function stepItem(c, compact) {
+  const kind = stepKinds[c.kind];
+  const locked = c.status === 'locked';
+  const done = c.status === 'done';
+  const extra = {
+    noticia: `${c.readMin} min de leitura`,
+    material: materialInfo[c.material]?.label,
+    missao: kindLabel[c.mission],
+    evento: c.date,
+  }[c.kind];
+  const name = esc(`${c.index + 1}. ${kind.label}: ${c.title} (${STATUS[c.status].label})`);
+  // A notícia não tem chevron (o "Continuar lendo" já indica a ação).
+  const go = locked ? icon('lock', 16) : done ? icon('check-circle', 16) : compact || c.kind === 'noticia' ? '' : icon('chevron-right', 16);
+  const cls = cx('c-lp-step', `c-lp-step--${c.kind}`, locked && 'is-locked', done && 'is-done');
+  // Linha 1: o ícone do tipo (sem a caixa) junto de "tipo · dado", como o tipo do card de curso; linha 2: o título.
+  const inner = `<span class="c-cd-material__text"><span class="c-cd-material__meta c-lp-step__kind">${icon(kind.icon, compact ? 12 : 16)}${metaLine([kind.label, extra].filter(Boolean))}</span><span class="c-cd-material__name" title="${esc(c.title)}">${esc(c.title)}</span>${c.excerpt ? `<span class="c-lp-step__excerpt">${locked ? '' : '<span class="c-text-link c-text-link--small c-lp-step__more">Continuar lendo</span>'}${esc(c.excerpt)}</span>` : ''}${c.kind === 'missao' ? `<span class="c-lp-step__progress">${progressLabeled({ value: c.pct })}</span>` : ''}</span>
+      ${go ? `<span class="c-lp-step__go" aria-hidden="true">${go}</span>` : ''}`;
+  return locked
+    ? `<div class="${cls}" aria-disabled="true" aria-label="${name}" title="Conclua a etapa anterior para liberar esta" data-action="lockedCourse">${inner}</div>`
+    : `<a class="${cls}" href="${kind.href}" aria-label="${name}" data-key="lp-step-${c.index}">${inner}</a>`;
+}
+
 function stepCardCompact(c) {
   const kind = stepKinds[c.kind];
   const locked = c.status === 'locked';
   const done = c.status === 'done';
-  const pills = [
-    c.novo && mpill({ tone: 'info', iconName: 'award' }),
-    c.sugerido && mpill({ tone: 'warning', iconName: 'zap' }),
-    c.obrigatorio && mpill({ tone: 'error', iconName: 'alert-circle' }),
-  ].filter(Boolean).join('');
   const dot = '<span class="c-m-bullet" aria-hidden="true"></span>';
   const count = text => `<span class="c-lp-mcard__count">${text}</span>`;
-  let line;
   let indicator = '';
   switch (c.kind) {
     case 'noticia':
-      line = infoLine(icon('send', 8), esc(c.published), `${c.readMin} min de leitura`);
-      indicator = `<span class="c-lp-mcard__stats">${icon('thumbs-up', 10)}${c.likes}${dot}${icon('message-square', 10)}${c.comments}</span>`;
+      indicator = `<span class="c-lp-mcard__stats">${icon('thumbs-up', 12)}${c.likes}${dot}${icon('message-square', 12)}${c.comments}</span>`;
       break;
-    case 'material': {
-      const m = materialInfo[c.material];
-      line = infoLine(icon(m.icon, 8), m.label, esc(c.date));
+    case 'material':
       break;
-    }
     case 'missao':
-      line = infoLine(icon(c.mission === 'meta' ? 'flag' : 'upload', 8), kindLabel[c.mission], `<span class="c-m-inline">${esc(c.scope)} ${dot} ${periodLabel[c.period]}</span>`);
       indicator = c.mission === 'meta' ? progressDonut(c.pct) : count(`${c.pct}/100`);
       break;
-    case 'evento': {
-      const [date, time] = c.date.split(' · ');
-      line = infoLine(icon('calendar', 8), esc(date), esc(time ?? ''));
+    case 'evento':
       indicator = count(`${c.taken}/${c.slots}`);
       break;
-    }
     default:
-      line = infoLine(icon('book', 8), 'Curso', `${c.modules} Módulos`);
-      indicator = done ? '' : progressDonut(c.pct);
+      // Curso: o anel de progresso só em andamento (ou liberado); bloqueado não tem anel (só o cadeado) e concluído só o check.
+      indicator = done || locked ? '' : progressDonut(c.pct);
   }
-  const go = locked ? icon('lock', 12) : done ? icon('check-circle', 14) : icon('chevron-right', 14);
+  // Ação no fim do rodapé: cadeado (bloqueado) ou check (concluído); disponível não tem ícone (o card todo é o link).
+  const go = locked ? icon('lock', 12) : done ? icon('check-circle', 14) : '';
   const name = esc(`${c.index + 1}. ${kind.label}: ${c.title} (${STATUS[c.status].label})`);
   const cls = cx('c-course-compact', 'c-lp-mcard', `c-lp-mcard--${c.kind}`, locked && 'is-locked', done && 'is-done');
   const open = locked
@@ -283,20 +291,18 @@ function stepCardCompact(c) {
   const tags = `${c.tags.map(t => tag({ label: t, size: 'mobile' })).join('')}${c.extraTags ? tag({ label: `+${c.extraTags}`, size: 'mobile', outlined: true }) : ''}`;
   return `${open}
     <div class="c-course-compact__top">
-      ${pills ? `<div class="c-course-compact__pills">${pills}</div>` : ''}
       <div class="c-course-compact__cover-wrap">
         ${src ? `<img class="c-course-compact__cover c-lp-mcard__img" src="${esc(src)}" alt="" />` : `<span class="c-course-compact__cover c-cover c-lp-mcard__img"></span>`}
-        <span class="c-lp-course__kind">${icon(kind.icon, 8)}${esc(kind.label)}</span>
         ${c.deadline ? `<span class="c-lp-mcard__deadline">${esc(c.deadline)}</span>` : ''}
-        ${c.kind === 'curso' ? `<span class="c-course-compact__time">${icon('clock', 8)}${esc(fmtMinutes(c.min))}</span>` : ''}
+        ${c.kind === 'curso' ? `<span class="c-course-compact__time">${icon('clock', 12)}${esc(fmtMinutes(c.min))}</span>` : ''}
       </div>
     </div>
     <div class="c-course-compact__body">
+      ${kindTag(kind, true, fmtMinutes(c.min))}
       <h3 class="c-course-compact__title" title="${esc(c.title)}">${esc(c.title)}</h3>
-      ${line}
       <div class="c-course-compact__foot">
         <span class="c-course-compact__tags">${tags}</span>
-        <span class="c-lp-mcard__end">${indicator}<span class="c-lp-mcard__go" aria-hidden="true">${go}</span></span>
+        <span class="c-lp-mcard__end">${indicator}${go ? `<span class="c-lp-mcard__go" aria-hidden="true">${go}</span>` : ''}</span>
       </div>
     </div>
   ${locked ? '</div>' : '</a>'}`;
@@ -313,7 +319,7 @@ function coursesSection(d, mobile) {
     </div>
     <ol class="c-lp-route">${d.courses.map((c, i) => `<li class="c-lp-route__item">
         ${rail({ status: c.status, first: i === 0, last: i === d.total - 1, before: i <= cur, after: i < cur })}
-        ${mobile && !minWidth(TABLET) ? stepCardCompact(c) : stepCard(c, mobile)}
+        ${c.kind !== 'curso' ? stepItem(c, mobile && !minWidth(TABLET)) : mobile && !minWidth(TABLET) ? stepCardCompact(c) : stepCard(c, mobile)}
       </li>`).join('')}</ol>
   </section>`;
 }
@@ -325,22 +331,20 @@ const mobileTabs = (state, d) => {
     `<button type="button" role="tab" id="lp-tab-${t.id}" class="${cx('c-cd-mtab', state.tab === t.id && 'is-active')}" aria-selected="${state.tab === t.id}" aria-controls="lp-panel" data-action="setTab" data-id="${t.id}"><span>${t.label}</span>${t.count ? `<span class="c-cd-mtab__count">${t.count}</span>` : ''}</button>`).join('')}</div></nav>`;
 };
 
-/** Card da rota no mobile: os elementos do card mobile do Curso — capa com selos e duração, título, linha, as informações
+/** Card da rota no mobile: os elementos do card mobile do Curso — capa limpa, selos acima do título, título, linha, a duração
+    como 1ª informação, as informações
     (ícones de 8, 10/12, "Certificado") e os infocards de pontos e moedas (mobileBox). */
-const mobileSummary = d => `<section class="c-cd-mcard" aria-labelledby="lp-title">
+const mobileSummary = d => `<section class="c-cd-mcard c-cd-mcard--rota" aria-labelledby="lp-title">
     <div class="c-cd-mcard__media">
       <img class="c-cd-mcard__cover" src="${esc(route.cover)}" alt="" />
-      <div class="c-cd-mcard__over">
-        <span class="c-cd-mcard__flags">${flagPills(true)}</span>
-        <span class="c-cd-mcard__time">${icon('clock', 8)}${esc(fmtMinutes(d.totalMin))}</span>
-      </div>
     </div>
+    ${route.flags.novo ? `<div class="c-cd-mcard__pills">${flagPills(true)}</div>` : ''}
     <div class="c-cd-mcard__info">
       <div class="c-cd-mcard__name">
         <h1 class="c-cd-mcard__title" id="lp-title">${esc(route.title)}</h1>
       </div>
       <hr class="c-cd-mcard__rule" />
-      <ul class="c-cd-mcard__facts">${facts(d, 8).map(([ic, text]) => `<li>${ic}<span>${text}</span></li>`).join('')}</ul>
+      <ul class="c-cd-mcard__facts">${[[icon('clock', 12), `<b>${esc(fmtMinutes(d.totalMin))}</b> de conteúdo`], ...facts(d, 12)].map(([ic, text]) => `<li>${ic}<span>${text}</span></li>`).join('')}</ul>
       <div class="c-cd-mcard__boxes">${mobileRewards(d)}</div>
     </div>
   </section>`;
@@ -348,7 +352,7 @@ const mobileSummary = d => `<section class="c-cd-mcard" aria-labelledby="lp-titl
 /** Pontos e moedas no card mobile: os infocards do card mobile do Curso (mobileBox). */
 const mobileRewards = d => {
   const r = routeRewards(d);
-  return `${mobileBox(icon('star', 8), fmtInt(r.got.pts), fmtInt(r.max.pts), d.finished ? 'pontos ganhos' : 'pontos disponíveis')}${mobileBox(lpIcon('coin', 8), fmtInt(r.got.coins), fmtInt(r.max.coins), d.finished ? 'moedas ganhas' : 'moedas disponíveis')}`;
+  return `${mobileBox(icon('star', 12), fmtInt(r.got.pts), fmtInt(r.max.pts), d.finished ? 'pontos ganhos' : 'pontos disponíveis')}${mobileBox(lpIcon('coin', 12), fmtInt(r.got.coins), fmtInt(r.max.coins), d.finished ? 'moedas ganhas' : 'moedas disponíveis')}`;
 };
 
 function mobilePanel(state, d) {

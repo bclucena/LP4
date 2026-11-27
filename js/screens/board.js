@@ -1,4 +1,4 @@
-import { cx, esc, range } from '../core/dom.js';
+import { cx, esc } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { lpIcon } from '../core/lp-icons.js';
 import { createView, onEscape } from '../core/view.js';
@@ -14,7 +14,7 @@ import { activityHref, exam } from '../data/activity.js';
 import { leaveTo } from '../core/transition.js';
 import { getModuleImage } from '../data/module-images.js';
 import { fmtMinutes } from '../data/course-detail.js';
-import { courseInfoData, summary, courseProgress, sideAbout, sideAboutCourse, sideCategories, description, materialsSection, mobileTabs, mobileSummary, mobileCategories, mobileAbout, rewardBoxes } from './course-detail.js';
+import { courseInfoData, certificateCard, summary, courseProgress, sideAbout, sideAboutCourse, sideCategories, description, materialsSection, mobileTabs, mobileSummary, mobileCategories, mobileAbout, rewardBoxes } from './course-detail.js';
 
 /* Tabuleiro (Figma LP-DesignSystem 4.0, páginas "Curso Ludica - Versao A" e "Versao B").
 
@@ -557,10 +557,101 @@ function trailVLayout(p, bw, cardHs) {
     ty = lastCenter + below + 40;
     legs.push({ mi, y0, y1: mi < modules.length - 1 ? ty + ch(mi + 1) / 2 : lastCenter });
   });
-  legs.forEach(l => { l.reached = p.free || p.finished || l.mi < curLeg ? l.y1 : l.mi === curLeg ? curY : l.y0; });
+  // Trilha liberada: nada feito, então nada preenchido (só o caminho cinza).
+  legs.forEach(l => { l.reached = p.free ? l.y0 : p.finished || l.mi < curLeg ? l.y1 : l.mi === curLeg ? curY : l.y0; });
   // Rolando até o fim, o último pin fica no meio da área visível (abaixo das abas).
   const height = lastCenter + Math.max(below + 24, Math.round((window.innerHeight - (44 + 40 + 55)) / 2) - 150);
   return { items, legs, height, s, cx };
+}
+
+/** Tablet (768 a 1178): a trilha vertical com as curvas da Versão E do desktop. Entre um cartão e o seguinte, a estrada desce
+    do meio do cartão, vai e volta na horizontal entre duas faixas (esquerda e direita), descendo a cada volta, com cantos
+    arredondados (roundedSegs, raio R), e entra no meio do cartão seguinte. Os pins ficam espaçados por igual ao longo do
+    caminho (como na E). Cada trecho é de um módulo, na cor dele, e o progresso vai até o pin atual. */
+function trailVCurvedLayout(p, bw, cardHs) {
+  const s = 1; // pin de 84
+  const ch = mi => cardHs?.[mi] ?? 120;
+  const cx = Math.round(bw / 2);
+  const A = Math.round(Math.min(bw / 2 - 64, 260)); // meia largura do vai e vem
+  const R = 32;
+  const D = 200; // descida a cada volta (o pin do trecho vertical fica no meio, sem cobrir as curvas)
+  const h0 = 220; // descida reta ao sair do cartão e antes de entrar no seguinte (cabe 1 pin longe do cartão)
+  const items = [];
+  const legs = [];
+  let ty = 0;
+  let curS = null;
+  let curLeg = -1;
+  let lastY = 0;
+  modules.forEach((mo, mi) => {
+    items.push({ type: 'card', mi, top: ty });
+    const last = mi === modules.length - 1;
+    const n = mo.activities.length;
+    const y0 = ty + ch(mi) - E_IN;
+    // Trechos (26/11/2026): as descidas que saem do cartão e entram no seguinte nunca têm pin; a meia fileira de saída e a de
+    // chegada têm 1; cada trecho vertical entre fileiras tem 1; cada fileira inteira tem 2 ou 3. Quantas fileiras: o menor
+    // número em que cabem todos os pins do módulo (mínimo = 1 em cada trecho e 2 nas fileiras; máximo = 3 nas fileiras).
+    // Módulo com 1 pin: um trecho reto até o cartão seguinte, com o pin no meio.
+    let pts;
+    let path;
+    let slots;
+    if (n === 1) {
+      const L = 360;
+      pts = [[cx, y0], [cx, y0 + L + (last ? 0 : E_IN)]];
+      path = roundedSegs(pts, R);
+      slots = [E_IN + L / 2];
+    } else {
+      const maxOf = r => 2 + r + 3 * (r - 1);
+      let rows = 1;
+      while (maxOf(rows) < n && rows < 40) rows++;
+      pts = [[cx, y0], [cx, y0 + h0]];
+      let y = y0 + h0;
+      let side = 1;
+      pts.push([cx + side * A, y]);
+      for (let k = 1; k < rows; k++) { y += D; pts.push([cx + side * A, y]); side = -side; pts.push([cx + side * A, y]); }
+      y += D;
+      pts.push([cx + side * A, y], [cx, y]);
+      if (!last) pts.push([cx, y + h0 + E_IN]);
+      path = roundedSegs(pts, R);
+      // Trechos retos na ordem do caminho, sem as duas descidas das pontas.
+      const lines = path.segs.filter(sg => sg.t === 'L' && sg.len > 1).slice(1, last ? undefined : -1);
+      const full = sg => Math.abs(sg.a[1] - sg.b[1]) < 0.5 && Math.abs(sg.a[0] - sg.b[0]) > A + 1;
+      const caps = lines.map(sg => (full(sg) ? 2 : 1));
+      let extra = n - caps.reduce((t, c) => t + c, 0);
+      lines.forEach((sg, k) => { if (extra > 0 && full(sg)) { caps[k] = 3; extra--; } });
+      // Menos pins que o mínimo (ex.: 4 ou 5 com 2 fileiras): tira das fileiras inteiras e depois dos trechos do fim.
+      let over = caps.reduce((t, c) => t + c, 0) - n;
+      for (let k = caps.length - 1; k >= 0 && over > 0; k--) if (full(lines[k]) && caps[k] > 1) { caps[k]--; over--; }
+      for (let k = caps.length - 1; k >= 0 && over > 0; k--) if (caps[k] > 0) { caps[k]--; over--; }
+      slots = [];
+      lines.forEach((sg, k) => {
+        const c = caps[k];
+        const from = sg.s + 48;
+        const to = sg.s + sg.len - 48;
+        for (let j = 0; j < c; j++) {
+          if (c === 1) slots.push(sg.s + sg.len / 2);
+          else if (c === 2) slots.push(sg.s + ((j + 1) * sg.len) / 3); // 2 pins: a fileira dividida em 3 partes
+          else slots.push(from + (j * (to - from)) / (c - 1));
+        }
+      });
+    }
+    mo.activities.forEach((_, j) => {
+      const i = moduleStarts[mi] + j;
+      let status = statusOf(i, p);
+      const current = status === 'current' && !p.finished;
+      if (status === 'locked' && !p.finished && activities[p.cur].mi === mi) status = 'open';
+      const sAt = slots[j] ?? slots[slots.length - 1];
+      const [nx, ny] = pointAt(path, sAt);
+      if (current) { curS = sAt; curLeg = mi; }
+      items.push({ type: 'node', mi, i, status, current, x: Math.round(nx), y: Math.round(ny), off: -1 });
+      lastY = Math.max(lastY, ny);
+    });
+    legs.push({ mi, path });
+    const endY = pts[pts.length - 1][1];
+    ty = last ? endY : endY - E_IN;
+  });
+  legs.forEach(l => { l.reached = p.free ? 0 : p.finished || l.mi < curLeg ? l.path.total : l.mi === curLeg ? curS : 0; });
+  const height = Math.round(lastY + Math.max(58 + 24, Math.round((window.innerHeight - (64 + 40 + 55)) / 2) - 150));
+  return { items, legs, height, s };
 }
 
 function cardV(it, p) {
@@ -582,6 +673,23 @@ function cardV(it, p) {
 
 function trailV(state, p) {
   const bw = trailBWidth(state);
+  // Tablet: a trilha vertical com as curvas da Versão E.
+  if (minWidth(TABLET)) {
+    const { items, legs, height, s } = trailVCurvedLayout(p, bw, state.cardHs);
+    const roads = legs.map(l => {
+      const d = subPath(l.path, 0, l.path.total);
+      return `<g style="--mod:${modColor(l.mi)}">
+      <path class="c-board-road__shadow" d="${d}" transform="translate(0 2)"/>
+      <path class="c-board-road__way" d="${d}"/>
+      ${l.reached > 0.5 ? `<path class="c-board-road__progress" d="${subPath(l.path, 0, l.reached)}"/>` : ''}
+    </g>`;
+    }).join('');
+    return `<div class="c-board-btrail c-board-etrail c-board-vtrail c-board-vtrail--curved" style="width:${bw}px;height:${height}px;--e-pin:${s}">
+      <svg class="c-board-road c-board-eroad" width="${bw}" height="${height}" viewBox="0 0 ${bw} ${height}" aria-hidden="true">${roads}</svg>
+      <ol class="c-board-trail__list" aria-label="Atividades do curso">${items.map(it => (it.type === 'card' ? cardV(it, p) : nodeE(it, p))).join('')}</ol>
+    </div>
+    ${jumpAndFinish(state, p)}`;
+  }
   const { items, legs, height, s, cx: x } = trailVLayout(p, bw, state.cardHs);
   const roads = legs.map(l => `<g style="--mod:${modColor(l.mi)}">
       <path class="c-board-road__shadow" d="M${x} ${l.y0} L${x} ${l.y1}" transform="translate(0 2)"/>
@@ -720,7 +828,7 @@ function trailBLayout(p, bw, compact, cardHs) {
       } else y = rowY + 66;
     });
   });
-  return { items, road, prog, height: y };
+  return { items, road, prog: p.free ? '' : prog, height: y }; // trilha liberada: nada preenchido
 }
 
 /** Cartão do módulo da trilha B: o "board module band" da Versão A, um por módulo, com o selo Concluído, o andamento ou
@@ -1059,6 +1167,47 @@ function eLegPoints(z, a, by, sides, teeth, last, bh = z.cardH) {
   return { pts, next };
 }
 
+/** Vagas de pins por trecho reto do caminho (26/11/2026; desktop e tablet). Cada segmento reto (sem as curvas) recebe um número
+    de pins pela direção: `vCap` nos verticais e `hCap` nos horizontais; o primeiro trecho que comporta um pin (logo depois do
+    cartão) e o último (antes do cartão seguinte ou da chegada) recebem 1. Os pins ficam a `margin` das curvas (não as cobrem) e
+    a `cardGap` do cartão nas pontas do caminho; um trecho curto demais recebe menos (no mínimo `minGap` entre pins). Devolve as
+    vagas (posições ao longo do caminho) e a capacidade total. `n` corta o excesso, tirando pins dos trechos do meio a partir
+    do fim (dos que têm mais). */
+function pathSlots(path, { vCap, hCap, margin = 48, cardGap = E_IN + 80, endGap = cardGap, minGap = 140, n = Infinity, edgeFree = false, thirds = false }) {
+  // edgeFree: os trechos que saem do cartão e entram no seguinte (pontas do caminho) ficam sem pins, e os demais seguem a
+  // regra da direção (tablet). thirds: trecho horizontal com 2 pins fica dividido em 3 partes iguais (pins a 1/3 e 2/3 dele).
+  const segs = path.segs.map((sg, k) => ({ sg, k })).filter(({ sg }) => sg.t === 'L' && sg.len > 1);
+  const lastK = path.segs.length - 1;
+  const rows = segs.map(({ sg, k }) => {
+    const from = sg.s + (k === 0 ? cardGap : margin);
+    const to = sg.s + sg.len - (k === lastK ? endGap : margin);
+    const vertical = Math.abs(sg.a[0] - sg.b[0]) < 0.5;
+    const room = to - from;
+    const edge = k === 0 || k === lastK;
+    const fit = room < 0 || (edgeFree && edge) ? 0 : 1 + Math.floor(room / minGap);
+    return { from, to, fit, vertical, a: sg.s, b: sg.s + sg.len, cap: Math.min(vertical ? vCap : hCap, fit) };
+  });
+  const usable = rows.filter(r => r.fit > 0);
+  if (usable.length && !edgeFree) { usable[0].cap = 1; usable[usable.length - 1].cap = 1; }
+  let total = rows.reduce((s, r) => s + r.cap, 0);
+  const middle = edgeFree ? usable : usable.slice(1, -1);
+  // Sobrou vaga: tira 1 pin de cada trecho do meio, do fim para o começo, até fechar (as primeiras fileiras ficam completas).
+  while (total > n && middle.some(r => r.cap > 0)) {
+    for (const r of [...middle].reverse()) {
+      if (total <= n) break;
+      if (r.cap > 0) { r.cap--; total--; }
+    }
+  }
+  const slots = [];
+  rows.forEach(r => {
+    for (let j = 0; j < r.cap; j++) {
+      if (thirds && !r.vertical && r.cap === 2) slots.push(r.a + ((j + 1) * (r.b - r.a)) / 3);
+      else slots.push(r.cap === 1 ? (r.from + r.to) / 2 : r.from + (j * (r.to - r.from)) / (r.cap - 1));
+    }
+  });
+  return { slots, total };
+}
+
 const manhattan = pts =>pts.reduce((sum, q, k) => (k ? sum + Math.abs(q[0] - pts[k - 1][0]) + Math.abs(q[1] - pts[k - 1][1]) : 0), 0);
 
 function trailELayout(p, cardHs, dw = document.documentElement.clientWidth) {
@@ -1088,16 +1237,29 @@ function trailELayout(p, cardHs, dw = document.documentElement.clientWidth) {
     // Do cartão de um módulo ao do seguinte (no último, até a chegada) há no mínimo z.minLeg (a distância do Módulo 1, o mais
     // longo): a trilha de cada módulo ocupa pelo menos uma tela, e o fundo dele aparece inteiro antes do seguinte começar a
     // entrar (revealBackgrounds).
-    while ((manhattan(leg.pts) < need || leg.next - x < z.minLeg) && teeth < 30) leg = eLegPoints(z, rect, by, sides, ++teeth, last, bh);
+    // Desktop: voltas até caber os pins nas vagas por trecho (verticais 2, horizontais 1, pontas 1; pathSlots). Mobile: o
+    // comprimento mínimo de antes (nada muda).
+    const deskSlots = z === E_SIZES.desk;
+    const slotsOf = lg => pathSlots(roundedSegs(lg.pts, z.R), { vCap: 2, hCap: 1, n, endGap: last ? 40 : E_IN + 80 });
+    if (deskSlots) {
+      // Sem o comprimento mínimo do trecho (z.minLeg) desde 26/11/2026: só as voltas necessárias para os pins.
+      while (slotsOf(leg).total < n && teeth < 40) leg = eLegPoints(z, rect, by, sides, ++teeth, last, bh);
+    } else {
+      while ((manhattan(leg.pts) < need || leg.next - x < z.minLeg) && teeth < 30) leg = eLegPoints(z, rect, by, sides, ++teeth, last, bh);
+    }
     const path = roundedSegs(leg.pts, z.R);
+    const slots = deskSlots ? slotsOf(leg).slots : null;
     const a = E_IN + 56;
     const b = path.total - (last ? 32 : E_IN + 56);
+    // Espaçamento padronizado (26/11/2026): pins sempre a z.step um do outro, medidos ao longo do caminho da trilha; o grupo
+    // fica centrado no trecho, com a mesma folga até o cartão de cada ponta (antes o passo era (b - a) / n e variava por módulo).
+    const s0 = a + Math.max(0, (b - a - (n - 1) * z.step) / 2);
     mo.activities.forEach((_, j) => {
       const i = moduleStarts[mi] + j;
       let status = statusOf(i, p);
       const current = status === 'current' && !p.finished;
       if (status === 'locked' && !p.finished && activities[p.cur].mi === mi) status = 'open';
-      const s = a + ((j + 0.5) * (b - a)) / n;
+      const s = slots ? slots[j] ?? slots[slots.length - 1] : s0 + j * z.step;
       const [nx, ny] = pointAt(path, s);
       if (current) { curS = s; curLeg = mi; }
       items.push({ type: 'node', mi, i, status, current, x: Math.round(nx), y: Math.round(ny) });
@@ -1110,7 +1272,8 @@ function trailELayout(p, cardHs, dw = document.documentElement.clientWidth) {
   // Depois da chegada sobra meia faixa: no fim da rolagem a bandeira fica no meio da tela.
   const width = Math.max(end + z.pad + 40, Math.round(end + dw / 2));
   // Percorrido: os trechos antes do módulo atual inteiros, o atual até o pin atual e os seguintes nada.
-  legs.forEach(l => { l.reached = p.free || p.finished || l.mi < curLeg ? l.path.total : l.mi === curLeg ? curS : 0; });
+  // Trilha liberada: nada feito, então nada preenchido.
+  legs.forEach(l => { l.reached = p.free ? 0 : p.finished || l.mi < curLeg ? l.path.total : l.mi === curLeg ? curS : 0; });
   items.forEach(it => { if (it.type === 'node') it.off = it.x > width - 320 ? 1 : -1; });
   // Altura da faixa: a de E_SIZES ou mais, se um cartão de baixo crescer além dela (título longo).
   const height = Math.max(z.H, ...modules.map((_, mi) => cardY(mi) + ch(mi) + 32));
@@ -1268,7 +1431,8 @@ function trail(state, p, desk) {
 }
 
 /* ---------- Coluna do curso (desktop) e abas do mobile: mesmos blocos da tela Curso ---------- */
-const info = p => courseInfoData(p.done, { ctaHref: activityHref(p.cur) }); // "Continuar" abre a atividade atual
+// "Continuar" abre a atividade atual; o tweak "Certificado" escolhe o estado do card do certificado (curso concluído).
+const info = p => courseInfoData(p.done, { ctaHref: activityHref(p.cur), certificado: hashParams().get('certificado') === 'andamento' ? 'andamento' : 'recebido' });
 
 const panelTabs = [
   { id: 'visao', label: 'Visão geral' },
@@ -1290,7 +1454,7 @@ function floatPanel(state, p) {
   const open = !state.panelHidden;
   const body = state.panelTab === 'descricao'
     ? description(d, false)
-    : state.panelTab === 'materiais' ? materialsSection(d) : `${summary(d)}${sideAbout(d)}`;
+    : state.panelTab === 'materiais' ? materialsSection(d) : `${summary(d, { certificate: true })}${sideAbout(d)}`;
   return `<nav class="c-board-rail" aria-label="Painel do curso">${panelTabs.map(t => {
       const active = open && state.panelTab === t.id;
       const [ic, label] = FLOAT_ICONS[t.id];
@@ -1337,7 +1501,7 @@ function hudDrawer(state, p) {
     title: `${icon(sobre ? 'info' : 'file-text', 20)}${sobre ? 'Sobre o curso' : 'Materiais de apoio'}`,
     // "Sobre o curso" (Figma 5149:53581): card do curso (capa, informações, botão e recompensas), Sobre o curso, Descrição e
     // Categorias, nessa ordem, nos cards de raio 16 da coluna lateral.
-    body: `<div class="c-board-hud-drawer">${sobre ? `${summary(d)}${sideAboutCourse(d)}${description(d, false)}${sideCategories()}` : materialsSection(d)}</div>`,
+    body: `<div class="c-board-hud-drawer">${sobre ? `${summary(d, { certificate: true })}${sideAboutCourse(d)}${description(d, false)}${sideCategories()}` : materialsSection(d)}</div>`,
     closeAction: 'closeHud',
     enter: state.fresh,
   });
@@ -1412,6 +1576,7 @@ function dockPanel(state, p) {
         <span class="c-board-dock__meta" style="--i:2">${d.modules.length} módulos<span class="c-cd-bullet" aria-hidden="true"></span>${esc(fmtMinutes(d.totalMin))}</span>
         ${courseProgress(d, 'c-board-dock__progress').replace('<div ', '<div style="--i:3" ')}
         <div class="c-cd-side__rewards c-board-dock__boxes" style="--i:4">${rewardBoxes(d)}</div>
+        ${d.finished ? `${certificateCard(d, { inline: true }).replace('<section ', '<section style="--i:4" ')}<hr class="c-board-dock__rule" style="--i:4" />` : ''}
       </div>
       <nav class="c-cd-tabs c-board-dock__tabs" style="--i:5" aria-label="Informações do curso"><div class="c-cd-tabs__row" role="tablist">${tabs.map(([id, label, count]) =>
         `<button type="button" role="tab" id="dock-tab-${id}" class="${cx('c-button-badge c-board-dock__tab', tab === id && 'is-active')}" data-action="setDockTab" data-id="${id}" aria-selected="${tab === id}" aria-controls="dock-panel" tabindex="${tab === id ? 0 : -1}"><span>${label}</span>${count ? `<span class="c-button-badge__count">${count}</span>` : ''}</button>`).join('')}</div></nav>
@@ -1427,7 +1592,7 @@ function deskPanel(state, p) {
   const d = info(p);
   const body = state.panelTab === 'descricao'
     ? description(d, false)
-    : state.panelTab === 'materiais' ? materialsSection(d) : `${summary(d)}${sideAbout(d)}`;
+    : state.panelTab === 'materiais' ? materialsSection(d) : `${summary(d, { certificate: true })}${sideAbout(d)}`;
   // O botão de ocultar fica fora da coluna (ela rola por dentro e cortaria o botão), colado à esquerda dela.
   return `<button type="button" class="c-button-icon c-button-icon--large c-button-icon--outlined c-board-side__toggle" data-action="hidePanel" aria-label="Ocultar painel" title="Ocultar painel" ${state.panelHidden ? 'inert' : ''}>${icon('chevron-right', 16)}</button>
   <aside class="c-board-side" aria-label="Painel do curso" ${state.panelHidden ? 'inert' : ''}>
@@ -1441,15 +1606,14 @@ function deskPanel(state, p) {
 function mobileBody(state, p) {
   const d = info(p);
   if (state.tab === 'materiais') return `<div class="c-cd-mbody" id="cd-panel" role="tabpanel" aria-labelledby="cd-tab-materiais">${materialsSection(d)}</div>`;
-  return `<div class="c-cd-mbody" id="cd-panel" role="tabpanel" aria-labelledby="cd-tab-sobre">${mobileSummary(d)}${description(d, false)}${mobileAbout(d)}${mobileCategories()}</div>`;
+  return `<div class="c-cd-mbody" id="cd-panel" role="tabpanel" aria-labelledby="cd-tab-sobre">${mobileSummary(d)}${certificateCard(d, { mobile: true })}${description(d, false)}${mobileAbout(d)}${mobileCategories()}</div>`;
 }
 
-/* ---------- Esqueleto ---------- */
-const skeleton = () =>
-  `<div class="c-board-skeleton" aria-hidden="true">
-    <div class="c-board-skeleton__band"></div>
-    <div class="c-board-skeleton__trail">${range(6, i => `<span class="c-board-skeleton__pin" style="--off:${WAVE[i % WAVE.length]}px"></span>`)}</div>
-  </div>`;
+/* ---------- Esqueleto ----------
+   O carregamento usa o desenho da própria trilha (a versão escolhida no tweak, no mesmo tamanho e lugar), em cinza: estrada,
+   pins e cartões de módulo viram blocos de background/skeleton, sem imagens, textos nem ícones, pulsando. Assim o esqueleto
+   acompanha qualquer mudança de desenho. É só visual (aria-hidden e inert). */
+const skeleton = (state, p, desk) => `<div class="c-board-skel" aria-hidden="true" inert>${trail(state, p, desk)}</div>`;
 
 /* ---------- Tela ---------- */
 function view(state) {
@@ -1457,7 +1621,7 @@ function view(state) {
   const desk = minWidth(DESK);
   const look = looksFromHash();
   const showTrail = desk || state.tab === 'conteudo';
-  const main = `<main class="c-board__main">${state.loading ? skeleton() : trail(state, p, desk)}</main>`;
+  const main = `<main class="c-board__main">${state.loading ? skeleton(state, p, desk) : trail(state, p, desk)}</main>`;
   const mobileTop = desk ? '' : `<nav class="c-cd-mback" aria-label="Voltar"><a class="c-cd-mback__link" href="#cursos">${icon('arrow-left', 16)}Voltar</a></nav>
     ${mobileTabs({ tab: state.tab }, { total: activities.length, materials })}`;
   return `<div class="${cx('c-board', desk && 'c-board--desk', desk && state.panelHidden && 'is-panel-hidden', look.trilha !== 'a' && 'c-board--b', isCD() && 'c-board--c', look.trilha === 'd' && 'c-board--d', look.trilha === 'e' && 'c-board--e', look.custom && 'c-board--bg', look.custom && look.image && 'c-board--bg-image', look.dark && 'is-on-dark', look.modern && 'c-board--modern', desk && look.float && 'c-board--float', desk && look.hud && 'c-board--hud', desk && look.dock && 'c-board--dock', desk && look.dock && !state.dockClosed && 'is-dock-open')}" data-reveal="content" style="${coverVars(look)}">
@@ -1831,7 +1995,7 @@ function linkHud(ctx) {
 
 /** Versão E: mede a altura de cada cartão de módulo (abraça o título inteiro) e refaz a faixa se alguma mudou. */
 function measureCardsE(ctx) {
-  if (ctx.state.loading || looksFromHash().trilha !== 'e') return;
+  if (looksFromHash().trilha !== 'e') return; // também no esqueleto, que usa a mesma trilha
   const cards = [...ctx.root.querySelectorAll('.c-board-ecard')];
   if (!cards.length) return;
   const hs = {};
@@ -1841,7 +2005,7 @@ function measureCardsE(ctx) {
 }
 
 function measureCards(ctx) {
-  if (ctx.state.loading || !isCD()) return;
+  if (!isCD()) return; // também no esqueleto, que usa a mesma trilha
   const cards = [...ctx.root.querySelectorAll('.c-board-ccard, .c-board-vcard')];
   if (!cards.length) return;
   const hs = {};
@@ -1853,7 +2017,7 @@ function measureCards(ctx) {
 
 /** Mede a área da trilha B e refaz a tela se a largura mudou (a estrada é desenhada em px). */
 function measureTrailB(ctx) {
-  if (ctx.state.loading || looksFromHash().trilha === 'a') return;
+  if (looksFromHash().trilha === 'a') return; // também no esqueleto, que usa a mesma trilha
   if (isHoriz()) { fitTrailD(ctx); return; }
   const main = ctx.root.querySelector('.c-board__main');
   if (!main) return;
@@ -1900,9 +2064,17 @@ export function mountBoard(root, { loading = true } = {}) {
         ctx.linkRO = new ResizeObserver(() => !ctx.destroyed && linkHud(ctx));
         [hudEl, ctx.root.querySelector('.c-board-btrail'), ctx.root.querySelector('.c-board__wrap')].forEach(el => el && ctx.linkRO.observe(el));
       }
-      // Versão D: a rolagem é dentro da faixa horizontal (o evento não sobe até a janela).
+      // Versões D e E: a rolagem é dentro da faixa horizontal (o evento não sobe até a janela). A faixa é refeita a cada
+      // renderização (trocar a aba do Dock, abrir um cartão...) e voltaria ao começo: guarda a posição e a devolve, para a
+      // trilha não sair do lugar onde a pessoa está.
       const dsc = ctx.root.querySelector('[data-dscroll]');
-      if (dsc) dsc.onscroll = () => onScroll(ctx);
+      if (dsc) {
+        if (ctx.dLeft != null && dsc.scrollLeft !== ctx.dLeft) dsc.scrollLeft = ctx.dLeft;
+        dsc.onscroll = () => {
+          ctx.dLeft = dsc.scrollLeft;
+          onScroll(ctx);
+        };
+      }
       ctx.bgTop = null; // o HTML foi refeito: o fundo por módulo volta ao estado da rolagem atual
       revealBackgrounds(ctx);
       // Dock: carrega recolhido, abre sozinho depois de 1,2 s e recolhe 3 s depois de aberto (autoCloseDock). O scroll da pessoa

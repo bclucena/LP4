@@ -572,7 +572,7 @@
   border-radius: 999px;
   background-color: var(--color-yellow-500);
   color: var(--color-yellow-900);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 16px;
   font-weight: 700;
   white-space: nowrap;
@@ -738,8 +738,8 @@
 .c-tm-stat small {
   margin-left: 2px;
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
 }
 
@@ -935,8 +935,8 @@
 
 .c-tm-legend__text b:last-child {
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 .c-tm-hours__left {
@@ -1074,8 +1074,8 @@
   flex: none;
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -1126,7 +1126,7 @@
   border-radius: 999px;
   background-color: var(--color-surface-system-soft);
   color: var(--color-surface-system-emphasis);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 16px;
 }
 

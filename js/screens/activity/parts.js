@@ -72,12 +72,11 @@ function itemButton(state, a, { meta, statusHtml, className = '' }) {
     - não iniciado: só a 1ª atividade do módulo 1 liberada; as demais bloqueadas (não abrem para mostrar as mecânicas);
     - em andamento: até a 5ª atividade do módulo 1 liberadas; as demais bloqueadas;
     - concluído: todas liberadas;
-    - todas liberadas: todas clicáveis (abrem a atividade), mas sem abrir a lista de mecânicas.
-    Devolve 'open' (liberada), 'locked' (bloqueada) ou 'link' (só clicável). */
+    - todas liberadas: todas liberadas, abrindo a lista de mecânicas (as mecânicas abrem por state.tw.unlock).
+    Devolve 'open' (liberada) ou 'locked' (bloqueada). */
 export function groupAccess(state, mi, i) {
   const e = state.tw?.estado;
-  if (e === 'concluido') return 'open';
-  if (e === 'liberado') return 'link';
+  if (e === 'concluido' || e === 'liberado') return 'open';
   if (e === 'andamento') return mi === 0 && i < 5 ? 'open' : 'locked';
   return mi === 0 && i === 0 ? 'open' : 'locked';
 }
@@ -95,13 +94,10 @@ function groups(state, pctOf) {
       return itemButton(state, a, { meta: `${esc(a.mech)} · ${a.xp}pts`, statusHtml: '' });
     }).join('');
     const names = `<span class="c-act-group__names"><span class="c-act-group__label">${esc(label)}<span class="c-cd-bullet c-act-group__bullet" aria-hidden="true"></span><span class="c-act-group__count" title="${done} de ${g.ids.length} concluídas">${done}/${g.ids.length}</span></span><span class="c-act-group__name" title="${esc(g.name)}">${esc(g.name)}</span></span>`;
-    // Bloqueada: não abre (cadeado no lugar do chevron). Só clicável ("Todas liberadas"): abre a 1ª mecânica da atividade, sem
-    // mostrar a lista de mecânicas (seta para a direita). Liberada: abre e fecha a lista, como antes.
+    // Bloqueada: não abre (cadeado no lugar do chevron). Liberada: abre e fecha a lista de mecânicas.
     const head = access === 'locked'
       ? `<div class="c-act-group__head is-locked" aria-disabled="true" title="Conclua as atividades anteriores para desbloquear">${names}<span class="c-act-group__lock">${icon('lock', 16)}</span><span class="u-sr-only">Bloqueada</span></div>`
-      : access === 'link'
-        ? `<button type="button" class="c-act-group__head is-link" data-action="openAct" data-id="${g.ids[0]}">${names}${icon('chevron-right', 16, 'c-act-group__go')}</button>`
-        : `<button type="button" class="c-act-group__head" data-action="toggleGroup" data-id="${g.key}" aria-expanded="${open}">${names}${icon('chevron-down', 16, cx('c-act-group__caret', open && 'is-open'))}</button>`;
+      : `<button type="button" class="c-act-group__head" data-action="toggleGroup" data-id="${g.key}" aria-expanded="${open}">${names}${icon('chevron-down', 16, cx('c-act-group__caret', open && 'is-open'))}</button>`;
     return `<div class="${cx('c-act-group', access !== 'open' && `c-act-group--${access}`)}">
       ${head}
       ${open ? `<div class="c-act-group__items">${items}</div>` : ''}

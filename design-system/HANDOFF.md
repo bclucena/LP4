@@ -586,3 +586,21 @@ Faixa colorida em zigue-zague, horizontal (`#tabuleiro?trilha=e`). Comportamento
   `.c-cd-module__progress`) no pé.
 - Cor de cada módulo: `--color-module-1..4` (fixas) ou a primária (tweak "Cores dos módulos" = Cor da marca).
 - Para confirmar com design: as 4 cores fixas dos módulos (não existem no Figma).
+
+## Texto mínimo de 12px (26/11/2026)
+
+Nenhum texto do produto fica abaixo de 12px, em nenhuma largura. Onde o Figma pede 8, 10 ou 11px (caption/body mobile 10/12,
+selos, tags, contadores), o código usa 12px com altura de linha 16px. Títulos sobre a capa nos cards compactos de Cursos,
+Biblioteca e Missões ficam em até 2 linhas para não encostar nos selos.
+Ícones que acompanham texto também têm no mínimo 12px (como pontos e moedas nos cards de atividade); os selos só com ícone também
+usam ícone de 12 (círculo de 20). Só as estrelas de avaliação e os marcadores da trilha continuam menores.
+
+## Arredondamento de cards e imagens (26/11/2026)
+
+- **Card:** 8px no mobile e nos cards compactos; 16px nos cards de tablet e desktop.
+- **Imagem encostada na borda do card** (capa de ponta a ponta): os cantos de cima seguem o raio do card.
+- **Imagem recuada dentro do card:** raio = máx(4px, raio do card − respiro até a borda). Assim as curvas ficam
+  concêntricas. Exemplos: card 8 com respiro 4–8 → 4; card 16 com respiro 8 → 8 (cartão do módulo da Versão E); card 16
+  com respiro 16 → 4 (Dock, card de etapa da Rota no desktop).
+- Tabuleiro no tablet (768–1178): trilha vertical em zigue-zague com as curvas da Versão E (vai e vem horizontal entre os
+  cartões dos módulos, cantos de raio 32, pins a cada 168px do caminho). Mobile: coluna reta.

@@ -64,7 +64,7 @@ function missionCardCompact(m, fav) {
     <div class="c-mi-card__body">
       <div class="c-mi-card__head"><h3 class="c-mi-card__title">${esc(m.title)}</h3>${favButton(m, fav, true)}</div>
       <span class="c-mi-card__info">
-        <span class="c-mi-card__info-kind">${icon(m.kind === 'meta' ? 'flag' : 'upload', 10)}${kindLabel[m.kind]}</span>
+        <span class="c-mi-card__info-kind">${icon(m.kind === 'meta' ? 'flag' : 'upload', 12)}${kindLabel[m.kind]}</span>
         <span>${scopeText(m)} · ${periodLabel[m.period]}</span>
       </span>
       <div class="c-mi-card__foot">

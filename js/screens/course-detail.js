@@ -8,7 +8,7 @@ import { minWidth } from '../core/media.js';
 import { pill, tag } from '../components/badges.js';
 import { mpill } from '../components/mobile.js';
 import { avatar } from '../components/avatar.js';
-import { progressLabeled } from '../components/progress.js';
+import { progressLabeled, progressBar } from '../components/progress.js';
 import { examDialog, examDialogActions, openExamDialog, closeExamDialog, examTextOk } from '../components/exam-dialog.js';
 import { modules as boardModules, starsPattern } from '../data/board.js';
 import { getModuleImage } from '../data/module-images.js';
@@ -48,7 +48,8 @@ function hashParams() {
   // Tweak de fundo (como no Tabuleiro): imagem atrás da página e película escura (0 a 80%).
   const fundo = params.get('fundo') === 'cor' ? 'cor' : 'imagem'; // padrão: imagem
   const shade = Math.max(0, Math.min(80, Math.round((Number(params.get('escurecer')) || 0) / 5) * 5));
-  return { estado, vazio: params.get('vazio') === '1', lista: pick('lista'), fundo, shade };
+  const certificado = params.get('certificado') === 'andamento' ? 'andamento' : 'recebido'; // padrão: recebido
+  return { estado, vazio: params.get('vazio') === '1', lista: pick('lista'), fundo, shade, certificado };
 }
 
 /** Imagem do fundo: a enviada pelo painel Tweaks (neste navegador) ou a do 1º módulo do Tabuleiro. */
@@ -88,6 +89,7 @@ function derive(state) {
       : { label: 'Iniciar', icon: 'play-circle', href: '#tabuleiro', hint: next ? `Comece por: ${next.title} · Módulo ${next.mi + 1}` : '' };
   return {
     modules, materials, all, total, done, finished, started, unlocked, next, pct, totalMin, open, cta, rewards: rewardsOf(all, done, finished),
+    certificado: state.certificado ?? 'recebido',
     meta: [`${modules.length} módulos`, `${total} atividades`, fmtMinutes(totalMin)],
   };
 }
@@ -102,8 +104,8 @@ function rewardsOf(all, done, finished) {
 }
 
 /** Dados do card do curso para outra tela (o Tabuleiro): `done` atividades concluídas; `ctaHref` troca o destino da chamada. */
-export function courseInfoData(done, { ctaHref } = {}) {
-  const d = derive({ estado: "nao-iniciado", vazio: false, open: {}, done });
+export function courseInfoData(done, { ctaHref, certificado = 'recebido' } = {}) {
+  const d = derive({ estado: "nao-iniciado", vazio: false, open: {}, done, certificado });
   if (ctaHref) d.cta = { ...d.cta, href: d.finished ? d.cta.href : ctaHref };
   return d;
 }
@@ -129,7 +131,7 @@ const resIcon = (r, px) => (r.lp ? lpIcon(r.lp, px) : icon(r.icon, px));
 const flags = (mobile) => {
   const f = course.flags;
   const p = mobile
-    ? (tone, ic, label) => mpill({ tone, iconHtml: ic(8), label })
+    ? (tone, ic, label) => mpill({ tone, iconHtml: ic(12), label })
     : (color, ic, label) => pill({ label, color: { info: 'blue', warning: 'yellow', error: 'red' }[color], iconHtml: ic(16) });
   return [
     f.novo && p('info', px => lpIcon('badge-2', px), 'Novo'),
@@ -205,13 +207,14 @@ export const summary = (d, { cover = true, ...opts } = {}) => `<aside class="c-c
 
 /** Miolo do card do curso (informações, progresso, botão e infocards de pontos e moedas): o mesmo no card lateral do desktop
     e no card do curso do mobile (mobileSummary). */
-const summaryBody = (d, { progress = true, cta = true, rewards = true } = {}) => `<ul class="c-cd-side__facts">${facts().map(([ic, text]) => `<li>${ic}<span>${text}</span></li>`).join('')}</ul>
+const summaryBody = (d, { progress = true, cta = true, rewards = true, certificate = false } = {}) => `<ul class="c-cd-side__facts">${facts().map(([ic, text]) => `<li>${ic}<span>${text}</span></li>`).join('')}</ul>
     ${progress && d.started ? courseProgress(d, 'c-cd-side__pad') : ''}
     ${cta ? `<div class="c-cd-side__pad">${ctaLink(d)}</div>` : ''}
     ${rewards ? `<div class="c-cd-side__pad c-cd-side__rewards">
       ${infoBox(icon('star', 18), fmtInt(d.rewards.got.pts), d.finished ? 'pontos ganhos' : 'pontos disponíveis', fmtInt(d.rewards.max.pts))}
       ${infoBox(lpIcon('coin', 18), fmtInt(d.rewards.got.coins), d.finished ? 'moedas ganhas' : 'moedas disponíveis', fmtInt(d.rewards.max.coins))}
-    </div>` : ''}`;
+    </div>` : ''}
+    ${certificate ? certificateCard(d, { inline: true }) : ''}`;
 
 /* ---------- Sobre o curso ---------- */
 const stats = d => [
@@ -238,26 +241,55 @@ export const sideCategories = () => `<section class="c-cd-side" aria-labelledby=
     <div class="c-cd-side__pad">${categoryTags()}</div>
   </section>`;
 
-/** "Certificado recebido" (25/11/2026; só com o curso concluído), no modelo do card "Sobre o curso": título, o certificado
-    (selo, nome, data de recebimento e carga horária) e o botão "Ver certificado", que leva à área de Certificados.
-    `mobile` usa a escala do card de seção do mobile (c-cd-card). */
-export const certificateCard = (d, { mobile = false } = {}) => {
-  if (!d.finished) return '';
-  const c = course.certificate;
-  const body = `<div class="c-cd-cert">
-      <span class="c-cd-cert__seal" aria-hidden="true">${lpIcon('badge-3', mobile ? 16 : 20)}</span>
-      <span class="c-cd-cert__text">
-        <b class="c-cd-cert__name">${esc(c.name)}</b>
-        <span class="c-cd-cert__meta"><span>Recebido em <b>${esc(c.received)}</b></span>${bullet}<span>${esc(c.hours)}</span></span>
-      </span>
+/** Linha do certificado no formato do item de Materiais de apoio (.c-cd-material: ícone em caixa, nome em negrito e a linha de
+    dados com bullets), dentro do contorno do card do certificado. */
+const certRow = (name, meta) => `<div class="c-cd-cert">
+      <span class="c-cd-material__icon" aria-hidden="true">${lpIcon('badge-3', 18)}</span>
+      <span class="c-cd-material__text"><span class="c-cd-material__name" title="${esc(name)}">${esc(name)}</span><span class="c-cd-material__meta">${metaLine(meta)}</span></span>
     </div>`;
-  const btn = `<a class="${cx('c-button c-button--stroked c-button--block', mobile && 'c-button--mobile')}" href="#certificados"><span>Ver certificado</span>${icon('award', 16)}</a>`;
+
+/** Card do certificado (só com o curso concluído), no modelo do card "Sobre o curso". Dois estados (tweak "Certificado"):
+    - recebido (25/11/2026): o certificado (ícone, nome, data de recebimento e carga horária) e "Ver certificado";
+    - em andamento (26/11/2026): o certificado ainda não foi liberado porque o curso faz parte de um conjunto de cursos. Mostra
+      quantos cursos do conjunto já foram concluídos ("2/4 cursos concluídos"), a barra do progresso do certificado e o
+      botão "Ir para certificado" (leva à Rota).
+    `mobile` usa a escala do card de seção do mobile (c-cd-card); `inline` entra dentro do card de informações (Tabuleiro no
+    desktop), sem moldura própria. */
+export const certificateCard = (d, { mobile = false, inline = false } = {}) => {
+  if (!d.finished) return '';
+  const pending = d.certificado === 'andamento';
+  const c = pending ? course.certificateSet : course.certificate;
+  const title = pending ? 'Certificado em andamento' : 'Certificado recebido';
+  const id = mobile ? 'cd-cert-m' : 'cd-cert-side';
+  let body;
+  let btn;
+  if (pending) {
+    const pct = Math.round((c.done / c.total) * 100);
+    body = `${certRow(c.name, [`${c.done}/${c.total} cursos concluídos`])}
+    <div class="c-cd-cert__progress">
+      <div class="c-cd-cert__progress-head"><span>Progresso do certificado</span><span>${pct}%</span></div>
+      ${progressBar({ value: pct, label: 'Progresso do certificado', valueText: `${c.done} de ${c.total} cursos concluídos` })}
+      <span class="c-cd-cert__hint">Conclua os outros ${c.total - c.done} cursos do conjunto para receber o certificado.</span>
+    </div>`;
+    btn = `<a class="${cx('c-button c-button--stroked c-button--block', mobile && 'c-button--mobile')}" href="#rota"><span>Ir para certificado</span>${icon('chevron-right', 16)}</a>`;
+  } else {
+    body = certRow(c.name, [`Recebido em ${c.received}`, c.hours]);
+    btn = `<a class="${cx('c-button c-button--stroked c-button--block', mobile && 'c-button--mobile')}" href="#certificados"><span>Ver certificado</span>${icon('award', 16)}</a>`;
+  }
+  // Integrado ao card de informações (Tabuleiro no desktop): sem moldura própria, separado por uma linha.
+  if (inline) {
+    return `<section class="c-cd-cert-in" aria-labelledby="cd-cert-in">
+      <h3 class="c-cd-cert-in__title" id="cd-cert-in">${title}</h3>
+      <div class="c-cd-cert__stack">${body}</div>
+      ${btn}
+    </section>`;
+  }
   return mobile
-    ? `<section class="c-cd-card c-cd-cert-m" aria-labelledby="cd-cert-m"><h2 class="c-cd-card__title" id="cd-cert-m">Certificado recebido</h2>${body}${btn}</section>`
-    : `<section class="c-cd-side" aria-labelledby="cd-cert-side">
-    <h3 class="c-cd-side__title" id="cd-cert-side">Certificado recebido</h3>
-    <div class="c-cd-side__pad">${body}</div>
-    <div class="c-cd-side__pad">${btn}</div>
+    ? `<section class="c-cd-card c-cd-cert-m" aria-labelledby="${id}"><h2 class="c-cd-card__title" id="${id}">${title}</h2>${body}${btn}</section>`
+    : `<section class="c-cd-side" aria-labelledby="${id}">
+    <h3 class="c-cd-side__title" id="${id}">${title}</h3>
+    <div class="c-cd-side__pad c-cd-cert__stack">${body}</div>
+    ${btn ? `<div class="c-cd-side__pad">${btn}</div>` : ''}
   </section>`;
 };
 
@@ -423,18 +455,16 @@ export const mobileTabs = (state, d) => {
     `<button type="button" role="tab" id="cd-tab-${t.id}" class="${cx('c-cd-mtab', state.tab === t.id && 'is-active')}" aria-selected="${state.tab === t.id}" aria-controls="cd-panel" data-action="setTab" data-id="${t.id}"><span>${t.label}</span>${t.count ? `<span class="c-cd-mtab__count">${t.count}</span>` : ''}</button>`).join('')}</div></nav>`;
 };
 
-/** Card do curso no mobile ("side card cursos mobile", screenshot de 24/11/2026): capa com selos e duração, título e autor,
+/** Card do curso no mobile ("side card cursos mobile", screenshot de 24/11/2026): capa limpa; selos acima do título (desde
+    26/11/2026; antes sobre a capa), título e autor, a duração como a 1ª informação da lista,
     linha, as 4 informações (ícones de 8, 10/12), o progresso com "x de N atividades concluídas", o botão do estado (Iniciar,
     Continuar ou Ver certificado; "button mobile" de 30) e os dois infocards de pontos e moedas. */
 export function mobileSummary(d) {
   return `<section class="c-cd-mcard" aria-labelledby="cd-title">
     <div class="c-cd-mcard__media">
       <img class="c-cd-mcard__cover" src="${esc(course.cover)}" alt="" />
-      <div class="c-cd-mcard__over">
-        <span class="c-cd-mcard__flags">${flags(true)}</span>
-        <span class="c-cd-mcard__time">${icon('clock', 8)}${esc(fmtMinutes(d.totalMin))}</span>
-      </div>
     </div>
+    <div class="c-cd-mcard__pills">${flags(true)}</div>
     <div class="c-cd-mcard__info">
       <div class="c-cd-mcard__name">
         <h1 class="c-cd-mcard__title" id="cd-title">${esc(course.fullTitle)}</h1>
@@ -442,10 +472,11 @@ export function mobileSummary(d) {
       </div>
       <hr class="c-cd-mcard__rule" />
       <ul class="c-cd-mcard__facts">
-        <li>${icon('users', 8)}<span><b>${esc(course.started)}</b> Usuários iniciaram o curso</span></li>
-        <li>${icon('monitor', 8)}<span>Acesso mobile e desktop</span></li>
-        <li>${lpIcon('badge-3', 8)}<span>Certificado</span></li>
-        <li>${lpIcon('calendar-check-off', 8)}<span>Última atualização <b>${esc(course.updated)}</b></span></li>
+        <li>${icon('clock', 12)}<span><b>${esc(fmtMinutes(d.totalMin))}</b> de conteúdo</span></li>
+        <li>${icon('users', 12)}<span><b>${esc(course.started)}</b> Usuários iniciaram o curso</span></li>
+        <li>${icon('monitor', 12)}<span>Acesso mobile e desktop</span></li>
+        <li>${lpIcon('badge-3', 12)}<span>Certificado</span></li>
+        <li>${lpIcon('calendar-check-off', 12)}<span>Última atualização <b>${esc(course.updated)}</b></span></li>
       </ul>
       <div class="c-cd-mcard__progress">
         <div class="c-cd-mcard__progress-head"><span>${d.finished ? 'Concluído!' : 'Progresso'}</span><span>${d.pct}%</span></div>
@@ -459,8 +490,8 @@ export function mobileSummary(d) {
       </div>
     </div>
     <div class="c-cd-mcard__boxes">
-      ${mobileBox(icon('star', 8), fmtInt(d.rewards.got.pts), fmtInt(d.rewards.max.pts), d.finished ? 'pontos ganhos' : 'pontos disponíveis')}
-      ${mobileBox(lpIcon('coin', 8), fmtInt(d.rewards.got.coins), fmtInt(d.rewards.max.coins), d.finished ? 'moedas ganhas' : 'moedas disponíveis')}
+      ${mobileBox(icon('star', 12), fmtInt(d.rewards.got.pts), fmtInt(d.rewards.max.pts), d.finished ? 'pontos ganhos' : 'pontos disponíveis')}
+      ${mobileBox(lpIcon('coin', 12), fmtInt(d.rewards.got.coins), fmtInt(d.rewards.max.coins), d.finished ? 'moedas ganhas' : 'moedas disponíveis')}
     </div>
   </section>`;
 }

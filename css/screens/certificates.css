@@ -105,7 +105,7 @@
 .c-ce-card--compact .c-ce-card__cover-title {
   max-width: 70%;
   margin: 8px;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .c-ce-card--compact .c-ce-card__body {
@@ -125,8 +125,8 @@
   align-items: center;
   gap: 2px;
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
 }
 
@@ -139,7 +139,7 @@
 
 .c-ce-card__done {
   color: var(--color-text-success);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -174,8 +174,8 @@
 
 .c-ce-download--compact {
   padding: 4px;
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 /* ---------- Carregando, vazio e aviso ---------- */

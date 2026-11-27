@@ -62,7 +62,7 @@ function libraryCardCompact(item, fav) {
     </div>
     <div class="c-lib-card__body">
       <div class="c-lib-card__head"><h3 class="c-lib-card__title">${esc(item.title)}</h3>${bookmark(item, fav, true)}</div>
-      <span class="c-lib-card__kind">${icon(m.icon, 10)}${m.label}</span>
+      <span class="c-lib-card__kind">${icon(m.icon, 12)}${m.label}</span>
       <span class="c-lib-card__tags">${tag({ label: 'RH', size: 'mobile' })}${tag({ label: 'CEO', size: 'mobile' })}${tag({ label: '+9', size: 'mobile', outlined: true })}</span>
     </div>
   </article>`;

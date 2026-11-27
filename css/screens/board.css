@@ -165,8 +165,8 @@
   align-items: center;
   gap: 4px;
   color: var(--color-text-brand);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 700;
 }
 
@@ -280,8 +280,8 @@
 
 .c-board-divider__kicker {
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
 }
 
@@ -1108,49 +1108,48 @@
 .c-board-toast.is-warn .c-icon { color: var(--color-icon-warning); }
 
 /* ---------- Esqueleto ---------- */
-.c-board-skeleton {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  width: min(100%, 832px);
-  margin: 0 auto;
-}
-
-.c-board-skeleton__band,
-.c-board-skeleton__pin {
-  background-color: var(--color-background-skeleton);
+/* Esqueleto: a trilha real em cinza (skeleton() em js/screens/board.js). Textos, ícones, estrelas, cadeados e dicas somem;
+   imagens viram blocos cinza (a imagem é trocada por um GIF transparente e o fundo aparece); pins, estrada e etiquetas ficam
+   em background/skeleton; o cartão do módulo fica com o fundo dele e os blocos de imagem, etiqueta, título e progresso. */
+.c-board-skel {
+  width: 100%;
+  min-width: 0; /* a faixa horizontal (D e E) rola dentro dele, como na trilha carregada */
+  pointer-events: none;
   animation: lp-pulse 1.4s ease-in-out infinite;
 }
 
-.c-board-skeleton__band {
-  height: 90px;
-  border-radius: 8px;
+.c-board-skel * {
+  color: transparent !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+  animation: none !important;
 }
 
-.c-board--desk .c-board-skeleton__band {
-  height: 80px;
-  border-radius: 16px;
+.c-board-skel :is(.c-icon, .c-board-enode__stars, .c-board-enode__lock, .c-board-stars, .c-board-pin__tip, .c-board-tip,
+  [role="tooltip"], .c-board-pin__badge, .c-board-start, .c-board-jump, .c-board-finish, .c-board-chev, .c-cd-bullet,
+  .c-board-eend) { visibility: hidden; }
+
+.c-board-skel img {
+  content: url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
+  background-color: var(--color-background-skeleton);
+  filter: none !important;
 }
 
-.c-board-skeleton__trail {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 46px;
-  padding-top: 70px;
+.c-board-skel :is(.c-board-pin__core, .c-board-pin__img, .c-board-ecard__tag, .c-board-ecard__title, .c-board-vcard__title,
+  .c-cd-module__meta, .c-cd-module__track, .c-cd-module__pct, .c-board-band, .c-board-node__label) {
+  border-color: transparent !important;
+  background-color: var(--color-background-skeleton) !important;
 }
 
-.c-board-skeleton__pin {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  transform: translateX(var(--off));
-}
+.c-board-skel :is(.c-board-ecard__title, .c-board-vcard__title, .c-cd-module__meta, .c-cd-module__pct) { border-radius: 4px; }
+.c-board-skel .c-cd-module__track span { background-color: transparent !important; }
+
+.c-board-skel .c-board-road__way { stroke: var(--color-background-skeleton) !important; }
+.c-board-skel :is(.c-board-road__shadow, .c-board-road__progress) { stroke: transparent !important; }
 
 /* ---------- Menos movimento ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .c-board-skeleton__band,
-  .c-board-skeleton__pin {
+  .c-board-skel {
     animation: none;
   }
 
@@ -1282,8 +1281,8 @@
 
 .c-board-label__kicker {
   color: var(--color-text-secondary);
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1379,8 +1378,8 @@
   gap: 4px;
   margin-bottom: 2px;
   color: var(--color-text-brand);
-  font-size: 11px;
-  line-height: 14px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1466,7 +1465,7 @@
 
 @media (max-width: 767px) {
   .c-board-clabel { width: 112px; }
-  .c-board-clabel__title { font-size: 11px; line-height: 14px; }
+  .c-board-clabel__title { font-size: 12px; line-height: 16px; }
 }
 
 /* Seta no caminho: bolinha branca com o chevron, na cor da marca no trecho já feito. */
@@ -2032,8 +2031,8 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
-  line-height: 14px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -2392,8 +2391,8 @@
 .c-board-dock__ring b {
   position: relative;
   color: var(--color-text-default);
-  font-size: 11px;
-  line-height: 14px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 700;
 }
 
@@ -2648,7 +2647,7 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   margin-bottom: 8px;
-  border-radius: 12px;
+  border-radius: 4px; /* imagem recuada: max(4, 16 - 16) */
   object-fit: cover;
 }
 
@@ -3027,8 +3026,8 @@
 .c-board-tip .c-board-tip__title { display: block; overflow: visible; white-space: normal; -webkit-line-clamp: unset; }
 .c-board-tip .c-board-tip__kicker {
   margin-left: 18px;
-  font-size: 11px;
-  line-height: 14px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 600;
   letter-spacing: normal;
   text-transform: none;
@@ -3060,7 +3059,7 @@
 .c-board-dock--closed .c-board-dock__pill { gap: 8px; height: 44px; padding: 4px 16px 4px 4px; }
 .c-board-dock--closed .c-board-dock__ring,
 .c-board-dock--closed .c-board-dock__ring svg { width: 36px; height: 36px; }
-.c-board-dock--closed .c-board-dock__ring b { font-size: 10px; line-height: 12px; }
+.c-board-dock--closed .c-board-dock__ring b { font-size: 12px; line-height: 16px; }
 
 /* Anel do Dock com o curso concluído: check verde no lugar do percentual (traço 2 para pesar como o número em negrito). */
 .c-board-dock__ring .c-board-dock__ring-check { position: relative; inset: auto; width: 18px; height: 18px; color: var(--color-icon-success, var(--color-text-success)); stroke-width: 2; }
@@ -3126,6 +3125,10 @@
 /* Dock: pontos e moedas nos infocards do card do curso da tela Curso (rewardBoxes: ícone na caixa, "620 /3.500" e o rótulo),
    na largura do cartão, 12 abaixo do progresso (24/11/2026; antes era uma pílula). */
 .c-board-dock__course .c-board-dock__boxes { align-self: stretch; margin-top: 12px; }
+/* Certificado integrado ao card do Dock (curso concluído): na largura do card, abaixo dos infocards. */
+.c-board-dock__course .c-cd-cert-in { align-self: stretch; margin: 12px 0 0; }
+/* Divisória entre o certificado e as abas "Sobre" / "Materiais de apoio". */
+.c-board-dock__rule { align-self: stretch; margin: 16px 0 0; border: 0; border-top: 1px solid var(--color-border-default); }
 
 /* Dock recolhido numa peça só (24/11/2026, rascunho): a pílula com uma "barriguinha" para baixo, no meio, onde fica o
    chevron. A barriga é o botão de expandir, um meio círculo de 48 × 24 na cor da pílula (as pontas da pílula também são

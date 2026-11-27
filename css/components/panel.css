@@ -175,8 +175,8 @@
   flex: 1;
   align-items: center;
   gap: 2px;
-  font-size: 10px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   white-space: nowrap;
 }
 

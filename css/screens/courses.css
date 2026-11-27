@@ -179,12 +179,12 @@
 .c-course-compact__pills {
   position: absolute;
   right: 8px;
-  bottom: -7px;
+  bottom: -10px; /* metade do selo de 20 para fora da capa */
   left: 8px;
   z-index: 10;
   display: flex;
   align-items: center;
-  height: 14px;
+  height: 20px;
   padding: 0 4px;
   gap: 1px;
 }
@@ -200,8 +200,10 @@
 }
 
 .c-course-compact__cover .c-cover__title {
-  margin: 8px;
-  font-size: 10px;
+  /* Texto mínimo de 12px no mobile: até 2 linhas, acima do selo de tempo e dos selos da borda (28 de respiro embaixo). */
+  -webkit-line-clamp: 2;
+  margin: 8px 8px 28px;
+  font-size: 12px;
 }
 
 .c-course-compact__time {
@@ -210,13 +212,13 @@
   bottom: 4px;
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   padding: 2px 4px;
   border-radius: 4px;
   background-color: var(--color-surface-dark);
   color: var(--color-text-on-color);
-  font-size: 8px;
-  line-height: 12px;
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 600;
 }
 

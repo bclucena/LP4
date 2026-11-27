@@ -3,10 +3,10 @@ import { icon } from '../core/icons.js';
 
 /**
  * Tag (rótulo de categoria). solid: fundo claro com borda; solid=false: escura (sobre imagem); outlined: contorno forte (ex.: "+3").
- * size: 'md' ou 'mobile'. `iconName` opcional (Feather).
+ * size: 'md' ou 'mobile'. `iconName` opcional (Feather; 16, ou 12 na mobile).
  */
 export const tag = ({ label, solid = true, outlined = false, size = 'md', iconName } = {}) =>
-  `<span class="${cx('c-tag', size === 'mobile' && 'c-tag--mobile', !solid && 'c-tag--dark', solid && outlined && 'c-tag--outlined')}">${iconName ? icon(iconName, 16) : ''}${esc(label)}</span>`;
+  `<span class="${cx('c-tag', size === 'mobile' && 'c-tag--mobile', !solid && 'c-tag--dark', solid && outlined && 'c-tag--outlined')}">${iconName ? icon(iconName, size === 'mobile' ? 12 : 16) : ''}${esc(label)}</span>`;
 
 /** Pill (selo). color: system, blue, red, green, yellow, grey, white, disabled. `iconName` opcional (Feather) ou `iconHtml`
     (outro ícone já montado, ex.: lpIcon('bulb', 16)); `iconOnly` mostra só o ícone.
@@ -17,5 +17,6 @@ export const pill = ({ label, html, color = 'system', iconName, iconHtml, iconOn
   return `<span ${attrs({ class: cx('c-pill', `c-pill--${color}`, iconOnly && 'c-pill--icon-only', !ic && 'c-pill--text-only', outline && 'c-pill--outline', className), ...extra })}>${ic}${iconOnly ? '' : html ?? esc(label)}</span>`;
 };
 
-/** Selo pequeno do mobile (só ícone, 14 de altura). tone: info, warning, error. */
-export const mobilePill = ({ tone, iconName }) => `<span class="c-mobile-pill c-mobile-pill--${tone}">${icon(iconName, 8)}</span>`;
+/** Selo pequeno do mobile (só ícone de 12, círculo de 20). tone: info, warning, error. `iconHtml` troca o ícone Feather por
+    outro já montado (ex.: lpIcon('bulb', 12)). */
+export const mobilePill = ({ tone, iconName, iconHtml }) => `<span class="c-mobile-pill c-mobile-pill--${tone}">${iconHtml ?? icon(iconName, 12)}</span>`;
